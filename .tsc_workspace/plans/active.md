@@ -1,5 +1,13 @@
 # Zombie War — Active Development Plan
 
+## Authoring setup hoàn tất
+
+- [x] Prefab thật cho Soldier, Zombie, Projectile, Bomb và portrait HUD; pool nhận prefab qua serialized reference.
+- [x] Scene thật `Boot`, `MainMenu`, `Level01`, `Level02`; dependency được nối sẵn trong Editor và lưu vào scene.
+- [x] HUD dùng `TextMeshProUGUI`, TMP Essential Resources và font SDF; không dùng legacy `UnityEngine.UI.Text`.
+- [x] Đã loại bỏ runtime bootstrap và mọi thao tác dựng hierarchy bằng `new GameObject`/`CreatePrimitive` trong gameplay.
+- [x] Menu `Zombie War/Author Project Assets` là công cụ authoring thủ công, không tự chạy khi mở project hoặc trong runtime.
+
 ## Mục tiêu hiện tại
 
 Hoàn thiện vertical slice Android portrait có vòng chơi 180 giây, auto-fire,

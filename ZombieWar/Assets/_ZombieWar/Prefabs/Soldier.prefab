@@ -13,10 +13,10 @@ GameObject:
   - component: {fileID: 3693748855996565106}
   - component: {fileID: 3729816217175116209}
   - component: {fileID: 3132816190053101938}
-  - component: {fileID: 7801858861515197678}
+  - component: {fileID: 5532656432422780256}
   - component: {fileID: 193912122610906505}
-  - component: {fileID: 3348036021082195341}
-  - component: {fileID: 107197017883235427}
+  - component: {fileID: 1356212830082031972}
+  - component: {fileID: 6585651923232765049}
   m_Layer: 0
   m_Name: Soldier
   m_TagString: Player
@@ -147,7 +147,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 3
---- !u!114 &7801858861515197678
+--- !u!114 &5532656432422780256
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 858186083080375164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a0e4c82ade2e847468468bd4edd86026, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.Health
   _maxHealth: 100
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierController
   _moveSpeed: 6
---- !u!114 &3348036021082195341
+--- !u!114 &1356212830082031972
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -182,10 +182,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 858186083080375164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: d78b8edcbc0834848bef2648c0b01793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.WeaponController
---- !u!114 &107197017883235427
+--- !u!114 &6585651923232765049
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -194,10 +194,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 858186083080375164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: f84dde75be2acb24bb8d8028c072e42b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.BombController
-  _bombPrefab: {fileID: 0}
+  _bombPrefab: {fileID: 7408274157714200352, guid: 3381d320a2af54b42b8512dc015112d2, type: 3}
   _capacity: 4
 --- !u!1 &1782389432657900459
 GameObject:

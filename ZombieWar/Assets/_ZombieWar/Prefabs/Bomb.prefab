@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 765969500527283564}
   - component: {fileID: 6026162998923525214}
   - component: {fileID: 5618293443442039264}
-  - component: {fileID: 7006383374112715660}
+  - component: {fileID: 7408274157714200352}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -141,7 +141,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
---- !u!114 &7006383374112715660
+--- !u!114 &7408274157714200352
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,6 +150,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2316506077221021430}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5ec87c4c94d92854f95a278bbb1c5a89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.BombProjectile

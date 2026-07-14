@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3993139469843861258}
   - component: {fileID: 692530624602733253}
   - component: {fileID: 8633735278737566545}
-  - component: {fileID: 7298677959649263863}
+  - component: {fileID: 5672663953481645948}
   m_Layer: 0
   m_Name: Projectile
   m_TagString: Untagged
@@ -91,7 +91,7 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7298677959649263863
+--- !u!114 &5672663953481645948
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,6 +100,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 8710212633547626302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: b5ea87fb5abc8264bb2be94fd33b7bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.Projectile

@@ -20,7 +20,7 @@ namespace ZombieWar.Levels
         #region Lifecycle
         private void Update()
         {
-            if (_finished || _wave == null)
+            if (_finished || _wave == null || _playerHealth == null)
             {
                 return;
             }

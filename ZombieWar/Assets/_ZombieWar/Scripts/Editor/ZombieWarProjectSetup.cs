@@ -33,6 +33,12 @@ namespace ZombieWar.Editor
         private const string ConfigFolder = RootFolder + "/Configs";
         private const string MaterialFolder = RootFolder + "/Materials";
 
+        [MenuItem("Zombie War/Open Level 01")]
+        public static void OpenLevel01()
+        {
+            EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
+        }
+
         [MenuItem("Zombie War/Author Project Assets")]
         public static void AuthorProjectAssets()
         {
@@ -99,7 +105,7 @@ namespace ZombieWar.Editor
 
             SetBuildScenes();
             AssetDatabase.SaveAssets();
-            EditorSceneManager.OpenScene(SceneFolder + "/Boot.unity", OpenSceneMode.Single);
+            EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
             Debug.Log("[Zombie War] Authored prefabs, configs and scenes are ready. Runtime bootstrap is not used.");
         }
 
@@ -493,9 +499,14 @@ namespace ZombieWar.Editor
             camera.backgroundColor = new Color(0.025f, 0.035f, 0.05f);
             camera.clearFlags = CameraClearFlags.SolidColor;
 
-            GameObject virtualCameraObject = new("Portrait Top-Down Camera", typeof(CinemachineCamera), typeof(CinemachineFollow));
+            GameObject virtualCameraObject = new(
+                "Portrait Top-Down Camera",
+                typeof(CinemachineCamera),
+                typeof(CinemachineFollow),
+                typeof(CinemachineHardLookAt));
             CinemachineCamera virtualCamera = virtualCameraObject.GetComponent<CinemachineCamera>();
             virtualCamera.Follow = target;
+            virtualCamera.LookAt = target;
             virtualCamera.Lens.FieldOfView = 50f;
             CinemachineFollow follow = virtualCameraObject.GetComponent<CinemachineFollow>();
             follow.FollowOffset = new Vector3(0f, 19f, -11f);
