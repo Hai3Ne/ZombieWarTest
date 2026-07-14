@@ -39,6 +39,11 @@ ground plane thay vì tọa độ cố định.
 uGUI Canvas dùng SafeAreaFitter và CanvasScaler 1080 × 1920. Input System map
 gồm Move, SwitchWeapon, ThrowBomb và Pause.
 
+Move dùng floating virtual joystick: vùng input trong suốt chiếm 43% Safe Area
+phía dưới, visual xuất hiện tại vị trí touch đã clamp theo kích thước joystick,
+theo một pointer duy nhất và tự ẩn/reset khi thả. Các button nằm ở sorting order
+cao hơn nên vẫn nhận multi-touch độc lập.
+
 ## Physics
 
 Soldier dùng Rigidbody, freeze X/Z rotation. Zombie Rigidbody mặc định

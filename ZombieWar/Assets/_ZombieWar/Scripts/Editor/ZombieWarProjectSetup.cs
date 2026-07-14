@@ -1305,12 +1305,30 @@ namespace ZombieWar.Editor
             weapon.font = timer.font;
             crowd.font = timer.font;
 
-            GameObject joystickObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab", safe, "Movement Joystick");
-            ConfigureAnchoredPrefab(joystickObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(-55f, 235f), 0.82f);
+            Image joystickZoneImage = CreateImage(
+                safe,
+                "Joystick Input Zone",
+                Color.clear,
+                Vector2.zero,
+                new Vector2(1f, 0.43f));
+            joystickZoneImage.raycastTarget = true;
+            RectTransform joystickZone = joystickZoneImage.rectTransform;
+
+            GameObject joystickObject = InstantiateLayerLabPrefab(
+                LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab",
+                joystickZone,
+                "Movement Joystick");
+            RectTransform joystickRect = joystickObject.GetComponent<RectTransform>();
+            ConfigureAnchoredPrefab(joystickRect, new Vector2(0.5f, 0.5f), Vector2.zero, 0.82f);
             RectTransform joystickHandle = FindChildComponent<RectTransform>(joystickObject.transform, "Handle");
             joystickHandle.anchoredPosition = Vector2.zero;
-            VirtualJoystick joystick = joystickObject.AddComponent<VirtualJoystick>();
-            joystick.Configure(joystickObject.GetComponent<RectTransform>(), joystickHandle);
+            Graphic[] joystickGraphics = joystickObject.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < joystickGraphics.Length; i++)
+            {
+                joystickGraphics[i].raycastTarget = false;
+            }
+            VirtualJoystick joystick = joystickZoneImage.gameObject.AddComponent<VirtualJoystick>();
+            joystick.Configure(joystickZone, joystickRect, joystickHandle);
 
             Button switchButton = CreateLayerLabButton(
                 safe,
