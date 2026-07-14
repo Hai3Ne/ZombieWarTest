@@ -1,0 +1,23 @@
+{
+  "name": "ZombieWar.Editor",
+  "rootNamespace": "ZombieWar.Editor",
+  "references": [
+    "ZombieWar.Runtime",
+    "Unity.InputSystem",
+    "Unity.Cinemachine",
+    "Unity.AI.Navigation",
+    "Unity.ugui",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

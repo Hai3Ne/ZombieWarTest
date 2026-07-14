@@ -1,0 +1,9 @@
+{
+  "skills": [
+    {
+      "name": "tsc-unity-kit",
+      "description": "Project entrypoint for the shared TSC Unity workflow.",
+      "path": "skills/tsc-unity-kit"
+    }
+  ]
+}

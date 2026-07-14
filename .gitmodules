@@ -1,0 +1,3 @@
+[submodule "tsc-unity-kit"]
+	path = tsc-unity-kit
+	url = https://github.com/Hai3Ne/tsc-unity-kit.git

@@ -1,0 +1,21 @@
+{
+  "name": "ZombieWar.Runtime",
+  "rootNamespace": "ZombieWar",
+
+  "references": [
+    "Unity.InputSystem",
+    "Unity.Cinemachine",
+    "Unity.AI.Navigation",
+    "Unity.ugui",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
