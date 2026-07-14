@@ -9,6 +9,10 @@ using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEditor.PackageManager;
 using UnityEditor.Animations;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -18,6 +22,8 @@ using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.AddressableAssets;
+using ZombieWar.Audio;
 using ZombieWar.Combat;
 using ZombieWar.Core;
 using ZombieWar.Enemies;
@@ -34,6 +40,7 @@ namespace ZombieWar.Editor
         private const string PrefabFolder = RootFolder + "/Prefabs";
         private const string ConfigFolder = RootFolder + "/Configs";
         private const string MaterialFolder = RootFolder + "/Materials";
+        private const string AudioFolder = RootFolder + "/Audio/Weapons";
         private const string LayerLabRoot = "Assets/Layer Lab/GUI Pro-SurvivalClean";
         private const string LayerLabPlayPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Demo_Play";
         private const string LayerLabButtonPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Component_Buttons";
@@ -45,8 +52,20 @@ namespace ZombieWar.Editor
         private const string SoldierModelFolder = SoldierCharacterFolder + "/Model";
         private const string SoldierAnimationFolder = SoldierCharacterFolder + "/Animations";
         private const string SoldierModelPath = SoldierModelFolder + "/SoldierColonel.fbx";
+        private const string ZombieSourceFolder = "Assets/ArtStore3D/Zombie";
+        private const string ZombieCharacterFolder = RootFolder + "/Characters/Zombie";
+        private const string ZombieModelFolder = ZombieCharacterFolder + "/Model";
+        private const string ZombieAnimationFolder = ZombieCharacterFolder + "/Animations";
+        private const string ZombieTextureFolder = ZombieCharacterFolder + "/Textures";
+        private const string ZombieModelPath = ZombieModelFolder + "/Zombie.fbx";
+        private const string ZombieAnimationRigPath = ZombieModelFolder + "/AnimationRig.fbx";
+        private const string ZombieBaseMapPath = ZombieTextureFolder + "/Zombie_BaseMap.png";
+        private const string StarterAnimationFolder = "Assets/Survivalist/StarterAssets/ThirdPersonController/Character/Animations";
+        private const string StarterAvatarPath = "Assets/Survivalist/StarterAssets/ThirdPersonController/Character/Models/Armature.fbx";
         private const string LowPolyGunFolder = "Assets/Low Poly Guns/Models/Guns";
         private const string PostApocalypseGunAudio = "Assets/PostApocalypseGunsDemo";
+        private const string RifleFireAudioPath = AudioFolder + "/RifleFire.wav";
+        private const string ShotgunFireAudioPath = AudioFolder + "/ShotgunFire.wav";
 
         [MenuItem("Zombie War/Open Level 01 _F8")]
         public static void OpenLevel01()
@@ -72,12 +91,15 @@ namespace ZombieWar.Editor
             ConfigurePlayerSettings();
             EnsureFolders();
             EnsureIndependentSoldierAssets();
+            EnsureIndependentZombieAssets();
+            EnsureIndependentWeaponAudioAssets();
             EnsureTmpEssentials();
 
             Material ground = GetOrCreateMaterial("Ground", new Color(0.12f, 0.16f, 0.17f), "Universal Render Pipeline/Lit");
             Material obstacle = GetOrCreateMaterial("Obstacle", new Color(0.32f, 0.28f, 0.2f), "Universal Render Pipeline/Lit");
             Material soldierMaterial = GetOrCreateMaterial("Soldier", new Color(0.12f, 0.45f, 0.85f), "Universal Render Pipeline/Lit");
             Material zombieMaterial = GetOrCreateMaterial("Zombie", new Color(0.22f, 0.48f, 0.16f), "ZombieWar/ZombieDissolve");
+            ConfigureZombieMaterial(zombieMaterial);
             Material projectileMaterial = GetOrCreateMaterial("Projectile", new Color(1f, 0.75f, 0.12f), "Universal Render Pipeline/Unlit");
             Material bombMaterial = GetOrCreateMaterial("Bomb", new Color(0.15f, 0.15f, 0.16f), "Universal Render Pipeline/Lit");
 
@@ -95,11 +117,13 @@ namespace ZombieWar.Editor
             levelOne.Configure("CONTAINMENT YARD", 180f, 25, 100, 120, false, 120f);
             LevelConfig levelTwo = GetOrCreateAsset<LevelConfig>("Level02");
             levelTwo.Configure("BROKEN OVERPASS", 180f, 30, 120, 120, true, 120f);
+            WeaponAudioCatalog weaponAudioCatalog = GetOrCreateWeaponAudioCatalog();
 
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             BombProjectile bombPrefab = CreateBombPrefab(bombMaterial);
             ZombieAgent zombiePrefab = CreateZombiePrefab(zombieMaterial);
-            SoldierController soldierPrefab = CreateSoldierPrefab(soldierMaterial, bombPrefab);
+            EnemyPrefabCatalog enemyPrefabCatalog = GetOrCreateEnemyPrefabCatalog(zombiePrefab);
+            SoldierController soldierPrefab = CreateSoldierPrefab(soldierMaterial, bombPrefab, weaponAudioCatalog);
             RuntimeHud hudPrefab = CreateHudPrefab();
 
             CreateBootScene();
@@ -110,7 +134,7 @@ namespace ZombieWar.Editor
                 ground,
                 obstacle,
                 soldierPrefab,
-                zombiePrefab,
+                enemyPrefabCatalog,
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
@@ -123,7 +147,7 @@ namespace ZombieWar.Editor
                 ground,
                 obstacle,
                 soldierPrefab,
-                zombiePrefab,
+                enemyPrefabCatalog,
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
@@ -141,6 +165,7 @@ namespace ZombieWar.Editor
         public static void BuildAndroidDevelopment()
         {
             AuthorProjectAssets();
+            BuildAddressablesContent();
             string outputDirectory = Path.GetFullPath("Builds/Android");
             Directory.CreateDirectory(outputDirectory);
             string[] scenes = new string[EditorBuildSettings.scenes.Length];
@@ -160,6 +185,16 @@ namespace ZombieWar.Editor
             if (report.summary.result != BuildResult.Succeeded)
             {
                 throw new BuildFailedException($"Android build failed: {report.summary.result}");
+            }
+        }
+
+        [MenuItem("Zombie War/Build Addressables Content")]
+        public static void BuildAddressablesContent()
+        {
+            AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
+            if (!string.IsNullOrEmpty(result.Error))
+            {
+                throw new BuildFailedException($"Addressables build failed: {result.Error}");
             }
         }
 
@@ -191,10 +226,118 @@ namespace ZombieWar.Editor
             EnsureFolder(RootFolder, "Materials");
             EnsureFolder(RootFolder, "Scenes");
             EnsureFolder(RootFolder, "Resources");
+            EnsureFolder(RootFolder, "Audio");
+            EnsureFolder(RootFolder + "/Audio", "Weapons");
             EnsureFolder(RootFolder, "Characters");
             EnsureFolder(RootFolder + "/Characters", "Soldier");
             EnsureFolder(SoldierCharacterFolder, "Model");
             EnsureFolder(SoldierCharacterFolder, "Animations");
+            EnsureFolder(RootFolder + "/Characters", "Zombie");
+            EnsureFolder(ZombieCharacterFolder, "Model");
+            EnsureFolder(ZombieCharacterFolder, "Animations");
+            EnsureFolder(ZombieCharacterFolder, "Textures");
+        }
+
+        private static void EnsureIndependentWeaponAudioAssets()
+        {
+            CopyAssetIfMissing(
+                PostApocalypseGunAudio + "/AssaultRifles/AutoGun_3p_01.wav",
+                RifleFireAudioPath);
+            CopyAssetIfMissing(
+                PostApocalypseGunAudio + "/Shotguns/JackHammer_3p_01.wav",
+                ShotgunFireAudioPath);
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+        }
+
+        private static WeaponAudioCatalog GetOrCreateWeaponAudioCatalog()
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+            AddressableAssetGroup group = settings.FindGroup("ZombieWar-Audio");
+            if (group == null)
+            {
+                group = settings.CreateGroup(
+                    "ZombieWar-Audio",
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema));
+            }
+
+            BundledAssetGroupSchema bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+            bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+            bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+
+            string rifleGuid = ConfigureAddressableAudioEntry(
+                settings,
+                group,
+                RifleFireAudioPath,
+                "audio/weapons/rifle/fire");
+            string shotgunGuid = ConfigureAddressableAudioEntry(
+                settings,
+                group,
+                ShotgunFireAudioPath,
+                "audio/weapons/shotgun/fire");
+
+            WeaponAudioCatalog catalog = GetOrCreateAsset<WeaponAudioCatalog>("WeaponAudioCatalog");
+            catalog.Configure(
+                new AssetReferenceT<AudioClip>(rifleGuid),
+                new AssetReferenceT<AudioClip>(shotgunGuid));
+            EditorUtility.SetDirty(catalog);
+            EditorUtility.SetDirty(settings);
+            return catalog;
+        }
+
+        private static string ConfigureAddressableAudioEntry(
+            AddressableAssetSettings settings,
+            AddressableAssetGroup group,
+            string assetPath,
+            string address)
+        {
+            string guid = AssetDatabase.AssetPathToGUID(assetPath);
+            if (string.IsNullOrEmpty(guid))
+            {
+                throw new FileNotFoundException($"Addressable audio asset was not found: {assetPath}.");
+            }
+
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group, false, false);
+            entry.address = address;
+            entry.SetLabel("audio-weapons", true, true);
+            return guid;
+        }
+
+        private static EnemyPrefabCatalog GetOrCreateEnemyPrefabCatalog(ZombieAgent zombiePrefab)
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+            AddressableAssetGroup group = settings.FindGroup("ZombieWar-Enemies");
+            if (group == null)
+            {
+                group = settings.CreateGroup(
+                    "ZombieWar-Enemies",
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema));
+            }
+
+            BundledAssetGroupSchema bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+            bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+            bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+
+            string prefabPath = AssetDatabase.GetAssetPath(zombiePrefab.gameObject);
+            string guid = AssetDatabase.AssetPathToGUID(prefabPath);
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group, false, false);
+            entry.address = "prefabs/enemies/zombie";
+            entry.SetLabel("enemies", true, true);
+
+            EnemyPrefabCatalog catalog = GetOrCreateAsset<EnemyPrefabCatalog>("EnemyPrefabCatalog");
+            catalog.Configure(new AssetReferenceT<GameObject>(guid));
+            EditorUtility.SetDirty(catalog);
+            EditorUtility.SetDirty(settings);
+            return catalog;
         }
 
         private static void EnsureIndependentSoldierAssets()
@@ -252,6 +395,102 @@ namespace ZombieWar.Editor
             }
         }
 
+        private static void EnsureIndependentZombieAssets()
+        {
+            CopyAssetIfMissing(ZombieSourceFolder + "/Model/Zombie.fbx", ZombieModelPath);
+            CopyAssetIfMissing(StarterAvatarPath, ZombieAnimationRigPath);
+            CopyAssetIfMissing(ZombieSourceFolder + "/Texture/Zombie_BaseMap.png", ZombieBaseMapPath);
+            CopyAssetIfMissing(StarterAnimationFolder + "/Stand--Idle.anim.fbx", ZombieAnimationFolder + "/Idle.fbx");
+            CopyAssetIfMissing(StarterAnimationFolder + "/Locomotion--Walk_N.anim.fbx", ZombieAnimationFolder + "/Walk.fbx");
+            CopyAssetIfMissing(StarterAnimationFolder + "/Locomotion--Run_N.anim.fbx", ZombieAnimationFolder + "/Run.fbx");
+            CopyAssetIfMissing(SoldierAnimationFolder + "/HitReaction.fbx", ZombieAnimationFolder + "/HitReaction.fbx");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            ConfigureIndependentZombieRig();
+        }
+
+        private static void ConfigureIndependentZombieRig()
+        {
+            ModelImporter modelImporter = AssetImporter.GetAtPath(ZombieModelPath) as ModelImporter;
+            if (modelImporter == null)
+            {
+                throw new FileNotFoundException($"Zombie model importer was not found: {ZombieModelPath}.");
+            }
+
+            if (modelImporter.animationType != ModelImporterAnimationType.Human
+                || modelImporter.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel
+                || modelImporter.importAnimation)
+            {
+                modelImporter.animationType = ModelImporterAnimationType.Human;
+                modelImporter.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                modelImporter.importAnimation = false;
+                modelImporter.SaveAndReimport();
+            }
+
+            ModelImporter animationRigImporter = AssetImporter.GetAtPath(ZombieAnimationRigPath) as ModelImporter;
+            if (animationRigImporter == null)
+            {
+                throw new FileNotFoundException($"Zombie animation source rig was not found: {ZombieAnimationRigPath}.");
+            }
+            if (animationRigImporter.animationType != ModelImporterAnimationType.Human
+                || animationRigImporter.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel
+                || animationRigImporter.importAnimation)
+            {
+                animationRigImporter.animationType = ModelImporterAnimationType.Human;
+                animationRigImporter.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                animationRigImporter.importAnimation = false;
+                animationRigImporter.SaveAndReimport();
+            }
+
+            Avatar starterAvatar = LoadAvatar(ZombieAnimationRigPath);
+            Avatar soldierAvatar = LoadAvatar(SoldierModelPath);
+            ConfigureZombieAnimationClip(ZombieAnimationFolder + "/Idle.fbx", starterAvatar, true);
+            ConfigureZombieAnimationClip(ZombieAnimationFolder + "/Walk.fbx", starterAvatar, true);
+            ConfigureZombieAnimationClip(ZombieAnimationFolder + "/Run.fbx", starterAvatar, true);
+            ConfigureZombieAnimationClip(ZombieAnimationFolder + "/HitReaction.fbx", soldierAvatar, false);
+        }
+
+        private static void ConfigureZombieAnimationClip(string path, Avatar sourceAvatar, bool loopTime)
+        {
+            ModelImporter importer = AssetImporter.GetAtPath(path) as ModelImporter;
+            if (importer == null)
+            {
+                throw new FileNotFoundException($"Zombie animation importer was not found: {path}.");
+            }
+
+            bool requiresReimport = importer.animationType != ModelImporterAnimationType.Human
+                || importer.avatarSetup != ModelImporterAvatarSetup.CopyFromOther
+                || importer.sourceAvatar != sourceAvatar;
+            importer.animationType = ModelImporterAnimationType.Human;
+            importer.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
+            importer.sourceAvatar = sourceAvatar;
+
+            ModelImporterClipAnimation[] clips = importer.clipAnimations.Length > 0
+                ? importer.clipAnimations
+                : importer.defaultClipAnimations;
+            for (int i = 0; i < clips.Length; i++)
+            {
+                if (clips[i].loopTime != loopTime
+                    || !clips[i].lockRootRotation
+                    || !clips[i].lockRootHeightY
+                    || !clips[i].lockRootPositionXZ)
+                {
+                    requiresReimport = true;
+                }
+
+                clips[i].loopTime = loopTime;
+                clips[i].loopPose = loopTime;
+                clips[i].lockRootRotation = true;
+                clips[i].lockRootHeightY = true;
+                clips[i].lockRootPositionXZ = true;
+            }
+            importer.clipAnimations = clips;
+
+            if (requiresReimport)
+            {
+                importer.SaveAndReimport();
+            }
+        }
+
         private static Avatar LoadAvatar(string assetPath)
         {
             Object[] assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
@@ -273,7 +512,7 @@ namespace ZombieWar.Editor
             }
             if (AssetDatabase.LoadMainAssetAtPath(sourcePath) == null || !AssetDatabase.CopyAsset(sourcePath, destinationPath))
             {
-                throw new FileNotFoundException($"Unable to duplicate soldier asset from {sourcePath}.");
+                throw new FileNotFoundException($"Unable to duplicate project asset from {sourcePath}.");
             }
         }
 
@@ -318,6 +557,19 @@ namespace ZombieWar.Editor
             material.SetColor("_BaseColor", color);
             EditorUtility.SetDirty(material);
             return material;
+        }
+
+        private static void ConfigureZombieMaterial(Material material)
+        {
+            Texture2D baseMap = AssetDatabase.LoadAssetAtPath<Texture2D>(ZombieBaseMapPath);
+            if (baseMap == null)
+            {
+                throw new FileNotFoundException($"Zombie base map was not found: {ZombieBaseMapPath}.");
+            }
+
+            material.SetTexture("_BaseMap", baseMap);
+            material.SetColor("_BaseColor", Color.white);
+            EditorUtility.SetDirty(material);
         }
 
         private static void EnsureTmpEssentials()
@@ -386,19 +638,149 @@ namespace ZombieWar.Editor
         {
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             root.name = "Zombie";
-            root.transform.localScale = new Vector3(0.75f, 1f, 0.75f);
-            root.GetComponent<MeshRenderer>().sharedMaterial = material;
+            root.GetComponent<MeshRenderer>().enabled = false;
             Rigidbody body = root.AddComponent<Rigidbody>();
             body.isKinematic = true;
             body.constraints = RigidbodyConstraints.FreezeRotation;
             NavMeshAgent agent = root.AddComponent<NavMeshAgent>();
             agent.enabled = false;
             root.AddComponent<Health>();
+            ZombieVisualController visual = root.AddComponent<ZombieVisualController>();
+            ZombieAnimationController animation = root.AddComponent<ZombieAnimationController>();
             root.AddComponent<ZombieAgent>();
+
+            GameObject modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ZombieModelPath);
+            if (modelPrefab == null)
+            {
+                throw new FileNotFoundException("The independent zombie model was not authored.");
+            }
+
+            GameObject visualRoot = new("Zombie Visual");
+            visualRoot.transform.SetParent(root.transform, false);
+            GameObject model = (GameObject)PrefabUtility.InstantiatePrefab(modelPrefab);
+            model.name = "Character Model";
+            model.transform.SetParent(visualRoot.transform, false);
+            model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+            Animator animator = model.GetComponent<Animator>();
+            if (animator == null)
+            {
+                throw new MissingComponentException("The zombie model requires an Animator.");
+            }
+            animator.runtimeAnimatorController = CreateZombieAnimatorController();
+            animator.applyRootMotion = false;
+
+            Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
+            NormalizeModelHeight(model.transform, renderers, 1.8f);
+            CenterModelOnPhysicsRoot(model.transform, renderers);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                renderers[i].sharedMaterial = material;
+                renderers[i].shadowCastingMode = ShadowCastingMode.Off;
+                renderers[i].receiveShadows = false;
+                if (renderers[i] is SkinnedMeshRenderer skinnedRenderer)
+                {
+                    skinnedRenderer.updateWhenOffscreen = false;
+                    skinnedRenderer.quality = SkinQuality.Bone2;
+                }
+            }
+
+            visual.SetRenderers(renderers);
+            animation.SetAnimator(animator);
             return SavePrefab<ZombieAgent>(root, "Zombie");
         }
 
-        private static SoldierController CreateSoldierPrefab(Material material, BombProjectile bombPrefab)
+        private static RuntimeAnimatorController CreateZombieAnimatorController()
+        {
+            string controllerPath = ConfigFolder + "/ZombieAnimator.controller";
+            if (AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath) != null)
+            {
+                AssetDatabase.DeleteAsset(controllerPath);
+            }
+
+            AnimationClip idle = LoadAnimationClip(ZombieAnimationFolder + "/Idle.fbx");
+            AnimationClip hitReaction = LoadAnimationClip(ZombieAnimationFolder + "/HitReaction.fbx");
+            AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
+            controller.AddParameter("MoveSpeed", AnimatorControllerParameterType.Float);
+            controller.AddParameter("Attack", AnimatorControllerParameterType.Trigger);
+            controller.AddParameter("Hit", AnimatorControllerParameterType.Trigger);
+            controller.AddParameter("Dead", AnimatorControllerParameterType.Bool);
+
+            AnimatorStateMachine machine = controller.layers[0].stateMachine;
+            BlendTree locomotion = new()
+            {
+                name = "Zombie Locomotion",
+                blendType = BlendTreeType.Simple1D,
+                blendParameter = "MoveSpeed",
+                useAutomaticThresholds = false,
+                children = new[]
+                {
+                    ThresholdMotion(idle, 0f, 1f),
+                    ThresholdMotion(LoadAnimationClip(ZombieAnimationFolder + "/Walk.fbx"), 0.45f, 0.85f),
+                    ThresholdMotion(LoadAnimationClip(ZombieAnimationFolder + "/Run.fbx"), 1f, 0.9f)
+                }
+            };
+            AssetDatabase.AddObjectToAsset(locomotion, controller);
+
+            AnimatorState locomotionState = machine.AddState("Locomotion");
+            locomotionState.motion = locomotion;
+            machine.defaultState = locomotionState;
+            AnimatorState attackState = machine.AddState("Attack");
+            attackState.motion = hitReaction;
+            attackState.speed = 1.7f;
+            AnimatorState hitState = machine.AddState("Hit");
+            hitState.motion = hitReaction;
+            hitState.speed = 1.2f;
+            AnimatorState deadState = machine.AddState("Dead");
+
+            AddTriggeredTransition(machine, attackState, "Attack", 0.03f);
+            AddTriggeredTransition(machine, hitState, "Hit", 0.02f);
+            AddExitTransition(attackState, locomotionState, 0.55f);
+            AddExitTransition(hitState, locomotionState, 0.72f);
+            AnimatorStateTransition deadTransition = machine.AddAnyStateTransition(deadState);
+            deadTransition.AddCondition(AnimatorConditionMode.If, 0f, "Dead");
+            deadTransition.hasExitTime = false;
+            deadTransition.duration = 0.05f;
+
+            AssetDatabase.SaveAssets();
+            return controller;
+        }
+
+        private static ChildMotion ThresholdMotion(AnimationClip clip, float threshold, float timeScale)
+        {
+            return new ChildMotion
+            {
+                motion = clip,
+                threshold = threshold,
+                timeScale = timeScale
+            };
+        }
+
+        private static void AddTriggeredTransition(
+            AnimatorStateMachine machine,
+            AnimatorState destination,
+            string parameter,
+            float duration)
+        {
+            AnimatorStateTransition transition = machine.AddAnyStateTransition(destination);
+            transition.AddCondition(AnimatorConditionMode.If, 0f, parameter);
+            transition.hasExitTime = false;
+            transition.duration = duration;
+            transition.canTransitionToSelf = false;
+        }
+
+        private static void AddExitTransition(AnimatorState source, AnimatorState destination, float exitTime)
+        {
+            AnimatorStateTransition transition = source.AddTransition(destination);
+            transition.hasExitTime = true;
+            transition.exitTime = exitTime;
+            transition.duration = 0.08f;
+        }
+
+        private static SoldierController CreateSoldierPrefab(
+            Material material,
+            BombProjectile bombPrefab,
+            WeaponAudioCatalog weaponAudioCatalog)
         {
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             root.name = "Soldier";
@@ -406,13 +788,15 @@ namespace ZombieWar.Editor
             root.GetComponent<MeshRenderer>().enabled = false;
             Rigidbody body = root.AddComponent<Rigidbody>();
             body.mass = 1.2f;
-            body.constraints = RigidbodyConstraints.FreezeRotation;
+            body.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             root.AddComponent<Health>();
             SoldierAnimationController animation = root.AddComponent<SoldierAnimationController>();
             root.AddComponent<SoldierController>();
             root.AddComponent<WeaponController>();
             SoldierWeaponVisualController weaponVisual = root.AddComponent<SoldierWeaponVisualController>();
+            SoldierWeaponAudioController weaponAudioController = root.AddComponent<SoldierWeaponAudioController>();
+            weaponAudioController.SetCatalog(weaponAudioCatalog);
             AudioSource weaponAudio = root.GetComponent<AudioSource>();
             weaponAudio.playOnAwake = false;
             weaponAudio.spatialBlend = 0.55f;
@@ -488,11 +872,6 @@ namespace ZombieWar.Editor
                 new[] { rifleRightGrip, shotgunRightGrip },
                 new[] { rifleLeftGrip, shotgunLeftGrip },
                 new[] { rifleMuzzle, shotgunMuzzle },
-                new[]
-                {
-                    AssetDatabase.LoadAssetAtPath<AudioClip>(PostApocalypseGunAudio + "/AssaultRifles/AutoGun_3p_01.wav"),
-                    AssetDatabase.LoadAssetAtPath<AudioClip>(PostApocalypseGunAudio + "/Shotguns/JackHammer_3p_01.wav")
-                },
                 muzzle.transform,
                 weaponIk);
             return SavePrefab<SoldierController>(root, "Soldier");
@@ -905,7 +1284,7 @@ namespace ZombieWar.Editor
             Material ground,
             Material obstacle,
             SoldierController soldierPrefab,
-            ZombieAgent zombiePrefab,
+            EnemyPrefabCatalog enemyPrefabs,
             Projectile projectilePrefab,
             RuntimeHud hudPrefab,
             WeaponConfig[] weapons,
@@ -916,7 +1295,7 @@ namespace ZombieWar.Editor
             ground = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Ground.mat");
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
-            zombiePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Zombie.prefab").GetComponent<ZombieAgent>();
+            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
@@ -933,7 +1312,7 @@ namespace ZombieWar.Editor
             ground = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Ground.mat");
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
-            zombiePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Zombie.prefab").GetComponent<ZombieAgent>();
+            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
@@ -966,7 +1345,7 @@ namespace ZombieWar.Editor
             projectilePool.SetPrefab(projectilePrefab, 96);
             EnemyPool enemyPool = new GameObject("Enemy Pool", typeof(EnemyPool)).GetComponent<EnemyPool>();
             enemyPool.transform.SetParent(systems.transform);
-            enemyPool.SetPrefab(zombiePrefab, 130);
+            enemyPool.SetCatalog(enemyPrefabs, 130);
             EnemySimulationScheduler scheduler = systems.AddComponent<EnemySimulationScheduler>();
             WaveDirector wave = systems.AddComponent<WaveDirector>();
             GameSessionController session = systems.AddComponent<GameSessionController>();

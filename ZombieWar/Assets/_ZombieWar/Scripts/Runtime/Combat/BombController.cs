@@ -6,16 +6,26 @@ namespace ZombieWar.Combat
 {
     public sealed class BombController : MonoBehaviour
     {
+        #region Config
         [SerializeField] private BombProjectile _bombPrefab;
         [SerializeField] private int _capacity = 4;
+        [SerializeField, Min(0.1f)] private float _cooldownDuration = 10f;
+        #endregion
 
+        #region Refs
         private readonly Queue<BombProjectile> _available = new(4);
         private EnemyPool _enemyPool;
         private WeaponController _weaponController;
+        #endregion
+
+        #region State
         private float _readyTime;
 
-        public float CooldownNormalized => Mathf.Clamp01((_readyTime - Time.time) / 8f);
+        public bool IsReady => Time.time >= _readyTime && _available.Count > 0;
+        public float CooldownNormalized => Mathf.Clamp01((_readyTime - Time.time) / _cooldownDuration);
+        #endregion
 
+        #region Lifecycle
         private void Awake()
         {
             if (_bombPrefab == null)
@@ -34,7 +44,9 @@ namespace ZombieWar.Combat
                 _available.Enqueue(bomb);
             }
         }
+        #endregion
 
+        #region API
         public void SetPrefab(BombProjectile prefab, int capacity)
         {
             _bombPrefab = prefab;
@@ -49,11 +61,11 @@ namespace ZombieWar.Combat
 
         public void ThrowBomb()
         {
-            if (Time.time < _readyTime || _available.Count == 0)
+            if (!IsReady)
             {
                 return;
             }
-            _readyTime = Time.time + 8f;
+            _readyTime = Time.time + _cooldownDuration;
             Vector3 direction = transform.forward;
             if (_weaponController.CurrentTarget != null)
             {
@@ -84,5 +96,6 @@ namespace ZombieWar.Combat
             bomb.gameObject.SetActive(false);
             _available.Enqueue(bomb);
         }
+        #endregion
     }
 }

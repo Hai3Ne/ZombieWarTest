@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.AI;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using ZombieWar.Combat;
 using ZombieWar.Core;
 
@@ -10,30 +12,42 @@ namespace ZombieWar.Enemies
     {
         #region Config
         [SerializeField] private int _capacity = 130;
-        [SerializeField] private ZombieAgent _prefab;
+        [SerializeField] private EnemyPrefabCatalog _catalog;
         #endregion
 
         #region State
+        private AsyncOperationHandle<GameObject> _prefabHandle;
+        private ZombieAgent _prefab;
         private readonly Queue<ZombieAgent> _available = new(130);
         private readonly List<ZombieAgent> _active = new(130);
         public IReadOnlyList<ZombieAgent> Active => _active;
         public int ActiveCount => _active.Count;
+        public bool IsReady { get; private set; }
         #endregion
 
         #region Lifecycle
         private void Awake()
         {
-            if (_prefab == null)
+            if (_catalog == null || !_catalog.Zombie.RuntimeKeyIsValid())
             {
-                Debug.LogError("[Zombie War] EnemyPool requires a zombie prefab.", this);
+                Debug.LogError("[Zombie War] EnemyPool requires an authored enemy Addressables catalog.", this);
                 enabled = false;
                 return;
             }
 
-            for (int i = 0; i < _capacity; i++)
+            _prefabHandle = _catalog.Zombie.LoadAssetAsync();
+            _prefabHandle.Completed += OnPrefabLoaded;
+        }
+
+        private void OnDestroy()
+        {
+            if (!_prefabHandle.IsValid())
             {
-                CreateZombie(i);
+                return;
             }
+
+            _prefabHandle.Completed -= OnPrefabLoaded;
+            Addressables.Release(_prefabHandle);
         }
 
         #endregion
@@ -53,9 +67,9 @@ namespace ZombieWar.Enemies
             return zombie;
         }
 
-        public void SetPrefab(ZombieAgent prefab, int capacity)
+        public void SetCatalog(EnemyPrefabCatalog catalog, int capacity)
         {
-            _prefab = prefab;
+            _catalog = catalog;
             _capacity = Mathf.Max(1, capacity);
         }
 
@@ -115,6 +129,24 @@ namespace ZombieWar.Enemies
         #endregion
 
         #region Internal
+        private void OnPrefabLoaded(AsyncOperationHandle<GameObject> handle)
+        {
+            if (handle.Status != AsyncOperationStatus.Succeeded
+                || handle.Result == null
+                || !handle.Result.TryGetComponent(out _prefab))
+            {
+                Debug.LogError("[Zombie War] Addressable zombie prefab failed to load.", this);
+                enabled = false;
+                return;
+            }
+
+            for (int i = 0; i < _capacity; i++)
+            {
+                CreateZombie(i);
+            }
+            IsReady = true;
+        }
+
         private void CreateZombie(int index)
         {
             ZombieAgent zombie = Instantiate(_prefab, transform);

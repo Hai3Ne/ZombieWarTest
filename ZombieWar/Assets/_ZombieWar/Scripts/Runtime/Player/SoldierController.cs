@@ -36,7 +36,7 @@ namespace ZombieWar.Player
                 return;
             }
 
-            _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
             _health.Damaged += OnDamaged;
             _health.Died += OnDied;

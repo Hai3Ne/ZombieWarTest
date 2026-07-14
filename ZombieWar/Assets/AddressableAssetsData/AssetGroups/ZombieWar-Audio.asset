@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-Audio
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-Audio
+  m_GUID: e60e33321a0da8e428e2bad424960736
+  m_SerializeEntries:
+  - m_GUID: 4f933d6682d2b98498606e1433108936
+    m_Address: audio/weapons/rifle/fire
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9ffedca287d888b46928b023224ab7e4
+    m_Address: audio/weapons/shotgun/fire
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: e2c2802ccda001b4ca692fb91f617e33, type: 2}
+    - {fileID: 11400000, guid: ed722ecd5576f4e4399b9222561d272e, type: 2}

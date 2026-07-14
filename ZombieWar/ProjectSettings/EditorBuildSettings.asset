@@ -17,5 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_ZombieWar/Scenes/Level02.unity
     guid: b052b9984e0c6664b984a0676148875a
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: b51e083514a600f45ba57011a6064419,
+      type: 2}
   m_UseUCBPForAssetBundles: 0

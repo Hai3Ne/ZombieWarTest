@@ -5,21 +5,41 @@ using ZombieWar.Enemies;
 
 namespace ZombieWar.Combat
 {
+    [RequireComponent(typeof(Rigidbody))]
     public sealed class WeaponController : MonoBehaviour
     {
+        #region Refs
         private EnemyPool _enemyPool;
         private ProjectilePool _projectilePool;
         private Transform _muzzle;
+        private Rigidbody _rigidbody;
+        #endregion
+
+        #region State
         private WeaponConfig[] _weapons;
         private ZombieAgent _target;
         private int _weaponIndex;
         private float _nextTargetRefresh;
         private float _nextFireTime;
+        private Vector3 _aimDirection;
+        #endregion
 
+        #region API
         public string CurrentWeaponName => _weapons != null ? _weapons[_weaponIndex].DisplayName : string.Empty;
         public ZombieAgent CurrentTarget => _target;
         public event Action<string> WeaponChanged;
         public event Action<float> Fired;
+        #endregion
+
+        #region Lifecycle
+        private void Awake()
+        {
+            if (!TryGetComponent(out _rigidbody))
+            {
+                Debug.LogError("[Zombie War] WeaponController requires a Rigidbody.", this);
+                enabled = false;
+            }
+        }
 
         private void Update()
         {
@@ -44,7 +64,7 @@ namespace ZombieWar.Combat
             flat.y = 0f;
             if (flat.sqrMagnitude > 0.01f)
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(flat), 18f * Time.deltaTime);
+                _aimDirection = flat.normalized;
             }
             if (GameplayMath.IsCooldownReady(Time.time, _nextFireTime))
             {
@@ -52,6 +72,20 @@ namespace ZombieWar.Combat
             }
         }
 
+        private void FixedUpdate()
+        {
+            if (_aimDirection.sqrMagnitude < 0.01f)
+            {
+                return;
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(_aimDirection);
+            float blend = 1f - Mathf.Exp(-18f * Time.fixedDeltaTime);
+            _rigidbody.MoveRotation(Quaternion.Slerp(_rigidbody.rotation, targetRotation, blend));
+        }
+        #endregion
+
+        #region API
         public void Configure(WeaponConfig[] weapons, EnemyPool enemyPool, ProjectilePool projectilePool, Transform muzzle)
         {
             _weapons = weapons;
@@ -68,10 +102,11 @@ namespace ZombieWar.Combat
                 return;
             }
             _weaponIndex = (_weaponIndex + 1) % _weapons.Length;
-            _nextFireTime = Time.time + 0.1f;
             WeaponChanged?.Invoke(CurrentWeaponName);
         }
+        #endregion
 
+        #region Internal
         private void Fire(WeaponConfig weapon, Vector3 targetPoint)
         {
             _nextFireTime = Time.time + weapon.FireInterval;
@@ -85,5 +120,6 @@ namespace ZombieWar.Combat
             }
             Fired?.Invoke(weapon.Recoil);
         }
+        #endregion
     }
 }

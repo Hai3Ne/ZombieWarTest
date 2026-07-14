@@ -16,25 +16,22 @@ namespace ZombieWar.Enemies
     }
 
     [RequireComponent(typeof(Health), typeof(Rigidbody), typeof(NavMeshAgent))]
+    [RequireComponent(typeof(ZombieVisualController), typeof(ZombieAnimationController))]
     public sealed class ZombieAgent : MonoBehaviour
     {
-        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-        private static readonly int HitFlashId = Shader.PropertyToID("_HitFlash");
-        private static readonly int DissolveId = Shader.PropertyToID("_DissolveAmount");
-
         #region Refs
         private Health _health;
         private Rigidbody _rigidbody;
         private NavMeshAgent _agent;
         private Collider _collider;
-        private Renderer _renderer;
+        private ZombieVisualController _visual;
+        private ZombieAnimationController _animation;
         private EnemyPool _pool;
         private Transform _target;
         private Health _targetHealth;
         #endregion
 
         #region State
-        private MaterialPropertyBlock _propertyBlock;
         private EnemyConfig _config;
         private ZombieState _state;
         private float _nextAttackTime;
@@ -52,12 +49,12 @@ namespace ZombieWar.Enemies
         #region Lifecycle
         private void Awake()
         {
-            _propertyBlock = new MaterialPropertyBlock();
             if (!TryGetComponent(out _health)
                 || !TryGetComponent(out _rigidbody)
                 || !TryGetComponent(out _agent)
                 || !TryGetComponent(out _collider)
-                || !TryGetComponent(out _renderer))
+                || !TryGetComponent(out _visual)
+                || !TryGetComponent(out _animation))
             {
                 Debug.LogError("[Zombie War] ZombieAgent is missing a required component.", this);
                 enabled = false;
@@ -111,6 +108,7 @@ namespace ZombieWar.Enemies
             _agent.height = config.IsGiant ? 3.6f : 1.8f;
             _agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
 
+            _animation.ResetForSpawn();
             SetVisual(0f, 0f);
             _state = ZombieState.Chase;
         }
@@ -120,6 +118,7 @@ namespace ZombieWar.Enemies
             if (_state == ZombieState.Dead)
             {
                 _deathProgress += deltaTime / 0.5f;
+                _animation.SetMoving(false);
                 SetVisual(0f, _deathProgress);
                 transform.localScale = Vector3.Lerp(
                     IsGiant ? _spawnScale * 2.2f : _spawnScale,
@@ -143,6 +142,7 @@ namespace ZombieWar.Enemies
 
             if (_state == ZombieState.Knockback)
             {
+                _animation.SetMoving(false);
                 if (Time.time >= _knockbackUntil)
                 {
                     RecoverFromKnockback();
@@ -158,11 +158,13 @@ namespace ZombieWar.Enemies
             if (distanceSquared <= attackRangeSquared)
             {
                 _state = ZombieState.Attack;
+                _animation.SetMoving(false);
                 Attack();
                 return;
             }
 
             _state = ZombieState.Chase;
+            _animation.SetMoving(true);
             if (_agent.enabled && _agent.isOnNavMesh)
             {
                 _agent.obstacleAvoidanceType = allowAvoidance
@@ -201,6 +203,8 @@ namespace ZombieWar.Enemies
             }
 
             _state = ZombieState.Knockback;
+            _animation.SetMoving(false);
+            _animation.PlayHit();
             _rigidbody.isKinematic = false;
             _rigidbody.AddExplosionForce(force, center, radius, 1.5f, ForceMode.VelocityChange);
             _knockbackUntil = Time.time + 0.35f;
@@ -214,6 +218,7 @@ namespace ZombieWar.Enemies
                 _agent.enabled = false;
             }
             _rigidbody.isKinematic = true;
+            _animation.SetMoving(false);
             gameObject.SetActive(false);
         }
         #endregion
@@ -227,6 +232,7 @@ namespace ZombieWar.Enemies
             }
 
             _nextAttackTime = Time.time + _config.AttackInterval;
+            _animation.PlayAttack();
             Vector3 impulse = (_target.position - transform.position).normalized * 1.5f;
             DamageInfo damage = new(
                 _config.AttackDamage,
@@ -240,6 +246,7 @@ namespace ZombieWar.Enemies
         private void OnDamaged(DamageInfo damage)
         {
             _hitFlashUntil = Time.time + 0.08f;
+            _animation.PlayHit();
             if (_state != ZombieState.Knockback)
             {
                 _state = ZombieState.Hit;
@@ -250,6 +257,7 @@ namespace ZombieWar.Enemies
         {
             _state = ZombieState.Dead;
             _deathProgress = 0f;
+            _animation.PlayDeath();
             _collider.enabled = false;
             if (_agent.enabled)
             {
@@ -273,14 +281,7 @@ namespace ZombieWar.Enemies
 
         private void SetVisual(float hitFlash, float dissolve)
         {
-            Color color = IsGiant
-                ? new Color(0.32f, 0.12f, 0.09f)
-                : new Color(0.22f, 0.48f, 0.16f);
-            _renderer.GetPropertyBlock(_propertyBlock);
-            _propertyBlock.SetColor(BaseColorId, color);
-            _propertyBlock.SetFloat(HitFlashId, hitFlash);
-            _propertyBlock.SetFloat(DissolveId, Mathf.Clamp01(dissolve));
-            _renderer.SetPropertyBlock(_propertyBlock);
+            _visual.SetState(IsGiant, hitFlash, dissolve);
         }
         #endregion
     }

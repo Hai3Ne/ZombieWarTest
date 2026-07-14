@@ -19,3 +19,10 @@ staggered. Chưa dùng DOTS vì tăng độ phức tạp vượt nhu cầu hiệ
 Chọn uGUI vì OnScreenStick/OnScreenButton, safe area và touch HUD phù hợp hơn
 UI Toolkit cho vòng chơi này.
 
+## ADR-005 — Addressables cho runtime assets
+
+Audio, prefab, VFX và các asset nặng được đưa vào Addressables theo feature group,
+dùng địa chỉ ổn định và catalog ScriptableObject có kiểu rõ ràng. Scene, hierarchy
+và composition root vẫn được author trong Editor; không tạo project hay hierarchy
+động khi chạy game. Asset gốc từ package bên ngoài phải được duplicate vào
+`Assets/_ZombieWar` trước khi đưa vào Addressables để tránh phụ thuộc package nguồn.

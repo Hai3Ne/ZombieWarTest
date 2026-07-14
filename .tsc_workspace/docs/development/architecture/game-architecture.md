@@ -51,3 +51,21 @@ EditMode: damage falloff, cooldown, target selection, pacing.
 PlayMode: boot, win/lose/restart, pool reset, scene transition.
 Android profiler: CPU/GPU gần 16,6 ms, memory ổn định qua ba lượt replay.
 
+## Asset management
+
+Runtime asset nặng được tải bằng Addressables qua catalog ScriptableObject có kiểu.
+Mỗi feature dùng group, label và address ổn định; controller giữ handle, cache asset
+đã tải và release khi kết thúc lifetime. Gameplay prefab không giữ tham chiếu trực
+tiếp tới audio/VFX/model được quản lý bởi Addressables.
+
+`ZombieWar-Audio` dùng LZ4 và Pack Together. Weapon fire audio hiện có địa chỉ
+`audio/weapons/rifle/fire` và `audio/weapons/shotgun/fire`, label `audio-weapons`.
+Android build phải build Addressables content trước Player build.
+
+`ZombieWar-Enemies` chứa prefab zombie hoàn chỉnh tại địa chỉ
+`prefabs/enemies/zombie`, label `enemies`. `EnemyPool` tải prefab qua
+`EnemyPrefabCatalog`, sau đó mới prewarm 130 instance; `WaveDirector` chỉ bắt đầu
+spawn khi pool báo sẵn sàng.
+
+Scene và hierarchy vẫn được dựng sẵn trong Editor. Addressables chỉ chịu trách
+nhiệm phân phối asset, không tạo project hoặc dựng cấu trúc scene ở runtime.

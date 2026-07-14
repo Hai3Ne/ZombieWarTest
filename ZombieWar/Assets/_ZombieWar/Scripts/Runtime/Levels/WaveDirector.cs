@@ -29,7 +29,11 @@ namespace ZombieWar.Levels
         #region Lifecycle
         private void Update()
         {
-            if (_levelConfig == null || _targetHealth == null || _targetHealth.IsDead)
+            if (_levelConfig == null
+                || _pool == null
+                || !_pool.IsReady
+                || _targetHealth == null
+                || _targetHealth.IsDead)
             {
                 return;
             }

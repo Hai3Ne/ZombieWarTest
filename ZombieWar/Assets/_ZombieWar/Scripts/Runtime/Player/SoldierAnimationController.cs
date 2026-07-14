@@ -26,10 +26,8 @@ namespace ZombieWar.Player
         private static readonly int DeadHash = Animator.StringToHash("Dead");
 
         private MaterialPropertyBlock _propertyBlock;
-        private Color[] _baseColors;
         private Quaternion _baseLocalRotation;
         private float _recoil;
-        private float _hitShake;
         private float _damageFlashUntil;
         private bool _isFlashing;
         #endregion
@@ -47,20 +45,11 @@ namespace ZombieWar.Player
             _animator.applyRootMotion = false;
             _baseLocalRotation = _visualRoot.localRotation;
             _propertyBlock = new MaterialPropertyBlock();
-            _baseColors = new Color[_renderers.Length];
-            for (int i = 0; i < _renderers.Length; i++)
-            {
-                Material material = _renderers[i].sharedMaterial;
-                _baseColors[i] = material != null && material.HasProperty("_BaseColor")
-                    ? material.GetColor("_BaseColor")
-                    : Color.white;
-            }
         }
 
         private void Update()
         {
             _recoil = Mathf.MoveTowards(_recoil, 0f, 38f * Time.deltaTime);
-            _hitShake = Mathf.MoveTowards(_hitShake, 0f, 52f * Time.deltaTime);
 
             if (_isFlashing && Time.time >= _damageFlashUntil)
             {
@@ -71,8 +60,7 @@ namespace ZombieWar.Player
 
         private void LateUpdate()
         {
-            float shake = Mathf.Sin(Time.time * 75f) * _hitShake;
-            _visualRoot.localRotation = _baseLocalRotation * Quaternion.Euler(-_recoil, shake, 0f);
+            _visualRoot.localRotation = _baseLocalRotation * Quaternion.Euler(-_recoil, 0f, 0f);
         }
         #endregion
 
@@ -120,7 +108,6 @@ namespace ZombieWar.Player
             }
 
             _animator.SetTrigger(HitHash);
-            _hitShake = 5f;
             _damageFlashUntil = Time.time + 0.13f;
             if (!_isFlashing)
             {
@@ -149,9 +136,16 @@ namespace ZombieWar.Player
                     continue;
                 }
 
-                target.GetPropertyBlock(_propertyBlock);
-                _propertyBlock.SetColor("_BaseColor", damaged ? _damageColor : _baseColors[i]);
-                target.SetPropertyBlock(_propertyBlock);
+                if (damaged)
+                {
+                    target.GetPropertyBlock(_propertyBlock);
+                    _propertyBlock.SetColor("_BaseColor", _damageColor);
+                    target.SetPropertyBlock(_propertyBlock);
+                }
+                else
+                {
+                    target.SetPropertyBlock(null);
+                }
             }
         }
         #endregion

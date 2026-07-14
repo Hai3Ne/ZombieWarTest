@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-Enemies
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-Enemies
+  m_GUID: 02c86ae9a1aa4a94f820d387fa545a98
+  m_SerializeEntries:
+  - m_GUID: d84dc2dd6150db04ba79499a7a274fdf
+    m_Address: prefabs/enemies/zombie
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - enemies
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 9df799e65aedcbc4987cf49d87ee1687, type: 2}
+    - {fileID: 11400000, guid: 9bd6f1d03ad307f408d9cb13d0e853f1, type: 2}

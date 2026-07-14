@@ -48,6 +48,8 @@ namespace ZombieWar.UI
             _soldier.SetMoveInput(_joystick.Value);
             _healthFill.fillAmount = _soldier.Health.Normalized;
             _bombCooldownFill.fillAmount = _bomb.CooldownNormalized;
+            _bombButton.interactable = _bomb.IsReady;
+            _switchButton.interactable = true;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
             _crowdText.text = $"THREAT  {_enemyPool.ActiveCount:000}";
