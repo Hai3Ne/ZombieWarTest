@@ -8,6 +8,7 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEditor.PackageManager;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -32,14 +33,35 @@ namespace ZombieWar.Editor
         private const string PrefabFolder = RootFolder + "/Prefabs";
         private const string ConfigFolder = RootFolder + "/Configs";
         private const string MaterialFolder = RootFolder + "/Materials";
+        private const string LayerLabRoot = "Assets/Layer Lab/GUI Pro-SurvivalClean";
+        private const string LayerLabPlayPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Demo_Play";
+        private const string LayerLabButtonPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Component_Buttons";
+        private const string LayerLabSliderPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Component_Sliders";
+        private const string LayerLabBackgrounds = LayerLabRoot + "/ResourcesData/Sprites/Demo/Demo_Backgound";
+        private const string LayerLabIcons = LayerLabRoot + "/ResourcesData/Sprites/Components/Icon_PictoIcons(x2)/128";
+        private const string SurvivalistAnimationFolder = "Assets/Survivalist/StarterAssets/ThirdPersonController/Character/Animations";
+        private const string LowPolyGunFolder = "Assets/Low Poly Guns/Models/Guns";
+        private const string PostApocalypseGunAudio = "Assets/PostApocalypseGunsDemo";
 
-        [MenuItem("Zombie War/Open Level 01")]
+        [MenuItem("Zombie War/Open Level 01 _F8")]
         public static void OpenLevel01()
         {
             EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
         }
 
-        [MenuItem("Zombie War/Author Project Assets")]
+        [MenuItem("Zombie War/Open Boot _F7")]
+        public static void OpenBoot()
+        {
+            EditorSceneManager.OpenScene(SceneFolder + "/Boot.unity", OpenSceneMode.Single);
+        }
+
+        [MenuItem("Zombie War/Open Main Menu _F9")]
+        public static void OpenMainMenu()
+        {
+            EditorSceneManager.OpenScene(SceneFolder + "/MainMenu.unity", OpenSceneMode.Single);
+        }
+
+        [MenuItem("Zombie War/Author Project Assets _F6")]
         public static void AuthorProjectAssets()
         {
             ConfigurePlayerSettings();
@@ -284,20 +306,364 @@ namespace ZombieWar.Editor
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             root.name = "Soldier";
             root.tag = "Player";
-            root.GetComponent<MeshRenderer>().sharedMaterial = material;
+            root.GetComponent<MeshRenderer>().enabled = false;
             Rigidbody body = root.AddComponent<Rigidbody>();
             body.mass = 1.2f;
             body.constraints = RigidbodyConstraints.FreezeRotation;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             root.AddComponent<Health>();
+            SoldierAnimationController animation = root.AddComponent<SoldierAnimationController>();
             root.AddComponent<SoldierController>();
             root.AddComponent<WeaponController>();
+            SoldierWeaponVisualController weaponVisual = root.AddComponent<SoldierWeaponVisualController>();
+            AudioSource weaponAudio = root.GetComponent<AudioSource>();
+            weaponAudio.playOnAwake = false;
+            weaponAudio.spatialBlend = 0.55f;
+            weaponAudio.dopplerLevel = 0f;
+            weaponAudio.volume = 0.72f;
             BombController bomb = root.AddComponent<BombController>();
             bomb.SetPrefab(bombPrefab, 4);
             GameObject muzzle = new("Muzzle");
             muzzle.transform.SetParent(root.transform, false);
-            muzzle.transform.localPosition = new Vector3(0f, 0.9f, 0.9f);
+            muzzle.transform.localPosition = new Vector3(0f, 1.2f, 0.65f);
+
+            GameObject modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/SK_Military_Survivalist.prefab");
+            if (modelPrefab == null)
+            {
+                throw new FileNotFoundException("SK_Military_Survivalist.prefab must be placed in Assets/_ZombieWar/Prefabs.");
+            }
+
+            GameObject model = (GameObject)PrefabUtility.InstantiatePrefab(modelPrefab);
+            model.name = "Soldier Visual";
+            model.transform.SetParent(root.transform, false);
+            model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            Animator animator = model.GetComponent<Animator>();
+            animator.runtimeAnimatorController = CreateSoldierAnimatorController();
+            animator.applyRootMotion = false;
+            Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
+            CenterModelOnPhysicsRoot(model.transform, renderers);
+            SoldierWeaponIkController weaponIk = model.AddComponent<SoldierWeaponIkController>();
+            animation.SetViewReferences(animator, model.transform, renderers, weaponIk);
+            Material rifleWeaponMaterial = GetOrCreateWeaponMaterial(
+                "SoldierRifle",
+                LowPolyGunFolder + "/assault1/assault1_diffuse.png",
+                LowPolyGunFolder + "/assault1/assault1_normal.png");
+            Material shotgunWeaponMaterial = GetOrCreateWeaponMaterial(
+                "SoldierShotgun",
+                LowPolyGunFolder + "/shotgun2/shotgun2_diffuse.png",
+                LowPolyGunFolder + "/shotgun2/shotgun2_normal.png");
+            CreateWeaponMount(
+                model.transform,
+                "Assault Rifle",
+                LowPolyGunFolder + "/assault1/assault1.fbx",
+                new Vector3(0f, 1.34f, 0.42f),
+                new Vector3(0.09f, -0.015f, -0.05f),
+                new Vector3(-0.09f, -0.015f, 0.22f),
+                0.86f,
+                rifleWeaponMaterial,
+                out GameObject rifleModel,
+                out Transform rifleRightGrip,
+                out Transform rifleLeftGrip,
+                out Transform rifleMuzzle);
+            CreateWeaponMount(
+                model.transform,
+                "Shotgun",
+                LowPolyGunFolder + "/shotgun2/shotgun2.fbx",
+                new Vector3(0f, 1.32f, 0.44f),
+                new Vector3(0.09f, -0.02f, -0.06f),
+                new Vector3(-0.09f, -0.015f, 0.27f),
+                0.96f,
+                shotgunWeaponMaterial,
+                out GameObject shotgunModel,
+                out Transform shotgunRightGrip,
+                out Transform shotgunLeftGrip,
+                out Transform shotgunMuzzle);
+            weaponVisual.SetViewReferences(
+                new[] { rifleModel, shotgunModel },
+                new[] { rifleRightGrip, shotgunRightGrip },
+                new[] { rifleLeftGrip, shotgunLeftGrip },
+                new[] { rifleMuzzle, shotgunMuzzle },
+                new[]
+                {
+                    AssetDatabase.LoadAssetAtPath<AudioClip>(PostApocalypseGunAudio + "/AssaultRifles/AutoGun_3p_01.wav"),
+                    AssetDatabase.LoadAssetAtPath<AudioClip>(PostApocalypseGunAudio + "/Shotguns/JackHammer_3p_01.wav")
+                },
+                muzzle.transform,
+                weaponIk);
             return SavePrefab<SoldierController>(root, "Soldier");
+        }
+
+        private static RuntimeAnimatorController CreateSoldierAnimatorController()
+        {
+            string controllerPath = ConfigFolder + "/SoldierAnimator.controller";
+            AnimatorController existing = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
+            if (existing != null)
+            {
+                UpgradeDirectionalLocomotion(existing);
+                EnableAnimatorIk(existing);
+                return existing;
+            }
+
+            AnimationClip idle = LoadAnimationClip(SurvivalistAnimationFolder + "/Stand--Idle.anim.fbx");
+            AnimationClip run = LoadAnimationClip(SurvivalistAnimationFolder + "/Locomotion--Run_N.anim.fbx");
+            AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
+            controller.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            controller.AddParameter("MoveX", AnimatorControllerParameterType.Float);
+            controller.AddParameter("MoveY", AnimatorControllerParameterType.Float);
+            controller.AddParameter("Fire", AnimatorControllerParameterType.Trigger);
+            controller.AddParameter("Hit", AnimatorControllerParameterType.Trigger);
+            controller.AddParameter("Dead", AnimatorControllerParameterType.Bool);
+
+            AnimatorStateMachine baseMachine = controller.layers[0].stateMachine;
+            BlendTree locomotion = new()
+            {
+                name = "Locomotion",
+                blendType = BlendTreeType.Simple1D,
+                blendParameter = "Speed",
+                useAutomaticThresholds = false
+            };
+            locomotion.AddChild(idle, 0f);
+            locomotion.AddChild(run, 1f);
+            AssetDatabase.AddObjectToAsset(locomotion, controller);
+            AnimatorState locomotionState = baseMachine.AddState("Locomotion");
+            locomotionState.motion = locomotion;
+            baseMachine.defaultState = locomotionState;
+
+            AvatarMask upperBodyMask = GetOrCreateUpperBodyMask();
+            AnimatorStateMachine fireMachine = new() { name = "Upper Body Fire" };
+            AssetDatabase.AddObjectToAsset(fireMachine, controller);
+            AnimatorState readyState = fireMachine.AddState("Ready");
+            AnimatorState fireState = fireMachine.AddState("Fire");
+            fireState.motion = idle;
+            fireState.speed = 4f;
+            fireMachine.defaultState = readyState;
+            AnimatorStateTransition enterFire = fireMachine.AddAnyStateTransition(fireState);
+            enterFire.AddCondition(AnimatorConditionMode.If, 0f, "Fire");
+            enterFire.hasExitTime = false;
+            enterFire.duration = 0.02f;
+            enterFire.canTransitionToSelf = false;
+            AnimatorStateTransition leaveFire = fireState.AddTransition(readyState);
+            leaveFire.hasExitTime = true;
+            leaveFire.exitTime = 0.12f;
+            leaveFire.duration = 0.05f;
+            controller.AddLayer(new AnimatorControllerLayer
+            {
+                name = "Upper Body Fire",
+                defaultWeight = 1f,
+                avatarMask = upperBodyMask,
+                blendingMode = AnimatorLayerBlendingMode.Override,
+                stateMachine = fireMachine
+            });
+
+            EnableAnimatorIk(controller);
+            UpgradeDirectionalLocomotion(controller);
+            AssetDatabase.SaveAssets();
+            return controller;
+        }
+
+        private static void UpgradeDirectionalLocomotion(AnimatorController controller)
+        {
+            AddAnimatorParameterIfMissing(controller, "MoveX", AnimatorControllerParameterType.Float);
+            AddAnimatorParameterIfMissing(controller, "MoveY", AnimatorControllerParameterType.Float);
+
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(controller));
+            BlendTree locomotion = null;
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (assets[i] is BlendTree candidate && candidate.name == "Locomotion")
+                {
+                    locomotion = candidate;
+                    break;
+                }
+            }
+            if (locomotion == null)
+            {
+                throw new MissingReferenceException("SoldierAnimator requires a Locomotion blend tree.");
+            }
+
+            AnimationClip idle = LoadAnimationClip(SurvivalistAnimationFolder + "/Stand--Idle.anim.fbx");
+            AnimationClip run = LoadAnimationClip(SurvivalistAnimationFolder + "/Locomotion--Run_N.anim.fbx");
+            locomotion.blendType = BlendTreeType.FreeformCartesian2D;
+            locomotion.blendParameter = "MoveX";
+            locomotion.blendParameterY = "MoveY";
+            locomotion.children = new[]
+            {
+                new ChildMotion { motion = idle, position = Vector2.zero, timeScale = 1f },
+                new ChildMotion { motion = run, position = Vector2.up, timeScale = 1f },
+                new ChildMotion { motion = run, position = Vector2.down, timeScale = 1f },
+                new ChildMotion { motion = run, position = Vector2.left, timeScale = 1f, mirror = true },
+                new ChildMotion { motion = run, position = Vector2.right, timeScale = 1f }
+            };
+            EditorUtility.SetDirty(locomotion);
+        }
+
+        private static void AddAnimatorParameterIfMissing(
+            AnimatorController controller,
+            string parameterName,
+            AnimatorControllerParameterType parameterType)
+        {
+            AnimatorControllerParameter[] parameters = controller.parameters;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].name == parameterName)
+                {
+                    return;
+                }
+            }
+            controller.AddParameter(parameterName, parameterType);
+        }
+
+        private static void EnableAnimatorIk(AnimatorController controller)
+        {
+            AnimatorControllerLayer[] layers = controller.layers;
+            for (int i = 0; i < layers.Length; i++)
+            {
+                layers[i].iKPass = true;
+            }
+            controller.layers = layers;
+            EditorUtility.SetDirty(controller);
+        }
+
+        private static void CreateWeaponMount(
+            Transform visualRoot,
+            string weaponName,
+            string modelPath,
+            Vector3 mountPosition,
+            Vector3 rightGripPosition,
+            Vector3 leftGripPosition,
+            float targetLength,
+            Material weaponMaterial,
+            out GameObject mount,
+            out Transform rightGrip,
+            out Transform leftGrip,
+            out Transform muzzle)
+        {
+            mount = new GameObject(weaponName + " Mount");
+            mount.transform.SetParent(visualRoot, false);
+            mount.transform.localPosition = mountPosition;
+
+            GameObject weaponPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+            if (weaponPrefab == null)
+            {
+                throw new FileNotFoundException($"Weapon model was not found: {modelPath}");
+            }
+
+            GameObject weaponModel = (GameObject)PrefabUtility.InstantiatePrefab(weaponPrefab);
+            weaponModel.name = weaponName + " Model";
+            weaponModel.transform.SetParent(mount.transform, false);
+            AlignWeaponModel(weaponModel.transform, targetLength);
+            Renderer[] weaponRenderers = weaponModel.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < weaponRenderers.Length; i++)
+            {
+                weaponRenderers[i].sharedMaterial = weaponMaterial;
+            }
+
+            rightGrip = CreateWeaponPoint(mount.transform, "Right Hand Grip", rightGripPosition);
+            leftGrip = CreateWeaponPoint(mount.transform, "Left Hand Grip", leftGripPosition);
+            muzzle = CreateWeaponPoint(mount.transform, "Muzzle", new Vector3(0f, 0f, targetLength * 0.56f));
+            rightGrip.localRotation = Quaternion.Euler(0f, 90f, 75f);
+            leftGrip.localRotation = Quaternion.Euler(0f, 90f, 85f);
+        }
+
+        private static Transform CreateWeaponPoint(Transform parent, string name, Vector3 localPosition)
+        {
+            Transform point = new GameObject(name).transform;
+            point.SetParent(parent, false);
+            point.localPosition = localPosition;
+            return point;
+        }
+
+        private static void AlignWeaponModel(Transform weapon, float targetLength)
+        {
+            Renderer[] renderers = weapon.GetComponentsInChildren<Renderer>(true);
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+
+            if (bounds.size.x > bounds.size.z)
+            {
+                weapon.localRotation = Quaternion.Euler(0f, -90f, 0f);
+            }
+
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+            float currentLength = Mathf.Max(bounds.size.x, bounds.size.z);
+            weapon.localScale = Vector3.one * (targetLength / Mathf.Max(0.001f, currentLength));
+        }
+
+        private static Material GetOrCreateWeaponMaterial(string name, string diffusePath, string normalPath)
+        {
+            string materialPath = MaterialFolder + "/" + name + ".mat";
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                AssetDatabase.CreateAsset(material, materialPath);
+            }
+
+            material.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(diffusePath));
+            material.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath));
+            material.SetFloat("_BumpScale", 0.7f);
+            material.EnableKeyword("_NORMALMAP");
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
+        private static AvatarMask GetOrCreateUpperBodyMask()
+        {
+            string maskPath = ConfigFolder + "/SoldierUpperBody.mask";
+            AvatarMask mask = AssetDatabase.LoadAssetAtPath<AvatarMask>(maskPath);
+            if (mask != null)
+            {
+                return mask;
+            }
+
+            mask = new AvatarMask();
+            for (int i = 0; i < (int)AvatarMaskBodyPart.LastBodyPart; i++)
+            {
+                mask.SetHumanoidBodyPartActive((AvatarMaskBodyPart)i, false);
+            }
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Body, true);
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Head, true);
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.LeftArm, true);
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.RightArm, true);
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.LeftFingers, true);
+            mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.RightFingers, true);
+            AssetDatabase.CreateAsset(mask, maskPath);
+            return mask;
+        }
+
+        private static AnimationClip LoadAnimationClip(string assetPath)
+        {
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (assets[i] is AnimationClip clip && !clip.name.StartsWith("__preview__"))
+                {
+                    return clip;
+                }
+            }
+            throw new FileNotFoundException($"Animation clip was not found at {assetPath}.");
+        }
+
+        private static void CenterModelOnPhysicsRoot(Transform model, Renderer[] renderers)
+        {
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                if (renderers[i].gameObject.activeInHierarchy)
+                {
+                    bounds.Encapsulate(renderers[i].bounds);
+                }
+            }
+
+            Vector3 offset = new(-bounds.center.x, -1f - bounds.min.y, -bounds.center.z);
+            model.position += offset;
         }
 
         private static RuntimeHud CreateHudPrefab()
@@ -315,26 +681,63 @@ namespace ZombieWar.Editor
             RectTransform safe = safeObject.GetComponent<RectTransform>();
             Stretch(safe, Vector2.zero, Vector2.one);
 
-            Image healthFill = CreateBar(safe, "Health", new Vector2(0.05f, 0.94f), new Vector2(0.42f, 0.975f), new Color(0.9f, 0.16f, 0.12f));
-            TextMeshProUGUI timer = CreateText(safe, "03:00", 54, TextAlignmentOptions.Center, new Vector2(0.35f, 0.92f), new Vector2(0.65f, 0.99f));
-            TextMeshProUGUI weapon = CreateText(safe, "ASSAULT RIFLE", 34, TextAlignmentOptions.MidlineRight, new Vector2(0.56f, 0.865f), new Vector2(0.95f, 0.92f));
-            TextMeshProUGUI crowd = CreateText(safe, "THREAT  000", 28, TextAlignmentOptions.Center, new Vector2(0.33f, 0.855f), new Vector2(0.67f, 0.9f));
+            GameObject healthObject = InstantiateLayerLabPrefab(LayerLabSliderPrefabs + "/Slider06_Red.prefab", safe, "Health");
+            ConfigureAnchoredPrefab(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(270f, -92f), 0.92f);
+            Slider healthSlider = healthObject.GetComponent<Slider>();
+            healthSlider.interactable = false;
+            Image healthFill = healthSlider.fillRect.GetComponent<Image>();
+            TMP_Text healthValue = FindChildComponent<TMP_Text>(healthObject.transform, "Text_Value");
+            healthValue.gameObject.SetActive(false);
+            TMP_Text healthLabel = FindChildComponent<TMP_Text>(healthObject.transform, "Text");
+            healthLabel.text = "HP";
 
-            Image joystickBackground = CreateImage(safe, "Joystick", new Color(0.05f, 0.08f, 0.12f, 0.58f), new Vector2(0.05f, 0.04f), new Vector2(0.42f, 0.25f));
-            Image joystickHandle = CreateImage(joystickBackground.rectTransform, "Handle", new Color(0.25f, 0.65f, 1f, 0.9f), new Vector2(0.3f, 0.3f), new Vector2(0.7f, 0.7f));
-            VirtualJoystick joystick = joystickBackground.gameObject.AddComponent<VirtualJoystick>();
-            joystick.Configure(joystickBackground.rectTransform, joystickHandle.rectTransform);
+            GameObject timerObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Time.prefab", safe, "Mission Timer");
+            ConfigureAnchoredPrefab(timerObject.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0f, -78f), 0.72f);
+            SetChildActive(timerObject.transform, "Score 1", false);
+            SetChildActive(timerObject.transform, "Score 2", false);
+            TextMeshProUGUI timer = FindChildComponent<TextMeshProUGUI>(timerObject.transform, "Text_Value");
+            timer.text = "03:00";
 
-            Button switchButton = CreateButton(safe, "SWITCH", new Vector2(0.68f, 0.16f), new Vector2(0.95f, 0.24f));
-            Button bombButton = CreateButton(safe, "BOMB", new Vector2(0.72f, 0.045f), new Vector2(0.95f, 0.145f));
-            Image bombFill = bombButton.GetComponent<Image>();
+            TextMeshProUGUI weapon = CreateText(safe, "ASSAULT RIFLE", 34, TextAlignmentOptions.MidlineRight, new Vector2(0.52f, 0.88f), new Vector2(0.94f, 0.925f));
+            TextMeshProUGUI crowd = CreateText(safe, "THREAT  000", 28, TextAlignmentOptions.Center, new Vector2(0.32f, 0.84f), new Vector2(0.68f, 0.89f));
+            weapon.font = timer.font;
+            crowd.font = timer.font;
+
+            GameObject joystickObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab", safe, "Movement Joystick");
+            ConfigureAnchoredPrefab(joystickObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(-55f, 235f), 0.82f);
+            RectTransform joystickHandle = FindChildComponent<RectTransform>(joystickObject.transform, "Handle");
+            joystickHandle.anchoredPosition = Vector2.zero;
+            VirtualJoystick joystick = joystickObject.AddComponent<VirtualJoystick>();
+            joystick.Configure(joystickObject.GetComponent<RectTransform>(), joystickHandle);
+
+            Button switchButton = CreateLayerLabButton(
+                safe,
+                "Switch Weapon",
+                "SWITCH",
+                LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab",
+                LayerLabIcons + "/Icon_Change.Png",
+                new Vector2(1f, 0.5f),
+                new Vector2(-155f, 145f),
+                0.62f);
+            Button bombButton = CreateLayerLabButton(
+                safe,
+                "Throw Bomb",
+                "BOMB",
+                LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab",
+                LayerLabIcons + "/Icon_Grenade_1.Png",
+                new Vector2(1f, 0.5f),
+                new Vector2(-155f, -35f),
+                0.62f);
+            Image bombFill = CreateImage(bombButton.GetComponent<RectTransform>(), "Cooldown", new Color(0.01f, 0.02f, 0.04f, 0.72f), Vector2.zero, Vector2.one);
+            bombFill.raycastTarget = false;
             bombFill.type = Image.Type.Filled;
             bombFill.fillMethod = Image.FillMethod.Radial360;
 
-            Image panel = CreateImage(safe, "Result", new Color(0.025f, 0.035f, 0.055f, 0.94f), new Vector2(0.12f, 0.32f), new Vector2(0.88f, 0.68f));
+            Image panel = CreateImage(safe, "Result", new Color(0.025f, 0.055f, 0.095f, 0.97f), new Vector2(0.08f, 0.29f), new Vector2(0.92f, 0.71f));
             TextMeshProUGUI resultText = CreateText(panel.rectTransform, "AREA SECURED", 62, TextAlignmentOptions.Center, new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.92f));
-            Button retry = CreateButton(panel.rectTransform, "RETRY", new Vector2(0.12f, 0.28f), new Vector2(0.88f, 0.5f));
-            Button next = CreateButton(panel.rectTransform, "NEXT AREA", new Vector2(0.12f, 0.06f), new Vector2(0.88f, 0.25f));
+            resultText.font = timer.font;
+            Button retry = CreateLayerLabButton(panel.rectTransform, "Retry", "RETRY", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab", null, new Vector2(0.5f, 0.38f), Vector2.zero, 0.85f);
+            Button next = CreateLayerLabButton(panel.rectTransform, "Next", "NEXT AREA", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab", null, new Vector2(0.5f, 0.14f), Vector2.zero, 0.85f);
             panel.gameObject.SetActive(false);
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
@@ -354,7 +757,32 @@ namespace ZombieWar.Editor
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Boot";
-            new GameObject("Boot Scene Controller", typeof(BootSceneController));
+            CreateUiCamera();
+            BootSceneController controller = new GameObject("Boot Scene Controller", typeof(BootSceneController)).GetComponent<BootSceneController>();
+
+            GameObject canvasObject = CreatePortraitCanvas("Loading Canvas");
+            RectTransform root = canvasObject.GetComponent<RectTransform>();
+            CreateLayerLabBackground(root, LayerLabBackgrounds + "/Background_02.png", new Color(0.65f, 0.78f, 0.95f, 1f));
+            Image shade = CreateImage(root, "Portrait Shade", new Color(0.015f, 0.035f, 0.075f, 0.35f), Vector2.zero, Vector2.one);
+            shade.raycastTarget = false;
+
+            TextMeshProUGUI title = CreateText(root, "ZOMBIE WAR", 86, TextAlignmentOptions.Center, new Vector2(0.08f, 0.64f), new Vector2(0.92f, 0.76f));
+            title.color = new Color(0.55f, 0.92f, 1f);
+            TextMeshProUGUI subtitle = CreateText(root, "PREPARING THE SAFE ZONE", 30, TextAlignmentOptions.Center, new Vector2(0.08f, 0.57f), new Vector2(0.92f, 0.63f));
+            subtitle.color = new Color(0.7f, 0.82f, 0.9f);
+
+            GameObject loadingObject = InstantiateLayerLabPrefab(LayerLabSliderPrefabs + "/Slider06_Blue.prefab", root, "Loading Progress");
+            ConfigureAnchoredPrefab(loadingObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.18f), Vector2.zero, 1.85f);
+            Slider slider = loadingObject.GetComponent<Slider>();
+            slider.interactable = false;
+            Image fill = slider.fillRect.GetComponent<Image>();
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Horizontal;
+            TMP_Text loadingText = FindChildComponent<TMP_Text>(loadingObject.transform, "Text_Value");
+            loadingText.text = "LOADING... 00%";
+            TMP_Text label = FindChildComponent<TMP_Text>(loadingObject.transform, "Text");
+            label.gameObject.SetActive(false);
+            controller.SetViewReferences(fill, loadingText);
             EditorSceneManager.SaveScene(scene, SceneFolder + "/Boot.unity");
         }
 
@@ -362,22 +790,22 @@ namespace ZombieWar.Editor
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "MainMenu";
+            CreateUiCamera();
             MainMenuController controller = new GameObject("Main Menu Controller", typeof(MainMenuController)).GetComponent<MainMenuController>();
             CreateEventSystem();
 
-            GameObject canvasObject = new("Menu Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            Canvas canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
-            scaler.matchWidthOrHeight = 0.5f;
+            GameObject canvasObject = CreatePortraitCanvas("Menu Canvas");
             RectTransform root = canvasObject.GetComponent<RectTransform>();
 
-            CreateText(root, "ZOMBIE\nWAR", 118, TextAlignmentOptions.Center, new Vector2(0.08f, 0.62f), new Vector2(0.92f, 0.9f));
-            CreateText(root, "SURVIVE THE SWARM", 34, TextAlignmentOptions.Center, new Vector2(0.1f, 0.54f), new Vector2(0.9f, 0.62f));
-            Button start = CreateButton(root, "START", new Vector2(0.14f, 0.3f), new Vector2(0.86f, 0.4f));
-            Button levelTwo = CreateButton(root, "LEVEL 2", new Vector2(0.14f, 0.18f), new Vector2(0.86f, 0.28f));
+            CreateLayerLabBackground(root, LayerLabBackgrounds + "/Background_01.png", Color.white);
+            Image shade = CreateImage(root, "Menu Shade", new Color(0.01f, 0.02f, 0.04f, 0.38f), Vector2.zero, Vector2.one);
+            shade.raycastTarget = false;
+            TextMeshProUGUI title = CreateText(root, "ZOMBIE\nWAR", 112, TextAlignmentOptions.Center, new Vector2(0.08f, 0.66f), new Vector2(0.92f, 0.88f));
+            title.color = new Color(0.55f, 0.94f, 1f);
+            TextMeshProUGUI subtitle = CreateText(root, "SURVIVE THE SWARM", 34, TextAlignmentOptions.Center, new Vector2(0.1f, 0.58f), new Vector2(0.9f, 0.65f));
+            subtitle.color = new Color(0.78f, 0.86f, 0.92f);
+            Button start = CreateLayerLabButton(root, "Start Level 1", "START", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab", null, new Vector2(0.5f, 0.36f), Vector2.zero, 1.35f);
+            Button levelTwo = CreateLayerLabButton(root, "Start Level 2", "LEVEL 2", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab", null, new Vector2(0.5f, 0.24f), Vector2.zero, 1.15f);
             UnityEventTools.AddPersistentListener(start.onClick, controller.LoadLevelOne);
             UnityEventTools.AddPersistentListener(levelTwo.onClick, controller.LoadLevelTwo);
             EditorSceneManager.SaveScene(scene, SceneFolder + "/MainMenu.unity");
@@ -549,6 +977,120 @@ namespace ZombieWar.Editor
             instance.transform.localScale = scale;
             instance.GetComponent<MeshRenderer>().sharedMaterial = material;
             return instance;
+        }
+
+        private static GameObject CreatePortraitCanvas(string name)
+        {
+            GameObject canvasObject = new(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            Canvas canvas = canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            scaler.matchWidthOrHeight = 0.5f;
+            return canvasObject;
+        }
+
+        private static void CreateUiCamera()
+        {
+            GameObject cameraObject = new("UI Camera", typeof(Camera), typeof(AudioListener));
+            Camera camera = cameraObject.GetComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.008f, 0.012f, 0.02f, 1f);
+            camera.cullingMask = 0;
+        }
+
+        private static GameObject InstantiateLayerLabPrefab(string path, Transform parent, string name)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab == null)
+            {
+                throw new FileNotFoundException($"Layer Lab prefab was not found: {path}");
+            }
+
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            instance.name = name;
+            instance.transform.SetParent(parent, false);
+            return instance;
+        }
+
+        private static Button CreateLayerLabButton(
+            RectTransform parent,
+            string name,
+            string label,
+            string prefabPath,
+            string iconPath,
+            Vector2 anchor,
+            Vector2 anchoredPosition,
+            float scale)
+        {
+            GameObject instance = InstantiateLayerLabPrefab(prefabPath, parent, name);
+            ConfigureAnchoredPrefab(instance.GetComponent<RectTransform>(), anchor, anchoredPosition, scale);
+            Button button = instance.GetComponent<Button>();
+            TMP_Text text = FindChildComponent<TMP_Text>(instance.transform, "Text (TMP)");
+            text.text = label;
+            Transform counter = FindChild(instance.transform, "Text");
+            if (counter != null)
+            {
+                counter.gameObject.SetActive(false);
+            }
+
+            if (!string.IsNullOrEmpty(iconPath))
+            {
+                Image icon = FindChildComponent<Image>(instance.transform, "Icon");
+                icon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
+                icon.preserveAspect = true;
+            }
+            return button;
+        }
+
+        private static void CreateLayerLabBackground(RectTransform parent, string spritePath, Color color)
+        {
+            Image background = CreateImage(parent, "Layer Lab Background", color, Vector2.zero, Vector2.one);
+            background.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+            background.preserveAspect = false;
+            background.raycastTarget = false;
+        }
+
+        private static void ConfigureAnchoredPrefab(RectTransform rect, Vector2 anchor, Vector2 anchoredPosition, float scale)
+        {
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPosition;
+            rect.localScale = Vector3.one * scale;
+        }
+
+        private static T FindChildComponent<T>(Transform root, string name) where T : Component
+        {
+            Transform child = FindChild(root, name);
+            if (child == null || !child.TryGetComponent(out T component))
+            {
+                throw new MissingComponentException($"{root.name} requires a child named '{name}' with {typeof(T).Name}.");
+            }
+            return component;
+        }
+
+        private static Transform FindChild(Transform root, string name)
+        {
+            Transform[] children = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                if (children[i].name == name)
+                {
+                    return children[i];
+                }
+            }
+            return null;
+        }
+
+        private static void SetChildActive(Transform root, string name, bool active)
+        {
+            Transform child = FindChild(root, name);
+            if (child != null)
+            {
+                child.gameObject.SetActive(active);
+            }
         }
 
         private static Image CreateBar(RectTransform parent, string name, Vector2 min, Vector2 max, Color color)

@@ -4,7 +4,7 @@ using ZombieWar.Combat;
 
 namespace ZombieWar.Player
 {
-    [RequireComponent(typeof(Rigidbody), typeof(Health))]
+    [RequireComponent(typeof(Rigidbody), typeof(Health), typeof(SoldierAnimationController))]
     public sealed class SoldierController : MonoBehaviour
     {
         #region Config
@@ -14,23 +14,22 @@ namespace ZombieWar.Player
         #region Refs
         private Rigidbody _rigidbody;
         private Health _health;
-        private Renderer _renderer;
+        private WeaponController _weaponController;
+        private SoldierAnimationController _animationController;
         #endregion
 
         #region State
         private Vector2 _moveInput;
-        private float _damageFlashUntil;
-        private MaterialPropertyBlock _propertyBlock;
         public Health Health => _health;
         #endregion
 
         #region Lifecycle
         private void Awake()
         {
-            _propertyBlock = new MaterialPropertyBlock();
             if (!TryGetComponent(out _rigidbody)
                 || !TryGetComponent(out _health)
-                || !TryGetComponent(out _renderer))
+                || !TryGetComponent(out _weaponController)
+                || !TryGetComponent(out _animationController))
             {
                 Debug.LogError("[Zombie War] Soldier is missing a required component.", this);
                 enabled = false;
@@ -40,6 +39,8 @@ namespace ZombieWar.Player
             _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
             _health.Damaged += OnDamaged;
+            _health.Died += OnDied;
+            _weaponController.Fired += OnFired;
         }
 
         private void Update()
@@ -54,13 +55,9 @@ namespace ZombieWar.Player
                 _moveInput = Vector2.ClampMagnitude(keyboard, 1f);
             }
 
-            _renderer.GetPropertyBlock(_propertyBlock);
-            _propertyBlock.SetColor(
-                "_BaseColor",
-                Time.time < _damageFlashUntil
-                    ? new Color(1f, 0.2f, 0.12f)
-                    : new Color(0.12f, 0.45f, 0.85f));
-            _renderer.SetPropertyBlock(_propertyBlock);
+            Vector3 worldMovement = new(_moveInput.x, 0f, _moveInput.y);
+            Vector3 localMovement = transform.InverseTransformDirection(worldMovement);
+            _animationController.SetMovement(new Vector2(localMovement.x, localMovement.z));
         }
 
         private void FixedUpdate()
@@ -80,6 +77,11 @@ namespace ZombieWar.Player
             if (_health != null)
             {
                 _health.Damaged -= OnDamaged;
+                _health.Died -= OnDied;
+            }
+            if (_weaponController != null)
+            {
+                _weaponController.Fired -= OnFired;
             }
         }
         #endregion
@@ -94,7 +96,17 @@ namespace ZombieWar.Player
         #region Internal
         private void OnDamaged(DamageInfo damage)
         {
-            _damageFlashUntil = Time.time + 0.12f;
+            _animationController.TriggerHit();
+        }
+
+        private void OnFired(float recoil)
+        {
+            _animationController.TriggerFire(recoil);
+        }
+
+        private void OnDied()
+        {
+            _animationController.SetDead();
         }
         #endregion
     }
