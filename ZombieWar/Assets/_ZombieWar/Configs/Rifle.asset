@@ -21,3 +21,15 @@ MonoBehaviour:
   _spreadDegrees: 1.5
   _recoil: 0.08
   _accentColor: {r: 1, g: 0.72, b: 0.12, a: 1}
+  _icon:
+    m_AssetGUID: 08b09a045ca934b279e24e5f23abf290
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _viewPrefab:
+    m_AssetGUID: 33269b2b610f4c245a712795c1927939
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

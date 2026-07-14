@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-Weapons
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-Weapons
+  m_GUID: c98aab00bcc2b6b4694960465f59bc2c
+  m_SerializeEntries:
+  - m_GUID: 08b09a045ca934b279e24e5f23abf290
+    m_Address: weapons/rifle/icon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33269b2b610f4c245a712795c1927939
+    m_Address: weapons/rifle/view
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 70373c395678d4a798f2a819e8ce47e6
+    m_Address: weapons/shotgun/icon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8b36fb41929fc22429f0083d817b8040
+    m_Address: weapons/shotgun/view
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 46bea22aabaae0e4c98636e212e1123c, type: 2}
+    - {fileID: 11400000, guid: 5a71857cb2a50c842a77331145311089, type: 2}

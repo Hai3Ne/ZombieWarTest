@@ -110,6 +110,7 @@ namespace ZombieWar.Editor
             rifle.Configure("ASSAULT RIFLE", 18f, 0.12f, 20f, 36f, 1, 1.5f, 0.08f, new Color(1f, 0.72f, 0.12f));
             WeaponConfig shotgun = GetOrCreateAsset<WeaponConfig>("Shotgun");
             shotgun.Configure("SHOTGUN", 14f, 0.62f, 11f, 30f, 7, 10f, 0.24f, new Color(1f, 0.28f, 0.08f));
+            ConfigureWeaponPresentation(rifle, shotgun);
             EditorUtility.SetDirty(rifle);
             EditorUtility.SetDirty(shotgun);
 
@@ -222,14 +223,65 @@ namespace ZombieWar.Editor
             QualitySettings.renderPipeline = pipeline;
             PlayerSettings.companyName = "Two Sleepy Cats";
             PlayerSettings.productName = "Zombie War";
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
-            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
-            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+            PlayerSettings.allowedAutorotateToLandscapeRight = true;
+            PlayerSettings.defaultScreenWidth = 2560;
+            PlayerSettings.defaultScreenHeight = 1440;
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.twosleepycats.zombiewar");
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+        }
+
+        private static void ConfigureWeaponPresentation(WeaponConfig rifle, WeaponConfig shotgun)
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+            AddressableAssetGroup group = settings.FindGroup("ZombieWar-Weapons");
+            if (group == null)
+            {
+                group = settings.CreateGroup(
+                    "ZombieWar-Weapons",
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema));
+            }
+
+            BundledAssetGroupSchema bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+            bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+            bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+
+            string rifleIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_0.Png", "weapons/rifle/icon", "weapons");
+            string rifleView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/assault1/assault1.fbx", "weapons/rifle/view", "weapons");
+            string shotgunIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_1.Png", "weapons/shotgun/icon", "weapons");
+            string shotgunView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/shotgun2/shotgun2.fbx", "weapons/shotgun/view", "weapons");
+
+            rifle.ConfigurePresentation(new AssetReferenceSprite(rifleIcon), new AssetReferenceT<GameObject>(rifleView));
+            shotgun.ConfigurePresentation(new AssetReferenceSprite(shotgunIcon), new AssetReferenceT<GameObject>(shotgunView));
+            EditorUtility.SetDirty(settings);
+        }
+
+        private static string ConfigureAddressableEntry(
+            AddressableAssetSettings settings,
+            AddressableAssetGroup group,
+            string assetPath,
+            string address,
+            string label)
+        {
+            string guid = AssetDatabase.AssetPathToGUID(assetPath);
+            if (string.IsNullOrEmpty(guid))
+            {
+                throw new FileNotFoundException($"Addressable asset was not found: {assetPath}.");
+            }
+
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group, false, false);
+            entry.address = address;
+            entry.SetLabel(label, true, true);
+            return guid;
         }
 
         private static void EnsureFolders()
@@ -939,6 +991,10 @@ namespace ZombieWar.Editor
             weaponAudio.volume = 0.72f;
             BombController bomb = root.AddComponent<BombController>();
             bomb.SetPrefab(bombPrefab, 4);
+            Material aimMaterial = GetOrCreateMaterial("BombAim", new Color(0.2f, 0.95f, 0.55f, 0.9f), "Universal Render Pipeline/Unlit");
+            LineRenderer trajectory = CreateBombPreviewLine(root.transform, "Bomb Trajectory", aimMaterial, 0.075f, false);
+            LineRenderer rangeRing = CreateBombPreviewLine(root.transform, "Bomb Range", aimMaterial, 0.035f, true);
+            bomb.SetPreviewReferences(trajectory, rangeRing);
             GameObject muzzle = new("Muzzle");
             muzzle.transform.SetParent(root.transform, false);
             muzzle.transform.localPosition = new Vector3(0f, 1.2f, 0.65f);
@@ -1010,6 +1066,22 @@ namespace ZombieWar.Editor
                 muzzle.transform,
                 weaponIk);
             return SavePrefab<SoldierController>(root, "Soldier");
+        }
+
+        private static LineRenderer CreateBombPreviewLine(Transform parent, string name, Material material, float width, bool loop)
+        {
+            GameObject lineObject = new(name, typeof(LineRenderer));
+            lineObject.transform.SetParent(parent, false);
+            LineRenderer line = lineObject.GetComponent<LineRenderer>();
+            line.sharedMaterial = material;
+            line.useWorldSpace = true;
+            line.startWidth = width;
+            line.endWidth = width;
+            line.numCapVertices = 3;
+            line.numCornerVertices = 2;
+            line.loop = loop;
+            line.enabled = false;
+            return line;
         }
 
         private static RuntimeAnimatorController CreateSoldierAnimatorController()
@@ -1270,12 +1342,12 @@ namespace ZombieWar.Editor
 
         private static RuntimeHud CreateHudPrefab()
         {
-            GameObject root = new("Portrait HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(RuntimeHud));
+            GameObject root = new("Landscape HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(RuntimeHud), typeof(WeaponRadialMenu));
             Canvas canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             CanvasScaler scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            scaler.referenceResolution = new Vector2(2560f, 1440f);
             scaler.matchWidthOrHeight = 0.5f;
 
             GameObject safeObject = new("Safe Area", typeof(RectTransform), typeof(SafeAreaFitter));
@@ -1284,7 +1356,7 @@ namespace ZombieWar.Editor
             Stretch(safe, Vector2.zero, Vector2.one);
 
             GameObject healthObject = InstantiateLayerLabPrefab(LayerLabSliderPrefabs + "/Slider06_Red.prefab", safe, "Health");
-            ConfigureAnchoredPrefab(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(270f, -92f), 0.92f);
+            ConfigureAnchoredPrefab(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(285f, -86f), 0.82f);
             Slider healthSlider = healthObject.GetComponent<Slider>();
             healthSlider.interactable = false;
             Image healthFill = healthSlider.fillRect.GetComponent<Image>();
@@ -1294,14 +1366,14 @@ namespace ZombieWar.Editor
             healthLabel.text = "HP";
 
             GameObject timerObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Time.prefab", safe, "Mission Timer");
-            ConfigureAnchoredPrefab(timerObject.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0f, -78f), 0.72f);
+            ConfigureAnchoredPrefab(timerObject.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0f, -72f), 0.66f);
             SetChildActive(timerObject.transform, "Score 1", false);
             SetChildActive(timerObject.transform, "Score 2", false);
             TextMeshProUGUI timer = FindChildComponent<TextMeshProUGUI>(timerObject.transform, "Text_Value");
             timer.text = "03:00";
 
-            TextMeshProUGUI weapon = CreateText(safe, "ASSAULT RIFLE", 34, TextAlignmentOptions.MidlineRight, new Vector2(0.52f, 0.88f), new Vector2(0.94f, 0.925f));
-            TextMeshProUGUI crowd = CreateText(safe, "THREAT  000", 28, TextAlignmentOptions.Center, new Vector2(0.32f, 0.84f), new Vector2(0.68f, 0.89f));
+            TextMeshProUGUI weapon = CreateText(safe, "ASSAULT RIFLE", 34, TextAlignmentOptions.MidlineRight, new Vector2(0.74f, 0.91f), new Vector2(0.96f, 0.965f));
+            TextMeshProUGUI crowd = CreateText(safe, "THREAT  000", 28, TextAlignmentOptions.Center, new Vector2(0.42f, 0.875f), new Vector2(0.58f, 0.92f));
             weapon.font = timer.font;
             crowd.font = timer.font;
 
@@ -1310,7 +1382,7 @@ namespace ZombieWar.Editor
                 "Joystick Input Zone",
                 Color.clear,
                 Vector2.zero,
-                new Vector2(1f, 0.43f));
+                new Vector2(0.48f, 0.62f));
             joystickZoneImage.raycastTarget = true;
             RectTransform joystickZone = joystickZoneImage.rectTransform;
 
@@ -1337,21 +1409,46 @@ namespace ZombieWar.Editor
                 LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab",
                 LayerLabIcons + "/Icon_Change.Png",
                 new Vector2(1f, 0.5f),
-                new Vector2(-155f, 145f),
-                0.62f);
-            Button bombButton = CreateLayerLabButton(
-                safe,
-                "Throw Bomb",
-                "BOMB",
-                LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab",
-                LayerLabIcons + "/Icon_Grenade_1.Png",
-                new Vector2(1f, 0.5f),
-                new Vector2(-155f, -35f),
-                0.62f);
-            Image bombFill = CreateImage(bombButton.GetComponent<RectTransform>(), "Cooldown", new Color(0.01f, 0.02f, 0.04f, 0.72f), Vector2.zero, Vector2.one);
+                new Vector2(-175f, 185f),
+                0.58f);
+
+            GameObject bombJoystickObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab", safe, "Bomb Aim Joystick");
+            RectTransform bombJoystickRect = bombJoystickObject.GetComponent<RectTransform>();
+            ConfigureAnchoredPrefab(bombJoystickRect, new Vector2(1f, 0f), new Vector2(-245f, 235f), 0.68f);
+            RectTransform bombHandle = FindChildComponent<RectTransform>(bombJoystickObject.transform, "Handle");
+            Image bombInput = CreateImage(bombJoystickRect, "Bomb Input", Color.clear, Vector2.zero, Vector2.one);
+            bombInput.raycastTarget = true;
+            BombAimJoystick bombJoystick = bombInput.gameObject.AddComponent<BombAimJoystick>();
+            bombJoystick.Configure(bombJoystickRect, bombHandle);
+            Image bombHandleIcon = bombHandle.GetComponent<Image>();
+            bombHandleIcon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(LayerLabIcons + "/Icon_Grenade_1.Png");
+            bombHandleIcon.preserveAspect = true;
+            Image bombFill = CreateImage(bombJoystickRect, "Cooldown", new Color(0.01f, 0.02f, 0.04f, 0.72f), Vector2.zero, Vector2.one);
             bombFill.raycastTarget = false;
             bombFill.type = Image.Type.Filled;
             bombFill.fillMethod = Image.FillMethod.Radial360;
+
+            GameObject slotsRoot = new("Weapon Slots", typeof(RectTransform));
+            slotsRoot.transform.SetParent(safe, false);
+            Stretch(slotsRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+            Button[] slotButtons = new Button[3];
+            Image[] slotIcons = new Image[3];
+            Vector2[] slotOffsets = { new(-330f, 325f), new(-400f, 185f), new(-330f, 45f) };
+            for (int i = 0; i < slotButtons.Length; i++)
+            {
+                slotButtons[i] = CreateLayerLabButton(
+                    slotsRoot.GetComponent<RectTransform>(),
+                    $"Weapon Slot {i + 1}",
+                    string.Empty,
+                    LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab",
+                    LayerLabIcons + "/Icon_Gun_3.Png",
+                    new Vector2(1f, 0.5f),
+                    slotOffsets[i],
+                    0.43f);
+                slotIcons[i] = FindChildComponent<Image>(slotButtons[i].transform, "Icon");
+            }
+            WeaponRadialMenu weaponMenu = root.GetComponent<WeaponRadialMenu>();
+            weaponMenu.SetViewReferences(switchButton, slotsRoot, slotButtons, slotIcons);
 
             Image panel = CreateImage(safe, "Result", new Color(0.025f, 0.055f, 0.095f, 0.97f), new Vector2(0.08f, 0.29f), new Vector2(0.92f, 0.71f));
             TextMeshProUGUI resultText = CreateText(panel.rectTransform, "AREA SECURED", 62, TextAlignmentOptions.Center, new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.92f));
@@ -1361,8 +1458,8 @@ namespace ZombieWar.Editor
             panel.gameObject.SetActive(false);
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
-            hud.SetViewReferences(joystick, healthFill, bombFill, timer, weapon, crowd, panel.gameObject, resultText, switchButton, bombButton, retry, next);
-            return SavePrefab<RuntimeHud>(root, "PortraitHUD");
+            hud.SetViewReferences(joystick, bombJoystick, weaponMenu, healthFill, bombFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
+            return SavePrefab<RuntimeHud>(root, "LandscapeHUD");
         }
 
         private static T SavePrefab<T>(GameObject root, string name) where T : Component
@@ -1380,10 +1477,10 @@ namespace ZombieWar.Editor
             CreateUiCamera();
             BootSceneController controller = new GameObject("Boot Scene Controller", typeof(BootSceneController)).GetComponent<BootSceneController>();
 
-            GameObject canvasObject = CreatePortraitCanvas("Loading Canvas");
+            GameObject canvasObject = CreateLandscapeCanvas("Loading Canvas");
             RectTransform root = canvasObject.GetComponent<RectTransform>();
             CreateLayerLabBackground(root, LayerLabBackgrounds + "/Background_02.png", new Color(0.65f, 0.78f, 0.95f, 1f));
-            Image shade = CreateImage(root, "Portrait Shade", new Color(0.015f, 0.035f, 0.075f, 0.35f), Vector2.zero, Vector2.one);
+            Image shade = CreateImage(root, "Landscape Shade", new Color(0.015f, 0.035f, 0.075f, 0.35f), Vector2.zero, Vector2.one);
             shade.raycastTarget = false;
 
             TextMeshProUGUI title = CreateText(root, "ZOMBIE WAR", 86, TextAlignmentOptions.Center, new Vector2(0.08f, 0.64f), new Vector2(0.92f, 0.76f));
@@ -1414,7 +1511,7 @@ namespace ZombieWar.Editor
             MainMenuController controller = new GameObject("Main Menu Controller", typeof(MainMenuController)).GetComponent<MainMenuController>();
             CreateEventSystem();
 
-            GameObject canvasObject = CreatePortraitCanvas("Menu Canvas");
+            GameObject canvasObject = CreateLandscapeCanvas("Menu Canvas");
             RectTransform root = canvasObject.GetComponent<RectTransform>();
 
             CreateLayerLabBackground(root, LayerLabBackgrounds + "/Background_01.png", Color.white);
@@ -1452,7 +1549,7 @@ namespace ZombieWar.Editor
             enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
             zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
-            hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
+            hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/LandscapeHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
             {
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
@@ -1470,7 +1567,7 @@ namespace ZombieWar.Editor
             enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
             zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
-            hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
+            hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/LandscapeHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
             {
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
@@ -1575,7 +1672,7 @@ namespace ZombieWar.Editor
             camera.clearFlags = CameraClearFlags.SolidColor;
 
             GameObject virtualCameraObject = new(
-                "Portrait Top-Down Camera",
+                "Landscape Top-Down Camera",
                 typeof(CinemachineCamera),
                 typeof(CinemachineFollow),
                 typeof(CinemachineHardLookAt));
@@ -1626,14 +1723,14 @@ namespace ZombieWar.Editor
             return instance;
         }
 
-        private static GameObject CreatePortraitCanvas(string name)
+        private static GameObject CreateLandscapeCanvas(string name)
         {
             GameObject canvasObject = new(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            scaler.referenceResolution = new Vector2(2560f, 1440f);
             scaler.matchWidthOrHeight = 0.5f;
             return canvasObject;
         }

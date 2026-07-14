@@ -15,7 +15,7 @@ namespace ZombieWar.Core
         private void Start()
         {
             Application.targetFrameRate = 60;
-            Screen.orientation = ScreenOrientation.Portrait;
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
             _ = LoadSceneAsync(_nextScene);
         }
 

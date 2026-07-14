@@ -2,7 +2,7 @@
 
 ## Authoring setup hoàn tất
 
-- [x] Prefab thật cho Soldier, Zombie, Projectile, Bomb và portrait HUD; pool nhận prefab qua serialized reference.
+- [x] Prefab thật cho Soldier, Zombie, Projectile, Bomb và landscape HUD; pool nhận prefab qua serialized reference.
 - [x] Scene thật `Boot`, `MainMenu`, `Level01`, `Level02`; dependency được nối sẵn trong Editor và lưu vào scene.
 - [x] HUD dùng `TextMeshProUGUI`, TMP Essential Resources và font SDF; không dùng legacy `UnityEngine.UI.Text`.
 - [x] Đã loại bỏ runtime bootstrap và mọi thao tác dựng hierarchy bằng `new GameObject`/`CreatePrimitive` trong gameplay.
@@ -10,22 +10,24 @@
 
 ## Mục tiêu hiện tại
 
-Hoàn thiện vertical slice Android portrait có vòng chơi 180 giây, auto-fire,
+Hoàn thiện vertical slice Android landscape 2560×1440 có vòng chơi 180 giây, auto-fire,
 hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết bị tầm trung.
 
 ## Trạng thái triển khai
 
-- [x] Foundation: scene flow, portrait settings, joystick, soldier, camera và graybox hai level.
+- [x] Foundation: scene flow, landscape settings, joystick, soldier, camera và graybox hai level.
 - [x] Combat core: damage API, auto-target, Rifle, Shotgun, switch, bomb và projectile pool.
 - [x] Crowd core: pool 130, hard cap 120, AI scheduler 10/4/2 Hz và viewport spawn có NavMesh sampling.
 - [x] Presentation core: safe-area HUD, hit flash, dissolve shader và recoil event hook.
-- [x] Verification: runtime/editor/test assemblies build sạch, Play Mode smoke sạch và 7 EditMode tests pass.
+- [x] Bomb aiming: joystick cố định, preview quỹ đạo, vòng giới hạn 5 m và cooldown 10 giây.
+- [x] Weapon selection: radial menu 3 slot; icon và prefab vũ khí được lưu bằng Addressable reference trong `WeaponConfig`.
+- [x] Verification: runtime/editor/test assemblies build sạch, Play Mode smoke sạch và 9 EditMode tests pass.
 - [ ] Content pass: thay placeholder bằng model, animation layer/blend tree, AudioClip, particle và LOD hoàn chỉnh.
 - [ ] Device pass: profile APK ARM64 IL2CPP trên Android tầm trung tại cao trào 120 zombie.
 
 ## Roadmap 7 ngày
 
-- [ ] Ngày 1 — Foundation: portrait settings, scene flow, input, soldier, camera và Level 1 graybox.
+- [ ] Ngày 1 — Foundation: landscape settings, scene flow, input, soldier, camera và Level 1 graybox.
 - [ ] Ngày 2 — Combat: damage, auto-target, rifle, shotgun, switching và pooling.
 - [ ] Ngày 3 — Crowd: zombie AI, scheduler, pooling, wave director và hard cap 120.
 - [ ] Ngày 4 — Feel: animation layers, hit reaction, dissolve, bomb và recoil.
@@ -48,7 +50,7 @@ hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết 
 ### M3 — Crowd and polish
 - Pool prewarm 130; target 100, hard cap 120 zombie.
 - AI staggered 10/4/2 Hz theo khoảng cách.
-- Portrait UI 9:16–9:20, audio mix, hit flash và dissolve.
+- Landscape UI 16:9, audio mix, hit flash và dissolve.
 
 ## Definition of Done
 

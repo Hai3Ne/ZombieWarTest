@@ -13,6 +13,8 @@ namespace ZombieWar.UI
     {
         #region Refs
         [SerializeField] private VirtualJoystick _joystick;
+        [SerializeField] private BombAimJoystick _bombJoystick;
+        [SerializeField] private WeaponRadialMenu _weaponMenu;
         [SerializeField] private Image _healthFill;
         [SerializeField] private Image _bombCooldownFill;
         [SerializeField] private TMP_Text _timerText;
@@ -20,8 +22,6 @@ namespace ZombieWar.UI
         [SerializeField] private TMP_Text _crowdText;
         [SerializeField] private GameObject _resultPanel;
         [SerializeField] private TMP_Text _resultText;
-        [SerializeField] private Button _switchButton;
-        [SerializeField] private Button _bombButton;
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _nextButton;
 
@@ -48,8 +48,6 @@ namespace ZombieWar.UI
             _soldier.SetMoveInput(_joystick.Value);
             _healthFill.fillAmount = _soldier.Health.Normalized;
             _bombCooldownFill.fillAmount = _bomb.CooldownNormalized;
-            _bombButton.interactable = _bomb.IsReady;
-            _switchButton.interactable = true;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
             _crowdText.text = $"THREAT  {_enemyPool.ActiveCount:000}";
@@ -57,13 +55,13 @@ namespace ZombieWar.UI
 
         private void OnDestroy()
         {
-            if (_switchButton == null)
+            if (_bombJoystick == null)
             {
                 return;
             }
 
-            _switchButton.onClick.RemoveListener(OnSwitchWeapon);
-            _bombButton.onClick.RemoveListener(OnThrowBomb);
+            _bombJoystick.AimChanged -= OnBombAimChanged;
+            _bombJoystick.Released -= OnBombReleased;
             _retryButton.onClick.RemoveListener(OnRestart);
             _nextButton.onClick.RemoveListener(OnNext);
         }
@@ -87,8 +85,9 @@ namespace ZombieWar.UI
             _restartAction = restartAction;
             _nextAction = nextAction;
 
-            _switchButton.onClick.AddListener(OnSwitchWeapon);
-            _bombButton.onClick.AddListener(OnThrowBomb);
+            _weaponMenu.Initialize(_weapon);
+            _bombJoystick.AimChanged += OnBombAimChanged;
+            _bombJoystick.Released += OnBombReleased;
             _retryButton.onClick.AddListener(OnRestart);
             _nextButton.onClick.AddListener(OnNext);
             _resultPanel.SetActive(false);
@@ -96,6 +95,8 @@ namespace ZombieWar.UI
 
         public void SetViewReferences(
             VirtualJoystick joystick,
+            BombAimJoystick bombJoystick,
+            WeaponRadialMenu weaponMenu,
             Image healthFill,
             Image bombCooldownFill,
             TMP_Text timerText,
@@ -103,12 +104,12 @@ namespace ZombieWar.UI
             TMP_Text crowdText,
             GameObject resultPanel,
             TMP_Text resultText,
-            Button switchButton,
-            Button bombButton,
             Button retryButton,
             Button nextButton)
         {
             _joystick = joystick;
+            _bombJoystick = bombJoystick;
+            _weaponMenu = weaponMenu;
             _healthFill = healthFill;
             _bombCooldownFill = bombCooldownFill;
             _timerText = timerText;
@@ -116,8 +117,6 @@ namespace ZombieWar.UI
             _crowdText = crowdText;
             _resultPanel = resultPanel;
             _resultText = resultText;
-            _switchButton = switchButton;
-            _bombButton = bombButton;
             _retryButton = retryButton;
             _nextButton = nextButton;
         }
@@ -130,14 +129,14 @@ namespace ZombieWar.UI
         #endregion
 
         #region Internal
-        private void OnSwitchWeapon()
+        private void OnBombAimChanged(Vector2 input)
         {
-            _weapon.SwitchWeapon();
+            _bomb.PreviewAim(input);
         }
 
-        private void OnThrowBomb()
+        private void OnBombReleased(Vector2 input)
         {
-            _bomb.ThrowBomb();
+            _bomb.ThrowBomb(input);
         }
 
         private void OnRestart()

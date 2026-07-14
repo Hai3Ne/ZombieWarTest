@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace ZombieWar.Combat
 {
@@ -15,6 +16,8 @@ namespace ZombieWar.Combat
         [SerializeField] private float _spreadDegrees = 2f;
         [SerializeField] private float _recoil = 0.08f;
         [SerializeField] private Color _accentColor = new(1f, 0.75f, 0.2f);
+        [SerializeField] private AssetReferenceSprite _icon;
+        [SerializeField] private AssetReferenceT<GameObject> _viewPrefab;
         #endregion
 
         public string DisplayName => _displayName;
@@ -26,6 +29,8 @@ namespace ZombieWar.Combat
         public float SpreadDegrees => _spreadDegrees;
         public float Recoil => _recoil;
         public Color AccentColor => _accentColor;
+        public AssetReferenceSprite Icon => _icon;
+        public AssetReferenceT<GameObject> ViewPrefab => _viewPrefab;
 
         public void Configure(
             string displayName,
@@ -47,6 +52,12 @@ namespace ZombieWar.Combat
             _spreadDegrees = spreadDegrees;
             _recoil = recoil;
             _accentColor = accentColor;
+        }
+
+        public void ConfigurePresentation(AssetReferenceSprite icon, AssetReferenceT<GameObject> viewPrefab)
+        {
+            _icon = icon;
+            _viewPrefab = viewPrefab;
         }
     }
 }

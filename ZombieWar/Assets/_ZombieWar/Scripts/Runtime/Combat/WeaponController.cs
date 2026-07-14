@@ -27,6 +27,7 @@ namespace ZombieWar.Combat
         #region API
         public string CurrentWeaponName => _weapons != null ? _weapons[_weaponIndex].DisplayName : string.Empty;
         public int CurrentWeaponIndex => _weaponIndex;
+        public int WeaponCount => _weapons?.Length ?? 0;
         public ZombieAgent CurrentTarget => _target;
         public event Action<int, string> WeaponChanged;
         public event Action<float> Fired;
@@ -102,7 +103,22 @@ namespace ZombieWar.Combat
             {
                 return;
             }
-            _weaponIndex = (_weaponIndex + 1) % _weapons.Length;
+            SelectWeapon((_weaponIndex + 1) % _weapons.Length);
+        }
+
+        public WeaponConfig GetWeapon(int index)
+        {
+            return _weapons != null && index >= 0 && index < _weapons.Length ? _weapons[index] : null;
+        }
+
+        public void SelectWeapon(int index)
+        {
+            if (_weapons == null || index < 0 || index >= _weapons.Length || index == _weaponIndex)
+            {
+                return;
+            }
+
+            _weaponIndex = index;
             WeaponChanged?.Invoke(_weaponIndex, CurrentWeaponName);
         }
         #endregion
