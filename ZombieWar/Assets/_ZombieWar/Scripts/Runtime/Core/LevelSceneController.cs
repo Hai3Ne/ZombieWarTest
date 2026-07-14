@@ -34,7 +34,7 @@ namespace ZombieWar.Core
             }
 
             _weaponController.Configure(_weapons, _enemyPool, _projectilePool, _muzzle);
-            _bombController.Configure(_enemyPool, _weaponController);
+            _bombController.Configure(_enemyPool);
             _scheduler.Configure(_enemyPool, _soldier.transform);
             _waveDirector.Configure(_enemyPool, _regularEnemy, _giantEnemy, _level, _soldier.transform, _soldier.Health, _worldCamera);
             _session.Configure(_soldier.Health, _waveDirector, _hud);

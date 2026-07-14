@@ -30,6 +30,7 @@ using ZombieWar.Enemies;
 using ZombieWar.Levels;
 using ZombieWar.Player;
 using ZombieWar.UI;
+using ZombieWar.VFX;
 
 namespace ZombieWar.Editor
 {
@@ -68,6 +69,8 @@ namespace ZombieWar.Editor
         private const string ZombieVoiceSource = "Assets/Tybug Studios/Zombie Voice Pack - Free";
         private const string RifleFireAudioPath = AudioFolder + "/RifleFire.wav";
         private const string ShotgunFireAudioPath = AudioFolder + "/ShotgunFire.wav";
+        private const string JmoBombExplosionPath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/Explosions/WFXMR_Explosion Small.prefab";
+        private const string BombExplosionVfxPath = PrefabFolder + "/VFX/BombExplosion.prefab";
 
         [MenuItem("Zombie War/Open Level 01 _F8")]
         public static void OpenLevel01()
@@ -133,9 +136,11 @@ namespace ZombieWar.Editor
 
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             BombProjectile bombPrefab = CreateBombPrefab(bombMaterial);
+            GameObject bombExplosionVfx = CreateBombExplosionVfxPrefab();
+            ConfigureBombVfxAddressable();
             ZombieAgent zombiePrefab = CreateZombiePrefab(zombieMaterial);
             EnemyPrefabCatalog enemyPrefabCatalog = GetOrCreateEnemyPrefabCatalog(zombiePrefab);
-            SoldierController soldierPrefab = CreateSoldierPrefab(soldierMaterial, bombPrefab, weaponAudioCatalog);
+            SoldierController soldierPrefab = CreateSoldierPrefab(soldierMaterial, bombPrefab, bombExplosionVfx, weaponAudioCatalog);
             RuntimeHud hudPrefab = CreateHudPrefab();
 
             CreateBootScene();
@@ -287,6 +292,7 @@ namespace ZombieWar.Editor
         private static void EnsureFolders()
         {
             EnsureFolder(RootFolder, "Prefabs");
+            EnsureFolder(PrefabFolder, "VFX");
             EnsureFolder(RootFolder, "Configs");
             EnsureFolder(RootFolder, "Materials");
             EnsureFolder(RootFolder, "Scenes");
@@ -821,6 +827,65 @@ namespace ZombieWar.Editor
             return SavePrefab<BombProjectile>(root, "Bomb");
         }
 
+        private static GameObject CreateBombExplosionVfxPrefab()
+        {
+            GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(JmoBombExplosionPath);
+            if (source == null)
+            {
+                throw new FileNotFoundException($"JMO bomb explosion prefab was not found: {JmoBombExplosionPath}");
+            }
+
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            instance.name = "Bomb Explosion";
+            instance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            instance.transform.localScale = Vector3.one * 0.75f;
+            Transform[] children = instance.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                if (children[i] != instance.transform && children[i].name.Contains("Smoke"))
+                {
+                    children[i].gameObject.SetActive(false);
+                }
+            }
+            MonoBehaviour[] behaviours = instance.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = behaviours.Length - 1; i >= 0; i--)
+            {
+                if (behaviours[i] != null && behaviours[i].GetType().Name == "CFX_AutoDestructShuriken")
+                {
+                    Object.DestroyImmediate(behaviours[i]);
+                }
+            }
+
+            PooledVfxAutoDisable autoDisable = instance.AddComponent<PooledVfxAutoDisable>();
+            autoDisable.SetDuration(4f);
+            PrefabUtility.SaveAsPrefabAsset(instance, BombExplosionVfxPath);
+            Object.DestroyImmediate(instance);
+            return AssetDatabase.LoadAssetAtPath<GameObject>(BombExplosionVfxPath);
+        }
+
+        private static void ConfigureBombVfxAddressable()
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+            AddressableAssetGroup group = settings.FindGroup("ZombieWar-VFX");
+            if (group == null)
+            {
+                group = settings.CreateGroup(
+                    "ZombieWar-VFX",
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema));
+            }
+
+            BundledAssetGroupSchema bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+            bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+            bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+            ConfigureAddressableEntry(settings, group, BombExplosionVfxPath, "vfx/bomb/explosion", "vfx-bomb");
+            EditorUtility.SetDirty(settings);
+        }
+
         private static ZombieAgent CreateZombiePrefab(Material material)
         {
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -967,6 +1032,7 @@ namespace ZombieWar.Editor
         private static SoldierController CreateSoldierPrefab(
             Material material,
             BombProjectile bombPrefab,
+            GameObject bombExplosionVfx,
             WeaponAudioCatalog weaponAudioCatalog)
         {
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -991,10 +1057,16 @@ namespace ZombieWar.Editor
             weaponAudio.volume = 0.72f;
             BombController bomb = root.AddComponent<BombController>();
             bomb.SetPrefab(bombPrefab, 4);
+            bomb.SetInventory(3, 3);
+            BombExplosionVfxPool explosionVfxPool = root.AddComponent<BombExplosionVfxPool>();
+            explosionVfxPool.SetPrefab(bombExplosionVfx, 4);
+            bomb.SetExplosionVfxPool(explosionVfxPool);
             Material aimMaterial = GetOrCreateMaterial("BombAim", new Color(0.2f, 0.95f, 0.55f, 0.9f), "Universal Render Pipeline/Unlit");
+            Material blastMaterial = GetOrCreateMaterial("BombBlastArea", new Color(1f, 0.22f, 0.08f, 0.92f), "Universal Render Pipeline/Unlit");
             LineRenderer trajectory = CreateBombPreviewLine(root.transform, "Bomb Trajectory", aimMaterial, 0.075f, false);
             LineRenderer rangeRing = CreateBombPreviewLine(root.transform, "Bomb Range", aimMaterial, 0.035f, true);
-            bomb.SetPreviewReferences(trajectory, rangeRing);
+            LineRenderer blastRadiusRing = CreateBombPreviewLine(root.transform, "Bomb Blast Radius", blastMaterial, 0.055f, true);
+            bomb.SetPreviewReferences(trajectory, rangeRing, blastRadiusRing);
             GameObject muzzle = new("Muzzle");
             muzzle.transform.SetParent(root.transform, false);
             muzzle.transform.localPosition = new Vector3(0f, 1.2f, 0.65f);
@@ -1412,10 +1484,22 @@ namespace ZombieWar.Editor
                 new Vector2(-175f, 185f),
                 0.58f);
 
-            GameObject bombJoystickObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab", safe, "Bomb Aim Joystick");
+            GameObject bombJoystickObject = InstantiateLayerLabPrefab(LayerLabPlayPrefabs + "/Play_Joystick_Skill_3Step.prefab", safe, "Bomb Aim Joystick");
             RectTransform bombJoystickRect = bombJoystickObject.GetComponent<RectTransform>();
-            ConfigureAnchoredPrefab(bombJoystickRect, new Vector2(1f, 0f), new Vector2(-245f, 235f), 0.68f);
-            RectTransform bombHandle = FindChildComponent<RectTransform>(bombJoystickObject.transform, "Handle");
+            ConfigureAnchoredPrefab(bombJoystickRect, new Vector2(1f, 0f), new Vector2(-245f, 235f), 0.72f);
+            SetChildActive(bombJoystickObject.transform, "Slider_3StepGlow", true);
+            Slider bombStepSlider = FindChildComponent<Slider>(bombJoystickObject.transform, "Slider_3Step");
+            Slider bombGlowSlider = FindChildComponent<Slider>(bombJoystickObject.transform, "Slider_3StepGlow");
+            bombStepSlider.interactable = false;
+            bombGlowSlider.interactable = false;
+            TMP_Text bombCountText = FindChildComponent<TMP_Text>(bombJoystickObject.transform, "Text (TMP)");
+            bombCountText.text = "3/3";
+            RectTransform bombHandle = FindChildComponent<RectTransform>(bombJoystickObject.transform, "Icon");
+            Graphic[] bombGraphics = bombJoystickObject.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < bombGraphics.Length; i++)
+            {
+                bombGraphics[i].raycastTarget = false;
+            }
             Image bombInput = CreateImage(bombJoystickRect, "Bomb Input", Color.clear, Vector2.zero, Vector2.one);
             bombInput.raycastTarget = true;
             BombAimJoystick bombJoystick = bombInput.gameObject.AddComponent<BombAimJoystick>();
@@ -1427,6 +1511,8 @@ namespace ZombieWar.Editor
             bombFill.raycastTarget = false;
             bombFill.type = Image.Type.Filled;
             bombFill.fillMethod = Image.FillMethod.Radial360;
+            BombInventoryView bombInventoryView = bombJoystickObject.AddComponent<BombInventoryView>();
+            bombInventoryView.SetViewReferences(bombStepSlider, bombGlowSlider, bombCountText, bombFill);
 
             GameObject slotsRoot = new("Weapon Slots", typeof(RectTransform));
             slotsRoot.transform.SetParent(safe, false);
@@ -1458,7 +1544,7 @@ namespace ZombieWar.Editor
             panel.gameObject.SetActive(false);
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
-            hud.SetViewReferences(joystick, bombJoystick, weaponMenu, healthFill, bombFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
+            hud.SetViewReferences(joystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
             return SavePrefab<RuntimeHud>(root, "LandscapeHUD");
         }
 

@@ -15,8 +15,8 @@ namespace ZombieWar.UI
         [SerializeField] private VirtualJoystick _joystick;
         [SerializeField] private BombAimJoystick _bombJoystick;
         [SerializeField] private WeaponRadialMenu _weaponMenu;
+        [SerializeField] private BombInventoryView _bombInventoryView;
         [SerializeField] private Image _healthFill;
-        [SerializeField] private Image _bombCooldownFill;
         [SerializeField] private TMP_Text _timerText;
         [SerializeField] private TMP_Text _weaponText;
         [SerializeField] private TMP_Text _crowdText;
@@ -47,7 +47,6 @@ namespace ZombieWar.UI
 
             _soldier.SetMoveInput(_joystick.Value);
             _healthFill.fillAmount = _soldier.Health.Normalized;
-            _bombCooldownFill.fillAmount = _bomb.CooldownNormalized;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
             _crowdText.text = $"THREAT  {_enemyPool.ActiveCount:000}";
@@ -86,6 +85,7 @@ namespace ZombieWar.UI
             _nextAction = nextAction;
 
             _weaponMenu.Initialize(_weapon);
+            _bombInventoryView.Initialize(_bomb);
             _bombJoystick.AimChanged += OnBombAimChanged;
             _bombJoystick.Released += OnBombReleased;
             _retryButton.onClick.AddListener(OnRestart);
@@ -97,8 +97,8 @@ namespace ZombieWar.UI
             VirtualJoystick joystick,
             BombAimJoystick bombJoystick,
             WeaponRadialMenu weaponMenu,
+            BombInventoryView bombInventoryView,
             Image healthFill,
-            Image bombCooldownFill,
             TMP_Text timerText,
             TMP_Text weaponText,
             TMP_Text crowdText,
@@ -110,8 +110,8 @@ namespace ZombieWar.UI
             _joystick = joystick;
             _bombJoystick = bombJoystick;
             _weaponMenu = weaponMenu;
+            _bombInventoryView = bombInventoryView;
             _healthFill = healthFill;
-            _bombCooldownFill = bombCooldownFill;
             _timerText = timerText;
             _weaponText = weaponText;
             _crowdText = crowdText;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using ZombieWar.Enemies;
 
@@ -13,21 +14,29 @@ namespace ZombieWar.Combat
         [SerializeField, Min(1f)] private float _maximumThrowRange = 5f;
         [SerializeField, Min(0.1f)] private float _minimumThrowRange = 1f;
         [SerializeField, Min(0.1f)] private float _flightDuration = 0.75f;
+        [SerializeField, Min(1)] private int _maximumBombs = 3;
+        [SerializeField, Min(0)] private int _startingBombs = 3;
+        [SerializeField, Min(0.1f)] private float _blastRadius = 5.5f;
         [SerializeField] private LineRenderer _trajectory;
         [SerializeField] private LineRenderer _rangeRing;
+        [SerializeField] private LineRenderer _blastRadiusRing;
+        [SerializeField] private BombExplosionVfxPool _explosionVfxPool;
         #endregion
 
         #region Refs
         private readonly Queue<BombProjectile> _available = new(4);
         private EnemyPool _enemyPool;
-        private WeaponController _weaponController;
         #endregion
 
         #region State
         private float _readyTime;
+        private int _bombCount;
 
-        public bool IsReady => Time.time >= _readyTime && _available.Count > 0;
+        public bool IsReady => Time.time >= _readyTime && _available.Count > 0 && _bombCount > 0;
         public float CooldownNormalized => Mathf.Clamp01((_readyTime - Time.time) / _cooldownDuration);
+        public int BombCount => _bombCount;
+        public int MaxBombs => _maximumBombs;
+        public event Action<int, int> BombCountChanged;
         #endregion
 
         #region Lifecycle
@@ -48,6 +57,7 @@ namespace ZombieWar.Combat
                 bomb.gameObject.SetActive(false);
                 _available.Enqueue(bomb);
             }
+            _bombCount = Mathf.Clamp(_startingBombs, 0, _maximumBombs);
         }
         #endregion
 
@@ -58,17 +68,41 @@ namespace ZombieWar.Combat
             _capacity = Mathf.Max(1, capacity);
         }
 
-        public void SetPreviewReferences(LineRenderer trajectory, LineRenderer rangeRing)
+        public void SetInventory(int maximumBombs, int startingBombs)
+        {
+            _maximumBombs = Mathf.Max(1, maximumBombs);
+            _startingBombs = Mathf.Clamp(startingBombs, 0, _maximumBombs);
+            _bombCount = _startingBombs;
+        }
+
+        public void SetPreviewReferences(LineRenderer trajectory, LineRenderer rangeRing, LineRenderer blastRadiusRing)
         {
             _trajectory = trajectory;
             _rangeRing = rangeRing;
+            _blastRadiusRing = blastRadiusRing;
             HidePreview();
         }
 
-        public void Configure(EnemyPool enemyPool, WeaponController weaponController)
+        public void SetExplosionVfxPool(BombExplosionVfxPool explosionVfxPool)
+        {
+            _explosionVfxPool = explosionVfxPool;
+        }
+
+        public void Configure(EnemyPool enemyPool)
         {
             _enemyPool = enemyPool;
-            _weaponController = weaponController;
+        }
+
+        public bool TryAddBomb(int amount = 1)
+        {
+            if (amount <= 0 || _bombCount >= _maximumBombs)
+            {
+                return false;
+            }
+
+            _bombCount = Mathf.Min(_maximumBombs, _bombCount + amount);
+            BombCountChanged?.Invoke(_bombCount, _maximumBombs);
+            return true;
         }
 
         public void PreviewAim(Vector2 input)
@@ -98,6 +132,8 @@ namespace ZombieWar.Combat
                 float angle = i / 48f * Mathf.PI * 2f;
                 _rangeRing.SetPosition(i, transform.position + new Vector3(Mathf.Cos(angle), 0.08f, Mathf.Sin(angle)) * _maximumThrowRange);
             }
+
+            DrawCircle(_blastRadiusRing, target, _blastRadius);
         }
 
         public void CancelAim()
@@ -114,6 +150,8 @@ namespace ZombieWar.Combat
             }
 
             _readyTime = Time.time + _cooldownDuration;
+            _bombCount--;
+            BombCountChanged?.Invoke(_bombCount, _maximumBombs);
             Vector3 start = GetThrowOrigin();
             Vector3 target = GetTarget(input);
             _available.Dequeue().Launch(start, CalculateLaunchVelocity(start, target), 1.5f);
@@ -122,19 +160,20 @@ namespace ZombieWar.Combat
         public void Explode(BombProjectile bomb)
         {
             Vector3 center = bomb.transform.position;
+            _explosionVfxPool.Play(center);
             for (int i = _enemyPool.Active.Count - 1; i >= 0; i--)
             {
                 ZombieAgent zombie = _enemyPool.Active[i];
                 Vector3 offset = zombie.transform.position - center;
                 float distance = offset.magnitude;
-                if (!zombie.IsAlive || distance > 5.5f)
+                if (!zombie.IsAlive || distance > _blastRadius)
                 {
                     continue;
                 }
-                float multiplier = Core.GameplayMath.CalculateDamageFalloff(distance, 5.5f, 0.35f);
+                float multiplier = Core.GameplayMath.CalculateDamageFalloff(distance, _blastRadius, 0.35f);
                 DamageInfo damage = new(95f * multiplier, zombie.transform.position, offset.normalized * 14f, gameObject, DamageType.Explosion);
                 zombie.ApplyDamage(in damage);
-                zombie.ApplyExplosion(center, 5.5f, 14f);
+                zombie.ApplyExplosion(center, _blastRadius, 14f);
             }
             bomb.gameObject.SetActive(false);
             _available.Enqueue(bomb);
@@ -168,6 +207,22 @@ namespace ZombieWar.Combat
             if (_rangeRing != null)
             {
                 _rangeRing.enabled = false;
+            }
+            if (_blastRadiusRing != null)
+            {
+                _blastRadiusRing.enabled = false;
+            }
+        }
+
+        private static void DrawCircle(LineRenderer line, Vector3 center, float radius)
+        {
+            line.enabled = true;
+            line.positionCount = 49;
+            center.y = 0.1f;
+            for (int i = 0; i < line.positionCount; i++)
+            {
+                float angle = i / 48f * Mathf.PI * 2f;
+                line.SetPosition(i, center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius);
             }
         }
         #endregion

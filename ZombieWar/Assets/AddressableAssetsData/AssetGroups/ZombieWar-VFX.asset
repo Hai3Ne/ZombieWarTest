@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-VFX
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-VFX
+  m_GUID: 2809a1b5f14c07e4d8feabc7b603f863
+  m_SerializeEntries:
+  - m_GUID: 1caf42ac947df9e4c84f90b5a638e6a6
+    m_Address: vfx/bomb/explosion
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx-bomb
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 28b49f7fd6d052e4da1315d0139c2d46, type: 2}
+    - {fileID: 11400000, guid: 0820a93b7ba3d944c90b19a3a2e1a770, type: 2}

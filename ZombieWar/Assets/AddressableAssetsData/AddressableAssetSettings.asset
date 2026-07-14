@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: f2c82c976c497b34391ecacc264b3b53
   m_currentHash:
     serializedVersion: 2
-    Hash: eeab33ca30d17298b332b374094176b8
+    Hash: d0fb9a0c1478bd0e604474b62760208d
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
@@ -64,6 +64,7 @@ MonoBehaviour:
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: ccbec095e1e1e5c458e7c37f8fcea7db, type: 2}
+  - {fileID: 11400000, guid: a86348daa8d0ba2489ab262fb07a4159, type: 2}
   - {fileID: 11400000, guid: 7f54c49d3ad14004887220cae33fe0f5, type: 2}
   - {fileID: 11400000, guid: 2d8db24a14c604f418eefea77e1bba2d, type: 2}
   - {fileID: 11400000, guid: c8c4c24a90a1b5446a9053d59b25b011, type: 2}
@@ -112,6 +113,7 @@ MonoBehaviour:
     - enemies
     - audio-zombies
     - weapons
+    - vfx-bomb
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 58786467ca177c44c9e96ae71e9be4f0, type: 2}

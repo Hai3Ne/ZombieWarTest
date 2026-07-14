@@ -19,9 +19,10 @@ hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết 
 - [x] Combat core: damage API, auto-target, Rifle, Shotgun, switch, bomb và projectile pool.
 - [x] Crowd core: pool 130, hard cap 120, AI scheduler 10/4/2 Hz và viewport spawn có NavMesh sampling.
 - [x] Presentation core: safe-area HUD, hit flash, dissolve shader và recoil event hook.
-- [x] Bomb aiming: joystick cố định, preview quỹ đạo, vòng giới hạn 5 m và cooldown 10 giây.
+- [x] Bomb aiming: `Play_Joystick_Skill_3Step` cố định, preview quỹ đạo, vòng giới hạn ném 5 m, vùng nổ và cooldown 10 giây.
+- [x] Bomb inventory: tối đa 3 quả, UI 3 bước đồng bộ số lượng và JMO mobile explosion VFX được pool/tự tắt.
 - [x] Weapon selection: radial menu 3 slot; icon và prefab vũ khí được lưu bằng Addressable reference trong `WeaponConfig`.
-- [x] Verification: runtime/editor/test assemblies build sạch, Play Mode smoke sạch và 9 EditMode tests pass.
+- [x] Verification: runtime/editor/test assemblies build sạch và 10 EditMode tests pass.
 - [ ] Content pass: thay placeholder bằng model, animation layer/blend tree, AudioClip, particle và LOD hoàn chỉnh.
 - [ ] Device pass: profile APK ARM64 IL2CPP trên Android tầm trung tại cao trào 120 zombie.
 
