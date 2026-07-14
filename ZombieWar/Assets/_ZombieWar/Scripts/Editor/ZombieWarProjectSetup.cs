@@ -14,6 +14,7 @@ using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
@@ -39,7 +40,11 @@ namespace ZombieWar.Editor
         private const string LayerLabSliderPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Component_Sliders";
         private const string LayerLabBackgrounds = LayerLabRoot + "/ResourcesData/Sprites/Demo/Demo_Backgound";
         private const string LayerLabIcons = LayerLabRoot + "/ResourcesData/Sprites/Components/Icon_PictoIcons(x2)/128";
-        private const string SurvivalistAnimationFolder = "Assets/Survivalist/StarterAssets/ThirdPersonController/Character/Animations";
+        private const string ColonelSourceFolder = "Assets/TopDownEngine/Demos/Colonel";
+        private const string SoldierCharacterFolder = RootFolder + "/Characters/Soldier";
+        private const string SoldierModelFolder = SoldierCharacterFolder + "/Model";
+        private const string SoldierAnimationFolder = SoldierCharacterFolder + "/Animations";
+        private const string SoldierModelPath = SoldierModelFolder + "/SoldierColonel.fbx";
         private const string LowPolyGunFolder = "Assets/Low Poly Guns/Models/Guns";
         private const string PostApocalypseGunAudio = "Assets/PostApocalypseGunsDemo";
 
@@ -66,6 +71,7 @@ namespace ZombieWar.Editor
         {
             ConfigurePlayerSettings();
             EnsureFolders();
+            EnsureIndependentSoldierAssets();
             EnsureTmpEssentials();
 
             Material ground = GetOrCreateMaterial("Ground", new Color(0.12f, 0.16f, 0.17f), "Universal Render Pipeline/Lit");
@@ -159,6 +165,13 @@ namespace ZombieWar.Editor
 
         private static void ConfigurePlayerSettings()
         {
+            RenderPipelineAsset pipeline = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>("Assets/Settings/Mobile_RPAsset.asset");
+            if (pipeline == null)
+            {
+                throw new FileNotFoundException("Mobile URP asset was not found in Assets/Settings.");
+            }
+            GraphicsSettings.defaultRenderPipeline = pipeline;
+            QualitySettings.renderPipeline = pipeline;
             PlayerSettings.companyName = "Two Sleepy Cats";
             PlayerSettings.productName = "Zombie War";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
@@ -178,6 +191,90 @@ namespace ZombieWar.Editor
             EnsureFolder(RootFolder, "Materials");
             EnsureFolder(RootFolder, "Scenes");
             EnsureFolder(RootFolder, "Resources");
+            EnsureFolder(RootFolder, "Characters");
+            EnsureFolder(RootFolder + "/Characters", "Soldier");
+            EnsureFolder(SoldierCharacterFolder, "Model");
+            EnsureFolder(SoldierCharacterFolder, "Animations");
+        }
+
+        private static void EnsureIndependentSoldierAssets()
+        {
+            CopyAssetIfMissing(ColonelSourceFolder + "/Models/FBI@T-Pose.fbx", SoldierModelPath);
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Various/FBI@RifleAimingIdle.fbx", SoldierAnimationFolder + "/RifleAimIdle.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Various/FBI@Gunplay.fbx", SoldierAnimationFolder + "/RifleFire.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Various/FBI@HitReaction.fbx", SoldierAnimationFolder + "/HitReaction.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunForward.fbx", SoldierAnimationFolder + "/RunForward.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunBackward.fbx", SoldierAnimationFolder + "/RunBackward.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunLeft.fbx", SoldierAnimationFolder + "/RunLeft.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunRight.fbx", SoldierAnimationFolder + "/RunRight.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunForwardLeft.fbx", SoldierAnimationFolder + "/RunForwardLeft.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunForwardRight.fbx", SoldierAnimationFolder + "/RunForwardRight.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunBackwardLeft.fbx", SoldierAnimationFolder + "/RunBackwardLeft.fbx");
+            CopyAssetIfMissing(ColonelSourceFolder + "/Animations/Run/FBI@RunBackwardRight.fbx", SoldierAnimationFolder + "/RunBackwardRight.fbx");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            ConfigureIndependentSoldierRig();
+        }
+
+        private static void ConfigureIndependentSoldierRig()
+        {
+            Avatar avatar = LoadAvatar(SoldierModelPath);
+            string[] animationPaths =
+            {
+                SoldierAnimationFolder + "/RifleAimIdle.fbx",
+                SoldierAnimationFolder + "/RifleFire.fbx",
+                SoldierAnimationFolder + "/HitReaction.fbx",
+                SoldierAnimationFolder + "/RunForward.fbx",
+                SoldierAnimationFolder + "/RunBackward.fbx",
+                SoldierAnimationFolder + "/RunLeft.fbx",
+                SoldierAnimationFolder + "/RunRight.fbx",
+                SoldierAnimationFolder + "/RunForwardLeft.fbx",
+                SoldierAnimationFolder + "/RunForwardRight.fbx",
+                SoldierAnimationFolder + "/RunBackwardLeft.fbx",
+                SoldierAnimationFolder + "/RunBackwardRight.fbx"
+            };
+
+            for (int i = 0; i < animationPaths.Length; i++)
+            {
+                ModelImporter importer = AssetImporter.GetAtPath(animationPaths[i]) as ModelImporter;
+                if (importer == null)
+                {
+                    throw new FileNotFoundException($"Soldier animation importer was not found: {animationPaths[i]}.");
+                }
+                if (importer.animationType != ModelImporterAnimationType.Human
+                    || importer.avatarSetup != ModelImporterAvatarSetup.CopyFromOther
+                    || importer.sourceAvatar != avatar)
+                {
+                    importer.animationType = ModelImporterAnimationType.Human;
+                    importer.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
+                    importer.sourceAvatar = avatar;
+                    importer.SaveAndReimport();
+                }
+            }
+        }
+
+        private static Avatar LoadAvatar(string assetPath)
+        {
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (assets[i] is Avatar avatar)
+                {
+                    return avatar;
+                }
+            }
+            throw new FileNotFoundException($"Humanoid avatar was not found at {assetPath}.");
+        }
+
+        private static void CopyAssetIfMissing(string sourcePath, string destinationPath)
+        {
+            if (AssetDatabase.LoadMainAssetAtPath(destinationPath) != null)
+            {
+                return;
+            }
+            if (AssetDatabase.LoadMainAssetAtPath(sourcePath) == null || !AssetDatabase.CopyAsset(sourcePath, destinationPath))
+            {
+                throw new FileNotFoundException($"Unable to duplicate soldier asset from {sourcePath}.");
+            }
         }
 
         private static void EnsureFolder(string parent, string name)
@@ -327,23 +424,31 @@ namespace ZombieWar.Editor
             muzzle.transform.SetParent(root.transform, false);
             muzzle.transform.localPosition = new Vector3(0f, 1.2f, 0.65f);
 
-            GameObject modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/SK_Military_Survivalist.prefab");
+            GameObject modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(SoldierModelPath);
             if (modelPrefab == null)
             {
-                throw new FileNotFoundException("SK_Military_Survivalist.prefab must be placed in Assets/_ZombieWar/Prefabs.");
+                throw new FileNotFoundException("The independent SoldierColonel model was not authored.");
             }
 
+            GameObject visualRoot = new("Soldier Visual");
+            visualRoot.transform.SetParent(root.transform, false);
             GameObject model = (GameObject)PrefabUtility.InstantiatePrefab(modelPrefab);
-            model.name = "Soldier Visual";
-            model.transform.SetParent(root.transform, false);
+            model.name = "Character Model";
+            model.transform.SetParent(visualRoot.transform, false);
             model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             Animator animator = model.GetComponent<Animator>();
             animator.runtimeAnimatorController = CreateSoldierAnimatorController();
             animator.applyRootMotion = false;
             Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
+            NormalizeModelHeight(model.transform, renderers, 1.8f);
             CenterModelOnPhysicsRoot(model.transform, renderers);
             SoldierWeaponIkController weaponIk = model.AddComponent<SoldierWeaponIkController>();
-            animation.SetViewReferences(animator, model.transform, renderers, weaponIk);
+            model.AddComponent<SoldierFootstepRelay>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                renderers[i].sharedMaterial = material;
+            }
+            animation.SetViewReferences(animator, visualRoot.transform, renderers, weaponIk);
             Material rifleWeaponMaterial = GetOrCreateWeaponMaterial(
                 "SoldierRifle",
                 LowPolyGunFolder + "/assault1/assault1_diffuse.png",
@@ -353,10 +458,10 @@ namespace ZombieWar.Editor
                 LowPolyGunFolder + "/shotgun2/shotgun2_diffuse.png",
                 LowPolyGunFolder + "/shotgun2/shotgun2_normal.png");
             CreateWeaponMount(
-                model.transform,
+                visualRoot.transform,
                 "Assault Rifle",
                 LowPolyGunFolder + "/assault1/assault1.fbx",
-                new Vector3(0f, 1.34f, 0.42f),
+                new Vector3(0f, 0.34f, 0.32f),
                 new Vector3(0.09f, -0.015f, -0.05f),
                 new Vector3(-0.09f, -0.015f, 0.22f),
                 0.86f,
@@ -366,10 +471,10 @@ namespace ZombieWar.Editor
                 out Transform rifleLeftGrip,
                 out Transform rifleMuzzle);
             CreateWeaponMount(
-                model.transform,
+                visualRoot.transform,
                 "Shotgun",
                 LowPolyGunFolder + "/shotgun2/shotgun2.fbx",
-                new Vector3(0f, 1.32f, 0.44f),
+                new Vector3(0f, 0.32f, 0.34f),
                 new Vector3(0.09f, -0.02f, -0.06f),
                 new Vector3(-0.09f, -0.015f, 0.27f),
                 0.96f,
@@ -396,16 +501,12 @@ namespace ZombieWar.Editor
         private static RuntimeAnimatorController CreateSoldierAnimatorController()
         {
             string controllerPath = ConfigFolder + "/SoldierAnimator.controller";
-            AnimatorController existing = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
-            if (existing != null)
+            if (AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath) != null)
             {
-                UpgradeDirectionalLocomotion(existing);
-                EnableAnimatorIk(existing);
-                return existing;
+                AssetDatabase.DeleteAsset(controllerPath);
             }
 
-            AnimationClip idle = LoadAnimationClip(SurvivalistAnimationFolder + "/Stand--Idle.anim.fbx");
-            AnimationClip run = LoadAnimationClip(SurvivalistAnimationFolder + "/Locomotion--Run_N.anim.fbx");
+            AnimationClip idle = LoadAnimationClip(SoldierAnimationFolder + "/RifleAimIdle.fbx");
             AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
             controller.AddParameter("Speed", AnimatorControllerParameterType.Float);
             controller.AddParameter("MoveX", AnimatorControllerParameterType.Float);
@@ -418,12 +519,23 @@ namespace ZombieWar.Editor
             BlendTree locomotion = new()
             {
                 name = "Locomotion",
-                blendType = BlendTreeType.Simple1D,
-                blendParameter = "Speed",
+                blendType = BlendTreeType.FreeformCartesian2D,
+                blendParameter = "MoveX",
+                blendParameterY = "MoveY",
                 useAutomaticThresholds = false
             };
-            locomotion.AddChild(idle, 0f);
-            locomotion.AddChild(run, 1f);
+            locomotion.children = new[]
+            {
+                DirectionalMotion(idle, 0f, 0f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunForward.fbx"), 0f, 1f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunBackward.fbx"), 0f, -1f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunLeft.fbx"), -1f, 0f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunRight.fbx"), 1f, 0f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunForwardLeft.fbx"), -0.7f, 0.7f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunForwardRight.fbx"), 0.7f, 0.7f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunBackwardLeft.fbx"), -0.7f, -0.7f),
+                DirectionalMotion(LoadAnimationClip(SoldierAnimationFolder + "/RunBackwardRight.fbx"), 0.7f, -0.7f)
+            };
             AssetDatabase.AddObjectToAsset(locomotion, controller);
             AnimatorState locomotionState = baseMachine.AddState("Locomotion");
             locomotionState.motion = locomotion;
@@ -434,8 +546,8 @@ namespace ZombieWar.Editor
             AssetDatabase.AddObjectToAsset(fireMachine, controller);
             AnimatorState readyState = fireMachine.AddState("Ready");
             AnimatorState fireState = fireMachine.AddState("Fire");
-            fireState.motion = idle;
-            fireState.speed = 4f;
+            fireState.motion = LoadAnimationClip(SoldierAnimationFolder + "/RifleFire.fbx");
+            fireState.speed = 2.5f;
             fireMachine.defaultState = readyState;
             AnimatorStateTransition enterFire = fireMachine.AddAnyStateTransition(fireState);
             enterFire.AddCondition(AnimatorConditionMode.If, 0f, "Fire");
@@ -456,61 +568,18 @@ namespace ZombieWar.Editor
             });
 
             EnableAnimatorIk(controller);
-            UpgradeDirectionalLocomotion(controller);
             AssetDatabase.SaveAssets();
             return controller;
         }
 
-        private static void UpgradeDirectionalLocomotion(AnimatorController controller)
+        private static ChildMotion DirectionalMotion(AnimationClip clip, float x, float y)
         {
-            AddAnimatorParameterIfMissing(controller, "MoveX", AnimatorControllerParameterType.Float);
-            AddAnimatorParameterIfMissing(controller, "MoveY", AnimatorControllerParameterType.Float);
-
-            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(controller));
-            BlendTree locomotion = null;
-            for (int i = 0; i < assets.Length; i++)
+            return new ChildMotion
             {
-                if (assets[i] is BlendTree candidate && candidate.name == "Locomotion")
-                {
-                    locomotion = candidate;
-                    break;
-                }
-            }
-            if (locomotion == null)
-            {
-                throw new MissingReferenceException("SoldierAnimator requires a Locomotion blend tree.");
-            }
-
-            AnimationClip idle = LoadAnimationClip(SurvivalistAnimationFolder + "/Stand--Idle.anim.fbx");
-            AnimationClip run = LoadAnimationClip(SurvivalistAnimationFolder + "/Locomotion--Run_N.anim.fbx");
-            locomotion.blendType = BlendTreeType.FreeformCartesian2D;
-            locomotion.blendParameter = "MoveX";
-            locomotion.blendParameterY = "MoveY";
-            locomotion.children = new[]
-            {
-                new ChildMotion { motion = idle, position = Vector2.zero, timeScale = 1f },
-                new ChildMotion { motion = run, position = Vector2.up, timeScale = 1f },
-                new ChildMotion { motion = run, position = Vector2.down, timeScale = 1f },
-                new ChildMotion { motion = run, position = Vector2.left, timeScale = 1f, mirror = true },
-                new ChildMotion { motion = run, position = Vector2.right, timeScale = 1f }
+                motion = clip,
+                position = new Vector2(x, y),
+                timeScale = 1f
             };
-            EditorUtility.SetDirty(locomotion);
-        }
-
-        private static void AddAnimatorParameterIfMissing(
-            AnimatorController controller,
-            string parameterName,
-            AnimatorControllerParameterType parameterType)
-        {
-            AnimatorControllerParameter[] parameters = controller.parameters;
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (parameters[i].name == parameterName)
-                {
-                    return;
-                }
-            }
-            controller.AddParameter(parameterName, parameterType);
         }
 
         private static void EnableAnimatorIk(AnimatorController controller)
@@ -594,6 +663,13 @@ namespace ZombieWar.Editor
             }
             float currentLength = Mathf.Max(bounds.size.x, bounds.size.z);
             weapon.localScale = Vector3.one * (targetLength / Mathf.Max(0.001f, currentLength));
+
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+            weapon.position += weapon.parent.position - bounds.center;
         }
 
         private static Material GetOrCreateWeaponMaterial(string name, string diffusePath, string normalPath)
@@ -664,6 +740,18 @@ namespace ZombieWar.Editor
 
             Vector3 offset = new(-bounds.center.x, -1f - bounds.min.y, -bounds.center.z);
             model.position += offset;
+        }
+
+        private static void NormalizeModelHeight(Transform model, Renderer[] renderers, float targetHeight)
+        {
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+
+            float scale = targetHeight / Mathf.Max(0.001f, bounds.size.y);
+            model.localScale *= scale;
         }
 
         private static RuntimeHud CreateHudPrefab()

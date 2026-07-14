@@ -89,15 +89,15 @@ namespace ZombieWar.Player
             _weaponIk = weaponIk;
         }
 
-        public void SetMovement(Vector2 localMovement)
+        public void SetMovement(Vector3 worldMovement)
         {
             if (_animator != null)
             {
+                Vector3 localMovement = _visualRoot.InverseTransformDirection(worldMovement);
                 float speed = Mathf.Clamp01(localMovement.magnitude);
                 _animator.SetFloat(SpeedHash, speed, _locomotionDampTime, Time.deltaTime);
                 _animator.SetFloat(MoveXHash, localMovement.x, _locomotionDampTime, Time.deltaTime);
-                _animator.SetFloat(MoveYHash, localMovement.y, _locomotionDampTime, Time.deltaTime);
-                _weaponIk.SetLowerBodyDirection(localMovement);
+                _animator.SetFloat(MoveYHash, localMovement.z, _locomotionDampTime, Time.deltaTime);
             }
         }
 

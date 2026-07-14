@@ -56,8 +56,7 @@ namespace ZombieWar.Player
             }
 
             Vector3 worldMovement = new(_moveInput.x, 0f, _moveInput.y);
-            Vector3 localMovement = transform.InverseTransformDirection(worldMovement);
-            _animationController.SetMovement(new Vector2(localMovement.x, localMovement.z));
+            _animationController.SetMovement(worldMovement);
         }
 
         private void FixedUpdate()

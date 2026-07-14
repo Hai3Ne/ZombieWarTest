@@ -100,7 +100,7 @@ namespace ZombieWar.Player
                 _weaponModels[i].SetActive(i == _activeIndex);
             }
 
-            _weaponIk.SetTargets(_rightHandTargets[_activeIndex], _leftHandTargets[_activeIndex]);
+            _weaponIk.SetTargets(_leftHandTargets[_activeIndex], _rightHandTargets[_activeIndex]);
             SyncGameplayMuzzle();
         }
 
