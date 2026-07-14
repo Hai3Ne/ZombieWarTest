@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-ZombieAudio
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-ZombieAudio
+  m_GUID: cf890d3d329ab6e4cb4cfa5b688d9b6a
+  m_SerializeEntries:
+  - m_GUID: 1be76993706476a46900a7f2a805ab9a
+    m_Address: audio/zombies/ambient/moan
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3871cfb7e39013543bd6be08a4aca475
+    m_Address: audio/zombies/hit/grunt
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3a376eabc9a63504a9ae6c8501b2db2a
+    m_Address: audio/zombies/ambient/hiss
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 68bb226ded0ed8146b74d93388ee0b5d
+    m_Address: audio/zombies/attack/aggressive-02
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 783fc1e0efc0e8a4fa3b6cf2010a12ad
+    m_Address: audio/zombies/ambient/growl-02
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e16febdc110694468a13cef18e71ad8
+    m_Address: audio/zombies/death/01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b677bf90557226a4faf0ea7bd4b0bdb8
+    m_Address: audio/zombies/death/02
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c47317e7c3f7fba40adee389eb72babe
+    m_Address: audio/zombies/ambient/growl-01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eeb68ef49e217e640b8d76af8c756248
+    m_Address: audio/zombies/attack/aggressive-01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-zombies
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: bc449425f263b204f9571f453b456646, type: 2}
+    - {fileID: 11400000, guid: 3a55d767f62d19648a56205e96f199cc, type: 2}

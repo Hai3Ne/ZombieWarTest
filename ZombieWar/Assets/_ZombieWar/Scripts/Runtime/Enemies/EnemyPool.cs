@@ -3,11 +3,13 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AI;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using ZombieWar.Audio;
 using ZombieWar.Combat;
 using ZombieWar.Core;
 
 namespace ZombieWar.Enemies
 {
+    [RequireComponent(typeof(ZombieAudioService))]
     public sealed class EnemyPool : MonoBehaviour
     {
         #region Config
@@ -15,9 +17,14 @@ namespace ZombieWar.Enemies
         [SerializeField] private EnemyPrefabCatalog _catalog;
         #endregion
 
+        #region Refs
+        private ZombieAudioService _audio;
+        #endregion
+
         #region State
         private AsyncOperationHandle<GameObject> _prefabHandle;
         private ZombieAgent _prefab;
+        private float _nextAmbientTime;
         private readonly Queue<ZombieAgent> _available = new(130);
         private readonly List<ZombieAgent> _active = new(130);
         public IReadOnlyList<ZombieAgent> Active => _active;
@@ -28,7 +35,9 @@ namespace ZombieWar.Enemies
         #region Lifecycle
         private void Awake()
         {
-            if (_catalog == null || !_catalog.Zombie.RuntimeKeyIsValid())
+            if (!TryGetComponent(out _audio)
+                || _catalog == null
+                || !_catalog.Zombie.RuntimeKeyIsValid())
             {
                 Debug.LogError("[Zombie War] EnemyPool requires an authored enemy Addressables catalog.", this);
                 enabled = false;
@@ -37,6 +46,21 @@ namespace ZombieWar.Enemies
 
             _prefabHandle = _catalog.Zombie.LoadAssetAsync();
             _prefabHandle.Completed += OnPrefabLoaded;
+        }
+
+        private void Update()
+        {
+            if (!IsReady
+                || !_audio.IsReady
+                || _active.Count == 0
+                || Time.time < _nextAmbientTime)
+            {
+                return;
+            }
+
+            _nextAmbientTime = Time.time + Random.Range(1.1f, 1.9f);
+            ZombieAgent zombie = _active[Random.Range(0, _active.Count)];
+            _audio.PlayAmbient(zombie.transform.position, zombie.IsGiant);
         }
 
         private void OnDestroy()
@@ -71,6 +95,21 @@ namespace ZombieWar.Enemies
         {
             _catalog = catalog;
             _capacity = Mathf.Max(1, capacity);
+        }
+
+        public void PlayAttackAudio(ZombieAgent zombie)
+        {
+            _audio.PlayAttack(zombie.transform.position, zombie.IsGiant);
+        }
+
+        public void PlayHitAudio(ZombieAgent zombie)
+        {
+            _audio.PlayHit(zombie.transform.position, zombie.IsGiant);
+        }
+
+        public void PlayDeathAudio(ZombieAgent zombie)
+        {
+            _audio.PlayDeath(zombie.transform.position, zombie.IsGiant);
         }
 
         public void Release(ZombieAgent zombie)

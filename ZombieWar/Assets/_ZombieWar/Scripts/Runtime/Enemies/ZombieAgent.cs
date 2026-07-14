@@ -233,6 +233,7 @@ namespace ZombieWar.Enemies
 
             _nextAttackTime = Time.time + _config.AttackInterval;
             _animation.PlayAttack();
+            _pool.PlayAttackAudio(this);
             Vector3 impulse = (_target.position - transform.position).normalized * 1.5f;
             DamageInfo damage = new(
                 _config.AttackDamage,
@@ -247,6 +248,7 @@ namespace ZombieWar.Enemies
         {
             _hitFlashUntil = Time.time + 0.08f;
             _animation.PlayHit();
+            _pool.PlayHitAudio(this);
             if (_state != ZombieState.Knockback)
             {
                 _state = ZombieState.Hit;
@@ -258,6 +260,7 @@ namespace ZombieWar.Enemies
             _state = ZombieState.Dead;
             _deathProgress = 0f;
             _animation.PlayDeath();
+            _pool.PlayDeathAudio(this);
             _collider.enabled = false;
             if (_agent.enabled)
             {

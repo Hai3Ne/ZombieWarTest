@@ -62,6 +62,11 @@ tiếp tới audio/VFX/model được quản lý bởi Addressables.
 `audio/weapons/rifle/fire` và `audio/weapons/shotgun/fire`, label `audio-weapons`.
 Android build phải build Addressables content trước Player build.
 
+`ZombieWar-ZombieAudio` chứa voice zombie theo nhóm ambient, attack, hit và death,
+label `audio-zombies`. Các clip chỉ load một lần qua `ZombieAudioService` và phát
+bằng 8 AudioSource 3D được author sẵn; cooldown toàn cục giới hạn chồng âm khi có
+80–120 zombie.
+
 `ZombieWar-Enemies` chứa prefab zombie hoàn chỉnh tại địa chỉ
 `prefabs/enemies/zombie`, label `enemies`. `EnemyPool` tải prefab qua
 `EnemyPrefabCatalog`, sau đó mới prewarm 130 instance; `WaveDirector` chỉ bắt đầu

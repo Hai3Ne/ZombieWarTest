@@ -41,6 +41,7 @@ namespace ZombieWar.Editor
         private const string ConfigFolder = RootFolder + "/Configs";
         private const string MaterialFolder = RootFolder + "/Materials";
         private const string AudioFolder = RootFolder + "/Audio/Weapons";
+        private const string ZombieAudioFolder = RootFolder + "/Audio/Zombies";
         private const string LayerLabRoot = "Assets/Layer Lab/GUI Pro-SurvivalClean";
         private const string LayerLabPlayPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Demo_Play";
         private const string LayerLabButtonPrefabs = LayerLabRoot + "/Prefabs/Prefabs_Component_Buttons";
@@ -64,6 +65,7 @@ namespace ZombieWar.Editor
         private const string StarterAvatarPath = "Assets/Survivalist/StarterAssets/ThirdPersonController/Character/Models/Armature.fbx";
         private const string LowPolyGunFolder = "Assets/Low Poly Guns/Models/Guns";
         private const string PostApocalypseGunAudio = "Assets/PostApocalypseGunsDemo";
+        private const string ZombieVoiceSource = "Assets/Tybug Studios/Zombie Voice Pack - Free";
         private const string RifleFireAudioPath = AudioFolder + "/RifleFire.wav";
         private const string ShotgunFireAudioPath = AudioFolder + "/ShotgunFire.wav";
 
@@ -93,6 +95,7 @@ namespace ZombieWar.Editor
             EnsureIndependentSoldierAssets();
             EnsureIndependentZombieAssets();
             EnsureIndependentWeaponAudioAssets();
+            EnsureIndependentZombieAudioAssets();
             EnsureTmpEssentials();
 
             Material ground = GetOrCreateMaterial("Ground", new Color(0.12f, 0.16f, 0.17f), "Universal Render Pipeline/Lit");
@@ -118,6 +121,7 @@ namespace ZombieWar.Editor
             LevelConfig levelTwo = GetOrCreateAsset<LevelConfig>("Level02");
             levelTwo.Configure("BROKEN OVERPASS", 180f, 30, 120, 120, true, 120f);
             WeaponAudioCatalog weaponAudioCatalog = GetOrCreateWeaponAudioCatalog();
+            ZombieAudioCatalog zombieAudioCatalog = GetOrCreateZombieAudioCatalog();
 
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             BombProjectile bombPrefab = CreateBombPrefab(bombMaterial);
@@ -135,6 +139,7 @@ namespace ZombieWar.Editor
                 obstacle,
                 soldierPrefab,
                 enemyPrefabCatalog,
+                zombieAudioCatalog,
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
@@ -148,6 +153,7 @@ namespace ZombieWar.Editor
                 obstacle,
                 soldierPrefab,
                 enemyPrefabCatalog,
+                zombieAudioCatalog,
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
@@ -228,6 +234,7 @@ namespace ZombieWar.Editor
             EnsureFolder(RootFolder, "Resources");
             EnsureFolder(RootFolder, "Audio");
             EnsureFolder(RootFolder + "/Audio", "Weapons");
+            EnsureFolder(RootFolder + "/Audio", "Zombies");
             EnsureFolder(RootFolder, "Characters");
             EnsureFolder(RootFolder + "/Characters", "Soldier");
             EnsureFolder(SoldierCharacterFolder, "Model");
@@ -247,6 +254,67 @@ namespace ZombieWar.Editor
                 PostApocalypseGunAudio + "/Shotguns/JackHammer_3p_01.wav",
                 ShotgunFireAudioPath);
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+        }
+
+        private static void EnsureIndependentZombieAudioAssets()
+        {
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Moan/zombie_moan_001.wav", ZombieAudioFolder + "/AmbientMoan.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Hiss/zombie_hiss_010.wav", ZombieAudioFolder + "/AmbientHiss.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Growl/zombie_growl_010.wav", ZombieAudioFolder + "/AmbientGrowl01.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Growl/zombie_growl_023.wav", ZombieAudioFolder + "/AmbientGrowl02.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Aggressive/zombie_agressive_039.wav", ZombieAudioFolder + "/AttackAggressive01.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Aggressive/zombie_agressive_044.wav", ZombieAudioFolder + "/AttackAggressive02.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Grunt/zombie_grunt_006.wav", ZombieAudioFolder + "/HitGrunt.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Death/zombie_death_004.wav", ZombieAudioFolder + "/Death01.wav");
+            CopyAssetIfMissing(ZombieVoiceSource + "/Zombie Death/zombie_death_010.wav", ZombieAudioFolder + "/Death02.wav");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+
+            string[] paths =
+            {
+                ZombieAudioFolder + "/AmbientMoan.wav",
+                ZombieAudioFolder + "/AmbientHiss.wav",
+                ZombieAudioFolder + "/AmbientGrowl01.wav",
+                ZombieAudioFolder + "/AmbientGrowl02.wav",
+                ZombieAudioFolder + "/AttackAggressive01.wav",
+                ZombieAudioFolder + "/AttackAggressive02.wav",
+                ZombieAudioFolder + "/HitGrunt.wav",
+                ZombieAudioFolder + "/Death01.wav",
+                ZombieAudioFolder + "/Death02.wav"
+            };
+            for (int i = 0; i < paths.Length; i++)
+            {
+                ConfigureZombieAudioImporter(paths[i]);
+            }
+        }
+
+        private static void ConfigureZombieAudioImporter(string path)
+        {
+            AudioImporter importer = AssetImporter.GetAtPath(path) as AudioImporter;
+            if (importer == null)
+            {
+                throw new FileNotFoundException($"Zombie audio importer was not found: {path}.");
+            }
+
+            AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+            bool requiresReimport = !importer.forceToMono
+                || settings.loadType != AudioClipLoadType.DecompressOnLoad
+                || settings.compressionFormat != AudioCompressionFormat.Vorbis
+                || !Mathf.Approximately(settings.quality, 0.7f)
+                || settings.sampleRateSetting != AudioSampleRateSetting.OptimizeSampleRate
+                || !settings.preloadAudioData;
+            if (!requiresReimport)
+            {
+                return;
+            }
+
+            importer.forceToMono = true;
+            settings.loadType = AudioClipLoadType.DecompressOnLoad;
+            settings.compressionFormat = AudioCompressionFormat.Vorbis;
+            settings.quality = 0.7f;
+            settings.sampleRateSetting = AudioSampleRateSetting.OptimizeSampleRate;
+            settings.preloadAudioData = true;
+            importer.defaultSampleSettings = settings;
+            importer.SaveAndReimport();
         }
 
         private static WeaponAudioCatalog GetOrCreateWeaponAudioCatalog()
@@ -273,12 +341,14 @@ namespace ZombieWar.Editor
                 settings,
                 group,
                 RifleFireAudioPath,
-                "audio/weapons/rifle/fire");
+                "audio/weapons/rifle/fire",
+                "audio-weapons");
             string shotgunGuid = ConfigureAddressableAudioEntry(
                 settings,
                 group,
                 ShotgunFireAudioPath,
-                "audio/weapons/shotgun/fire");
+                "audio/weapons/shotgun/fire",
+                "audio-weapons");
 
             WeaponAudioCatalog catalog = GetOrCreateAsset<WeaponAudioCatalog>("WeaponAudioCatalog");
             catalog.Configure(
@@ -289,11 +359,69 @@ namespace ZombieWar.Editor
             return catalog;
         }
 
+        private static ZombieAudioCatalog GetOrCreateZombieAudioCatalog()
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+            AddressableAssetGroup group = settings.FindGroup("ZombieWar-ZombieAudio");
+            if (group == null)
+            {
+                group = settings.CreateGroup(
+                    "ZombieWar-ZombieAudio",
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema));
+            }
+
+            BundledAssetGroupSchema bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+            bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+            bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+
+            string[] paths =
+            {
+                ZombieAudioFolder + "/AmbientMoan.wav",
+                ZombieAudioFolder + "/AmbientHiss.wav",
+                ZombieAudioFolder + "/AmbientGrowl01.wav",
+                ZombieAudioFolder + "/AmbientGrowl02.wav",
+                ZombieAudioFolder + "/AttackAggressive01.wav",
+                ZombieAudioFolder + "/AttackAggressive02.wav",
+                ZombieAudioFolder + "/HitGrunt.wav",
+                ZombieAudioFolder + "/Death01.wav",
+                ZombieAudioFolder + "/Death02.wav"
+            };
+            string[] addresses =
+            {
+                "audio/zombies/ambient/moan",
+                "audio/zombies/ambient/hiss",
+                "audio/zombies/ambient/growl-01",
+                "audio/zombies/ambient/growl-02",
+                "audio/zombies/attack/aggressive-01",
+                "audio/zombies/attack/aggressive-02",
+                "audio/zombies/hit/grunt",
+                "audio/zombies/death/01",
+                "audio/zombies/death/02"
+            };
+            for (int i = 0; i < paths.Length; i++)
+            {
+                ConfigureAddressableAudioEntry(settings, group, paths[i], addresses[i], "audio-zombies");
+            }
+
+            AssetLabelReference label = new() { labelString = "audio-zombies" };
+            ZombieAudioCatalog catalog = GetOrCreateAsset<ZombieAudioCatalog>("ZombieAudioCatalog");
+            catalog.Configure(label);
+            EditorUtility.SetDirty(catalog);
+            EditorUtility.SetDirty(settings);
+            return catalog;
+        }
+
         private static string ConfigureAddressableAudioEntry(
             AddressableAssetSettings settings,
             AddressableAssetGroup group,
             string assetPath,
-            string address)
+            string address,
+            string label)
         {
             string guid = AssetDatabase.AssetPathToGUID(assetPath);
             if (string.IsNullOrEmpty(guid))
@@ -303,7 +431,7 @@ namespace ZombieWar.Editor
 
             AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group, false, false);
             entry.address = address;
-            entry.SetLabel("audio-weapons", true, true);
+            entry.SetLabel(label, true, true);
             return guid;
         }
 
@@ -1285,6 +1413,7 @@ namespace ZombieWar.Editor
             Material obstacle,
             SoldierController soldierPrefab,
             EnemyPrefabCatalog enemyPrefabs,
+            ZombieAudioCatalog zombieAudio,
             Projectile projectilePrefab,
             RuntimeHud hudPrefab,
             WeaponConfig[] weapons,
@@ -1296,6 +1425,7 @@ namespace ZombieWar.Editor
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
             enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
+            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
@@ -1313,6 +1443,7 @@ namespace ZombieWar.Editor
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
             enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
+            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/PortraitHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
@@ -1346,6 +1477,8 @@ namespace ZombieWar.Editor
             EnemyPool enemyPool = new GameObject("Enemy Pool", typeof(EnemyPool)).GetComponent<EnemyPool>();
             enemyPool.transform.SetParent(systems.transform);
             enemyPool.SetCatalog(enemyPrefabs, 130);
+            ZombieAudioService zombieAudioService = enemyPool.GetComponent<ZombieAudioService>();
+            zombieAudioService.SetReferences(zombieAudio, CreateZombieAudioSources(enemyPool.transform, 8));
             EnemySimulationScheduler scheduler = systems.AddComponent<EnemySimulationScheduler>();
             WaveDirector wave = systems.AddComponent<WaveDirector>();
             GameSessionController session = systems.AddComponent<GameSessionController>();
@@ -1356,6 +1489,28 @@ namespace ZombieWar.Editor
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, $"{SceneFolder}/{sceneName}.unity");
+        }
+
+        private static AudioSource[] CreateZombieAudioSources(Transform parent, int capacity)
+        {
+            AudioSource[] sources = new AudioSource[capacity];
+            for (int i = 0; i < capacity; i++)
+            {
+                GameObject sourceObject = new($"Zombie Voice {i + 1:00}");
+                sourceObject.transform.SetParent(parent, false);
+                AudioSource source = sourceObject.AddComponent<AudioSource>();
+                source.playOnAwake = false;
+                source.loop = false;
+                source.spatialBlend = 0.9f;
+                source.dopplerLevel = 0f;
+                source.rolloffMode = AudioRolloffMode.Logarithmic;
+                source.minDistance = 1.5f;
+                source.maxDistance = 22f;
+                source.priority = 80;
+                source.volume = 0.72f;
+                sources[i] = source;
+            }
+            return sources;
         }
 
         private static GameObject BuildArena(bool levelTwo, Material ground, Material obstacle)
