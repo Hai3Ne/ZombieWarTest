@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Zombie
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Enemies.EnemyConfig
   _maxHealth: 55
-  _moveSpeed: 2.4
-  _attackDamage: 8
+  _moveSpeed: 2.45
+  _attackDamage: 7
   _attackRange: 1.35
-  _attackInterval: 0.8
+  _attackInterval: 0.82
   _isGiant: 0

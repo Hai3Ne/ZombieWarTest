@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9ffe0872acd1d343bb183f74190ae27, type: 3}
   m_Name: Shotgun
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.WeaponConfig
-  _displayName: Assault Rifle
-  _damage: 18
-  _fireInterval: 0.12
-  _range: 18
-  _projectileSpeed: 32
-  _pelletCount: 1
-  _spreadDegrees: 2
-  _recoil: 0.08
-  _accentColor: {r: 1, g: 0.75, b: 0.2, a: 1}
+  _displayName: SHOTGUN
+  _damage: 14
+  _fireInterval: 0.62
+  _range: 11
+  _projectileSpeed: 30
+  _pelletCount: 7
+  _spreadDegrees: 10
+  _recoil: 0.24
+  _accentColor: {r: 1, g: 0.28, b: 0.08, a: 1}

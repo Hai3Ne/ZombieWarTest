@@ -110,16 +110,23 @@ namespace ZombieWar.Editor
             rifle.Configure("ASSAULT RIFLE", 18f, 0.12f, 20f, 36f, 1, 1.5f, 0.08f, new Color(1f, 0.72f, 0.12f));
             WeaponConfig shotgun = GetOrCreateAsset<WeaponConfig>("Shotgun");
             shotgun.Configure("SHOTGUN", 14f, 0.62f, 11f, 30f, 7, 10f, 0.24f, new Color(1f, 0.28f, 0.08f));
+            EditorUtility.SetDirty(rifle);
+            EditorUtility.SetDirty(shotgun);
 
             EnemyConfig regular = GetOrCreateAsset<EnemyConfig>("Zombie");
             regular.Configure(55f, 2.45f, 7f, 1.35f, 0.82f, false);
             EnemyConfig giant = GetOrCreateAsset<EnemyConfig>("GiantZombie");
             giant.Configure(900f, 1.5f, 24f, 2.4f, 1.6f, true);
+            EditorUtility.SetDirty(regular);
+            EditorUtility.SetDirty(giant);
 
             LevelConfig levelOne = GetOrCreateAsset<LevelConfig>("Level01");
             levelOne.Configure("CONTAINMENT YARD", 180f, 25, 100, 120, false, 120f);
             LevelConfig levelTwo = GetOrCreateAsset<LevelConfig>("Level02");
             levelTwo.Configure("BROKEN OVERPASS", 180f, 30, 120, 120, true, 120f);
+            EditorUtility.SetDirty(levelOne);
+            EditorUtility.SetDirty(levelTwo);
+            AssetDatabase.SaveAssets();
             WeaponAudioCatalog weaponAudioCatalog = GetOrCreateWeaponAudioCatalog();
             ZombieAudioCatalog zombieAudioCatalog = GetOrCreateZombieAudioCatalog();
 

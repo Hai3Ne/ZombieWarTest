@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbff6b643ff4b074898b506542a7abeb, type: 3}
   m_Name: GiantZombie
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Enemies.EnemyConfig
-  _maxHealth: 55
-  _moveSpeed: 2.4
-  _attackDamage: 8
-  _attackRange: 1.35
-  _attackInterval: 0.8
-  _isGiant: 0
+  _maxHealth: 900
+  _moveSpeed: 1.5
+  _attackDamage: 24
+  _attackRange: 2.4
+  _attackInterval: 1.6
+  _isGiant: 1

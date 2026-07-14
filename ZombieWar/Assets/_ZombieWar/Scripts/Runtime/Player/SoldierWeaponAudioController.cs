@@ -81,9 +81,9 @@ namespace ZombieWar.Player
             _shotgunClip = ResolveClip(handle, "shotgun");
         }
 
-        private void OnWeaponChanged(string weaponName)
+        private void OnWeaponChanged(int weaponIndex, string weaponName)
         {
-            _activeWeaponIndex = weaponName.IndexOf("SHOTGUN", StringComparison.OrdinalIgnoreCase) >= 0 ? 1 : 0;
+            _activeWeaponIndex = Mathf.Clamp(weaponIndex, 0, 1);
         }
 
         private void OnFired(float recoil)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6699ea389ec3a6e4592c404efc99f392, type: 3}
   m_Name: Level01
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.LevelConfig
-  _displayName: Containment Yard
+  _displayName: CONTAINMENT YARD
   _durationSeconds: 180
   _startCount: 25
   _peakCount: 100

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using ZombieWar.Combat;
 
@@ -69,9 +68,9 @@ namespace ZombieWar.Player
         #endregion
 
         #region Internal
-        private void OnWeaponChanged(string weaponName)
+        private void OnWeaponChanged(int weaponIndex, string weaponName)
         {
-            ApplyWeapon(weaponName.IndexOf("SHOTGUN", StringComparison.OrdinalIgnoreCase) >= 0 ? 1 : 0);
+            ApplyWeapon(weaponIndex);
         }
 
         private void ApplyWeapon(int index)

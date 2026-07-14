@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6699ea389ec3a6e4592c404efc99f392, type: 3}
   m_Name: Level02
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.LevelConfig
-  _displayName: Containment Yard
+  _displayName: BROKEN OVERPASS
   _durationSeconds: 180
-  _startCount: 25
-  _peakCount: 100
+  _startCount: 30
+  _peakCount: 120
   _hardCap: 120
-  _spawnGiant: 0
+  _spawnGiant: 1
   _giantSpawnTime: 120
