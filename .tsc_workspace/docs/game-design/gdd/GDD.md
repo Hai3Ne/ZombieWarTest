@@ -12,7 +12,7 @@ soldier tự ngắm và tự bắn để thao tác một tay vẫn rõ ràng, ph
 2. Soldier tự khóa zombie hợp lệ gần nhất và tự bắn.
 3. Đổi Rifle/Shotgun theo khoảng cách và mật độ.
 4. Ném bom để phá vòng vây hoặc xử lý cụm mục tiêu.
-5. Sống sót đủ 180 giây để hoàn thành level.
+5. Sống sót hết thời lượng đã cấu hình cho level để hoàn thành.
 
 Soldier chết khi health về 0. Level thắng khi timer về 0. Pause, retry và next
 level luôn xuất hiện qua UI, không yêu cầu save progression.
@@ -74,8 +74,10 @@ Mật độ bắt đầu 20–30 và đạt 80–100 zombie.
 Địa hình có dốc, nhiều cao độ đọc được bằng màu/ánh sáng. Mật độ đạt 100–120,
 kèm một giant và regular wave tiếp tục hoạt động.
 
-Mỗi level: 0–45 giây làm quen; 45–120 tăng áp lực; 120–165 cao trào; 165–180
-final surge. Spawn ring luôn nằm ngoài camera viewport và chia bốn sector.
+Mỗi level có danh sách wave và tổng thời lượng riêng. Designer có thể thêm, bớt,
+sắp xếp level trong catalog; thêm/bớt wave và scale thời lượng các wave theo tổng
+thời gian mong muốn. Mặc định ba wave lần lượt làm quen, tăng áp lực và final surge.
+Spawn ring luôn nằm ngoài camera viewport và chia bốn sector.
 
 ## Art, VFX và audio
 
@@ -90,4 +92,3 @@ Mixer có Master/Music/SFX; nhạc tăng cường độ theo phase của wave.
 Target 100, hard cap 120 zombie; pool prewarm 130. AI được stagger theo khoảng
 cách, collider đơn giản, mesh hai LOD, material dùng chung, Animator culling và
 Physics NonAlloc. Ưu tiên giảm shadow/VFX/AI tick trước khi giảm mật độ.
-

@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Scenes: Boot, MainMenu, Level01, Level02. Một runtime assembly
+Scenes: Boot, MainMenu và danh sách level scene được khai báo trong `LevelCatalogConfig`. Một runtime assembly
 ZombieWar.Runtime chia theo Core, Player, Combat, Enemies, Levels, UI, Audio,
 VFX. Không dùng DI framework, service locator hoặc global event bus.
 
@@ -15,13 +15,15 @@ dependency bằng SerializeField. Async scene/fuse chỉ dùng Unity Awaitable.
 - DamageInfo: amount, hit point, impulse, instigator và DamageType.
 - WeaponConfig: fire interval, damage, range, spread, pellets, recoil và VFX.
 - EnemyConfig: health, speed, attack, ranges và simulation tier settings.
-- WaveConfig/LevelConfig: duration, curve, target count, hard cap và giant cue.
+- WaveConfig/WaveSequenceConfig: duration, curve, target count, hard cap và enemy mix.
+- LevelCatalogConfig: thứ tự level, scene, wave sequence và trạng thái enabled.
 
 ## Runtime flow
 
 PlayerInputReader -> SoldierMotor -> AutoTargeter -> WeaponController.
 WaveDirector -> EnemyPool -> EnemySimulationScheduler -> ZombieAgent.
-GameSessionController sở hữu timer và state Playing/Won/Lost.
+WaveDirector lấy timer từ tổng thời lượng các wave. GameSessionController sở hữu
+state Playing/Won/Lost và chuyển level theo thứ tự enabled trong catalog.
 
 EnemySimulationScheduler chia bucket theo distance: near 10 Hz, mid 4 Hz, far
 2 Hz. SetDestination được stagger; movement của NavMeshAgent vẫn nội suy.

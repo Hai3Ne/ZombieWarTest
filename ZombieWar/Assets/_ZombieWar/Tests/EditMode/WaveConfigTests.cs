@@ -78,6 +78,8 @@ namespace ZombieWar.Tests
                 catalog.Configure(new[] { first, disabled, third });
 
                 Assert.That(catalog.EnabledLevelCount, Is.EqualTo(2));
+                Assert.That(catalog.GetLevelBySceneName("ArenaA"), Is.SameAs(first));
+                Assert.That(catalog.GetLevelBySceneName("ArenaB"), Is.Null);
                 Assert.That(catalog.GetNextSceneName("ArenaA"), Is.EqualTo("ArenaC"));
                 Assert.That(catalog.GetNextSceneName("ArenaC"), Is.EqualTo("ArenaA"));
             }

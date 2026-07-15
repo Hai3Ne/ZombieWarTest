@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ZombieWar.Combat;
 using ZombieWar.Enemies;
 using ZombieWar.Levels;
@@ -26,6 +27,7 @@ namespace ZombieWar.Core
 
         private void Start()
         {
+            ResolveLevelConfig();
             if (!ValidateReferences())
             {
                 enabled = false;
@@ -38,6 +40,20 @@ namespace ZombieWar.Core
             _waveDirector.Configure(_enemyPool, _waveSequence, _soldier.transform, _soldier.Health, _worldCamera);
             _session.Configure(_soldier.Health, _waveDirector, _hud, _levelCatalog);
             _hud.Initialize(_soldier, _weaponController, _bombController, _waveDirector, _enemyPool, _session.Restart, _session.LoadNext);
+        }
+
+        private void ResolveLevelConfig()
+        {
+            if (_levelCatalog == null)
+            {
+                return;
+            }
+
+            LevelDefinition level = _levelCatalog.GetLevelBySceneName(SceneManager.GetActiveScene().name);
+            if (level != null)
+            {
+                _waveSequence = level.WaveSequence;
+            }
         }
 
         public void SetReferences(

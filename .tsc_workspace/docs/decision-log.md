@@ -26,3 +26,10 @@ dùng địa chỉ ổn định và catalog ScriptableObject có kiểu rõ ràn
 và composition root vẫn được author trong Editor; không tạo project hay hierarchy
 động khi chạy game. Asset gốc từ package bên ngoài phải được duplicate vào
 `Assets/_ZombieWar` trước khi đưa vào Addressables để tránh phụ thuộc package nguồn.
+
+## ADR-006 — Level catalog và wave timeline do dữ liệu điều khiển
+
+Không hardcode số lượng level hoặc thời lượng 180 giây. `LevelCatalogConfig` là nguồn
+dữ liệu chính cho thứ tự scene và `WaveSequenceConfig` của từng level; tổng thời lượng
+là tổng duration của các wave. Scene và nút menu vẫn được author sẵn trong Editor,
+không tạo hierarchy hay project động ở runtime.

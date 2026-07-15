@@ -60,6 +60,24 @@ namespace ZombieWar.Levels
             return null;
         }
 
+        public LevelDefinition GetLevelBySceneName(string sceneName)
+        {
+            if (_levels == null || string.IsNullOrWhiteSpace(sceneName))
+            {
+                return null;
+            }
+
+            for (int i = 0; i < _levels.Length; i++)
+            {
+                LevelDefinition level = _levels[i];
+                if (level != null && level.IsValid && level.SceneName == sceneName)
+                {
+                    return level;
+                }
+            }
+            return null;
+        }
+
         public string GetNextSceneName(string currentSceneName)
         {
             if (_levels == null)

@@ -10,8 +10,9 @@
 
 ## Mục tiêu hiện tại
 
-Hoàn thiện vertical slice Android landscape 2560×1440 có vòng chơi 180 giây, auto-fire,
-hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết bị tầm trung.
+Hoàn thiện vertical slice Android landscape 2560×1440 có thời lượng và wave timeline
+được author theo từng level, auto-fire, hai súng, bom vật lý và cao trào 80–120 zombie
+ở 60 FPS trên thiết bị tầm trung.
 
 ## Trạng thái triển khai
 
@@ -23,6 +24,7 @@ hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết 
 - [x] Bomb inventory: tối đa 3 quả, UI 3 bước đồng bộ số lượng và JMO mobile explosion VFX được pool/tự tắt.
 - [x] Weapon selection: radial menu 3 slot; icon và prefab vũ khí được lưu bằng Addressable reference trong `WeaponConfig`.
 - [x] Hand grip authoring: Scene View drawing guide cho hướng ngón tay, pháp tuyến lòng bàn tay và hướng ngón cái trên cả Rifle/Shotgun.
+- [x] Level authoring: `LevelCatalogConfig` quản lý danh sách level; mỗi level có wave timeline và tổng thời lượng tùy chỉnh trong `Level Editor/Wave Editor`.
 - [x] Verification: runtime/editor/test assemblies build sạch và 10 EditMode tests pass.
 - [ ] Content pass: thay placeholder bằng model, animation layer/blend tree, AudioClip, particle và LOD hoàn chỉnh.
 - [ ] Device pass: profile APK ARM64 IL2CPP trên Android tầm trung tại cao trào 120 zombie.
