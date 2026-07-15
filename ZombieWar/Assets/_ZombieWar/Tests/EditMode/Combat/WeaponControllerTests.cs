@@ -27,7 +27,7 @@ namespace ZombieWar.Tests
                 rifle.Configure("RIFLE", 18f, 0.12f, 20f, 36f, 1, 1.5f, 0.08f, Color.yellow);
                 shotgun.Configure("SHOTGUN", 14f, 0.62f, 11f, 30f, 7, 10f, 0.24f, Color.red);
                 WeaponController controller = root.GetComponent<WeaponController>();
-                controller.Configure(new[] { rifle, shotgun }, null, null, null);
+                controller.Configure(new[] { rifle, shotgun }, null, null);
 
                 Assert.That(controller.CurrentWeaponIndex, Is.EqualTo(0));
                 Assert.That(controller.CurrentWeaponName, Is.EqualTo("RIFLE"));
@@ -45,6 +45,27 @@ namespace ZombieWar.Tests
                 Object.DestroyImmediate(root);
                 Object.DestroyImmediate(rifle);
                 Object.DestroyImmediate(shotgun);
+            }
+        }
+
+        [Test]
+        public void SetAimInput_RequiresActiveStickAndNormalizesWorldDirection()
+        {
+            GameObject root = new("Weapon Aim Test", typeof(Rigidbody), typeof(WeaponController));
+            try
+            {
+                WeaponController controller = root.GetComponent<WeaponController>();
+                controller.SetAimInput(new Vector2(0.5f, 0.5f), true);
+
+                Assert.That(controller.IsAiming, Is.True);
+                Assert.That(Vector3.Angle(controller.AimDirection, new Vector3(1f, 0f, 1f)), Is.LessThan(0.001f));
+
+                controller.SetAimInput(Vector2.zero, false);
+                Assert.That(controller.IsAiming, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
             }
         }
     }

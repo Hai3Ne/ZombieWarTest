@@ -13,6 +13,7 @@ namespace ZombieWar.UI
     {
         #region Refs
         [SerializeField] private VirtualJoystick _joystick;
+        [SerializeField] private VirtualJoystick _aimJoystick;
         [SerializeField] private BombAimJoystick _bombJoystick;
         [SerializeField] private WeaponRadialMenu _weaponMenu;
         [SerializeField] private BombInventoryView _bombInventoryView;
@@ -48,6 +49,7 @@ namespace ZombieWar.UI
             }
 
             _soldier.SetMoveInput(_joystick.Value);
+            _weapon.SetAimInput(_aimJoystick.Value, _aimJoystick.IsActive);
             _healthFill.fillAmount = _soldier.Health.Normalized;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
@@ -109,6 +111,7 @@ namespace ZombieWar.UI
 
         public void SetViewReferences(
             VirtualJoystick joystick,
+            VirtualJoystick aimJoystick,
             BombAimJoystick bombJoystick,
             WeaponRadialMenu weaponMenu,
             BombInventoryView bombInventoryView,
@@ -122,6 +125,7 @@ namespace ZombieWar.UI
             Button nextButton)
         {
             _joystick = joystick;
+            _aimJoystick = aimJoystick;
             _bombJoystick = bombJoystick;
             _weaponMenu = weaponMenu;
             _bombInventoryView = bombInventoryView;
@@ -138,6 +142,11 @@ namespace ZombieWar.UI
         public void SetScreenFeedback(ScreenFeedbackView screenFeedback)
         {
             _screenFeedback = screenFeedback;
+        }
+
+        public void SetAimJoystick(VirtualJoystick aimJoystick)
+        {
+            _aimJoystick = aimJoystick;
         }
 
         public void ShowResult(bool won)

@@ -1816,6 +1816,40 @@ namespace ZombieWar.Editor
             VirtualJoystick joystick = joystickZoneImage.gameObject.AddComponent<VirtualJoystick>();
             joystick.Configure(joystickZone, joystickRect, joystickHandle);
 
+            Image aimZoneImage = CreateImage(
+                safe,
+                "Aim Input Zone",
+                Color.clear,
+                new Vector2(0.52f, 0.02f),
+                new Vector2(0.98f, 0.82f));
+            aimZoneImage.raycastTarget = true;
+            RectTransform aimZone = aimZoneImage.rectTransform;
+            GameObject aimJoystickObject = InstantiateLayerLabPrefab(
+                LayerLabPlayPrefabs + "/Play_Joystick_Direction.prefab",
+                aimZone,
+                "Aim Joystick");
+            RectTransform aimJoystickRect = aimJoystickObject.GetComponent<RectTransform>();
+            ConfigureAnchoredPrefab(aimJoystickRect, new Vector2(0.5f, 0.5f), Vector2.zero, 0.72f);
+            RectTransform aimJoystickHandle = FindChildComponent<RectTransform>(aimJoystickObject.transform, "Handle");
+            aimJoystickHandle.anchoredPosition = Vector2.zero;
+            Image shootingIcon = CreateImage(
+                aimJoystickHandle,
+                "Shooting Icon",
+                Color.white,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f));
+            shootingIcon.rectTransform.sizeDelta = new Vector2(76f, 76f);
+            shootingIcon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(LayerLabIcons + "/Icon_Shooting.Png");
+            shootingIcon.preserveAspect = true;
+            shootingIcon.raycastTarget = false;
+            Graphic[] aimJoystickGraphics = aimJoystickObject.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < aimJoystickGraphics.Length; i++)
+            {
+                aimJoystickGraphics[i].raycastTarget = false;
+            }
+            VirtualJoystick aimJoystick = aimZoneImage.gameObject.AddComponent<VirtualJoystick>();
+            aimJoystick.Configure(aimZone, aimJoystickRect, aimJoystickHandle);
+
             Button switchButton = CreateLayerLabButton(
                 safe,
                 "Switch Weapon",
@@ -1886,7 +1920,7 @@ namespace ZombieWar.Editor
             panel.gameObject.SetActive(false);
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
-            hud.SetViewReferences(joystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
+            hud.SetViewReferences(joystick, aimJoystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
             hud.SetScreenFeedback(screenFeedback);
             OptionsUiInstaller.InstantiateOverlay(safe);
             return SavePrefab<RuntimeHud>(root, "LandscapeHUD");

@@ -17,6 +17,7 @@ namespace ZombieWar.UI
         private Vector2 _value;
         private int _activePointerId = NoPointer;
         public Vector2 Value => _value;
+        public bool IsActive => _activePointerId != NoPointer;
         #endregion
 
         #region Lifecycle
@@ -29,7 +30,7 @@ namespace ZombieWar.UI
                 return;
             }
 
-            ResetJoystick(false);
+            ResetJoystick(true);
         }
         #endregion
 
@@ -72,7 +73,7 @@ namespace ZombieWar.UI
             }
 
             _activePointerId = NoPointer;
-            ResetJoystick(false);
+            ResetJoystick(true);
         }
         #endregion
 

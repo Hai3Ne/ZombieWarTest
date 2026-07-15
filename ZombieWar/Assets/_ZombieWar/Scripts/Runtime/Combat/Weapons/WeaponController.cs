@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using ZombieWar.Core;
-using ZombieWar.Enemies;
 
 namespace ZombieWar.Combat
 {
@@ -9,7 +8,6 @@ namespace ZombieWar.Combat
     public sealed class WeaponController : MonoBehaviour
     {
         #region Refs
-        private EnemyPool _enemyPool;
         private ProjectilePool _projectilePool;
         private Transform _muzzle;
         private Rigidbody _rigidbody;
@@ -17,18 +15,18 @@ namespace ZombieWar.Combat
 
         #region State
         private WeaponConfig[] _weapons;
-        private ZombieAgent _target;
         private int _weaponIndex;
-        private float _nextTargetRefresh;
         private float _nextFireTime;
         private Vector3 _aimDirection;
+        private bool _isAiming;
         #endregion
 
         #region API
         public string CurrentWeaponName => _weapons != null ? _weapons[_weaponIndex].DisplayName : string.Empty;
         public int CurrentWeaponIndex => _weaponIndex;
         public int WeaponCount => _weapons?.Length ?? 0;
-        public ZombieAgent CurrentTarget => _target;
+        public bool IsAiming => _isAiming;
+        public Vector3 AimDirection => _aimDirection;
         public event Action<int, string> WeaponChanged;
         public event Action<float> Fired;
         #endregion
@@ -45,32 +43,15 @@ namespace ZombieWar.Combat
 
         private void Update()
         {
-            if (_weapons == null || _enemyPool == null)
+            if (_weapons == null || _projectilePool == null || _muzzle == null || !_isAiming)
             {
                 return;
             }
 
             WeaponConfig weapon = _weapons[_weaponIndex];
-            if (Time.time >= _nextTargetRefresh)
-            {
-                _nextTargetRefresh = Time.time + 0.15f;
-                _target = _enemyPool.FindBestTarget(transform.position, _target, weapon.Range, 0.8f);
-            }
-            if (_target == null || !_target.IsAlive)
-            {
-                return;
-            }
-
-            Vector3 targetPoint = _target.AimPoint;
-            Vector3 flat = targetPoint - transform.position;
-            flat.y = 0f;
-            if (flat.sqrMagnitude > 0.01f)
-            {
-                _aimDirection = flat.normalized;
-            }
             if (GameplayMath.IsCooldownReady(Time.time, _nextFireTime))
             {
-                Fire(_weapons[_weaponIndex]);
+                Fire(weapon);
             }
         }
 
@@ -88,13 +69,23 @@ namespace ZombieWar.Combat
         #endregion
 
         #region API
-        public void Configure(WeaponConfig[] weapons, EnemyPool enemyPool, ProjectilePool projectilePool, Transform muzzle)
+        public void Configure(WeaponConfig[] weapons, ProjectilePool projectilePool, Transform muzzle)
         {
             _weapons = weapons;
-            _enemyPool = enemyPool;
             _projectilePool = projectilePool;
             _muzzle = muzzle;
             WeaponChanged?.Invoke(_weaponIndex, CurrentWeaponName);
+        }
+
+        public void SetAimInput(Vector2 input, bool isActive)
+        {
+            _isAiming = isActive && input.sqrMagnitude >= 0.01f;
+            if (!_isAiming)
+            {
+                return;
+            }
+
+            _aimDirection = new Vector3(input.x, 0f, input.y).normalized;
         }
 
         public void SwitchWeapon()
@@ -127,11 +118,12 @@ namespace ZombieWar.Combat
         private void Fire(WeaponConfig weapon)
         {
             _nextFireTime = Time.time + weapon.FireInterval;
+            Quaternion aimRotation = Quaternion.LookRotation(_aimDirection, Vector3.up);
             for (int i = 0; i < weapon.PelletCount; i++)
             {
                 float yaw = UnityEngine.Random.Range(-weapon.SpreadDegrees, weapon.SpreadDegrees);
                 float pitch = UnityEngine.Random.Range(-weapon.SpreadDegrees * 0.35f, weapon.SpreadDegrees * 0.35f);
-                Vector3 direction = WeaponBallistics.CalculateDirection(_muzzle.rotation, yaw, pitch);
+                Vector3 direction = WeaponBallistics.CalculateDirection(aimRotation, yaw, pitch);
                 _projectilePool.Fire(_muzzle.position, direction, weapon.ProjectileSpeed, weapon.Range, weapon.Damage, gameObject, weapon.AccentColor);
             }
             Fired?.Invoke(weapon.Recoil);

@@ -4,10 +4,11 @@
 
 .tsc_workspace nằm ở repo root; tsc-unity-kit giữ bất biến dưới dạng submodule.
 
-## ADR-002 — Portrait auto-fire
+## ADR-002 — Landscape twin-stick manual fire
 
-Portrait 9:16–9:20, một joystick, auto-target/auto-fire; người chơi đổi súng và
-ném bom chủ động.
+Landscape 16:9 dùng hai vùng joystick nổi: bên trái điều khiển di chuyển, bên phải
+điều khiển hướng ngắm và giữ để bắn. Thả joystick phải sẽ dừng bắn; Bomb, Switch
+và Options được đặt trên vùng aim để giữ ưu tiên touch độc lập.
 
 ## ADR-003 — Dense crowd without DOTS
 
