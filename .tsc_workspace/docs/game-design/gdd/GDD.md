@@ -12,10 +12,12 @@ soldier tự ngắm và tự bắn để thao tác một tay vẫn rõ ràng, ph
 2. Soldier tự khóa zombie hợp lệ gần nhất và tự bắn.
 3. Đổi Rifle/Shotgun theo khoảng cách và mật độ.
 4. Ném bom để phá vòng vây hoặc xử lý cụm mục tiêu.
-5. Sống sót hết thời lượng đã cấu hình cho level để hoàn thành.
+5. Sống sót hết thời lượng đã cấu hình để mở cổng extraction.
+6. Di chuyển soldier vào cổng để chuyển sang level kế tiếp.
 
-Soldier chết khi health về 0. Level thắng khi timer về 0. Pause, retry và next
-level luôn xuất hiện qua UI, không yêu cầu save progression.
+Soldier chết khi health về 0. Khi timer về 0, zombie còn lại được thu hồi, HUD báo
+`PORTAL OPEN` và cổng extraction trong arena được kích hoạt. Level chỉ chuyển sau khi
+soldier chủ động bước vào cổng. Pause và retry vẫn được điều khiển qua UI.
 
 ## Điều khiển portrait
 

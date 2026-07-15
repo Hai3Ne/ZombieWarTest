@@ -139,6 +139,14 @@ namespace ZombieWar.Enemies
             _available.Enqueue(zombie);
         }
 
+        public void ReleaseAll()
+        {
+            while (_active.Count > 0)
+            {
+                Release(_active[_active.Count - 1]);
+            }
+        }
+
         public ZombieAgent FindBestTarget(
             Vector3 origin,
             ZombieAgent current,

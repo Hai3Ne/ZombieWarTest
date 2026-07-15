@@ -33,3 +33,11 @@ Không hardcode số lượng level hoặc thời lượng 180 giây. `LevelCata
 dữ liệu chính cho thứ tự scene và `WaveSequenceConfig` của từng level; tổng thời lượng
 là tổng duration của các wave. Scene và nút menu vẫn được author sẵn trong Editor,
 không tạo hierarchy hay project động ở runtime.
+
+## ADR-007 — Chuyển level qua cổng extraction đã author
+
+Hết thời lượng level chỉ mở khóa cổng extraction; không tự động đổi scene. Cổng là
+prefab được gắn sẵn vào từng level và chỉ nhận collider của soldier. Khi người chơi
+bước vào, game tải scene `Loading`, giữ scene đích bằng `SceneTransitionRequest`, rồi
+kích hoạt level enabled kế tiếp trong `LevelCatalogConfig`. Level cuối hiện quay vòng
+về level đầu theo semantics của catalog.

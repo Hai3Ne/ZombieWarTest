@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Scenes: Boot, MainMenu và danh sách level scene được khai báo trong `LevelCatalogConfig`. Một runtime assembly
+Scenes: Boot, Loading, MainMenu và danh sách level scene được khai báo trong `LevelCatalogConfig`. Một runtime assembly
 ZombieWar.Runtime chia theo Core, Player, Combat, Enemies, Levels, UI, Audio,
 VFX. Không dùng DI framework, service locator hoặc global event bus.
 
@@ -34,6 +34,32 @@ Folder chỉ mô tả ownership; namespace hiện tại giữ ổn định theo 
 refactor API không cần thiết. Assembly definition vẫn đặt tại root Runtime/Editor/Test
 và áp dụng cho toàn bộ thư mục con.
 
+## Config organization
+
+Config asset phải được đặt theo feature và ownership; root `Configs` không chứa file rời.
+Mọi thao tác di chuyển dùng AssetDatabase để giữ nguyên GUID và reference.
+
+```text
+Configs/
+├── Audio/
+│   ├── Weapons/WeaponAudioCatalog.asset
+│   └── Zombies/ZombieAudioCatalog.asset
+├── Enemies/
+│   ├── Animation/ZombieAnimator.controller
+│   ├── Archetypes/{Walker,Runner,Brute,Giant}.asset
+│   └── EnemyPrefabCatalog.asset
+├── Levels/
+│   ├── LevelCatalog.asset
+│   ├── Level01/{LevelConfig,CameraProfile,Waves}
+│   └── Level02/{LevelConfig,CameraProfile,Waves}
+├── Player/Animation/{SoldierAnimator,SoldierUpperBody}
+└── Weapons/{Rifle,Shotgun}.asset
+```
+
+Mỗi thư mục `Waves` giữ `WaveSequence.asset` và từng `WaveNN.asset`. Công cụ
+`Zombie War/Tools/Organize Config Assets` dùng để migrate cấu trúc cũ một lần;
+`ZombieWarProjectSetup` phải tạo asset mới trực tiếp vào cấu trúc canonical này.
+
 ## Public contracts
 
 - IDamageable.ApplyDamage(in DamageInfo): contract damage chung.
@@ -49,6 +75,12 @@ PlayerInputReader -> SoldierMotor -> AutoTargeter -> WeaponController.
 WaveDirector -> EnemyPool -> EnemySimulationScheduler -> ZombieAgent.
 WaveDirector lấy timer từ tổng thời lượng các wave. GameSessionController sở hữu
 state Playing/Won/Lost và chuyển level theo thứ tự enabled trong catalog.
+
+Khi timer kết thúc, `GameSessionController` thu hồi enemy đang hoạt động và mở
+`LevelExitPortal` đã được author trong level scene. Trigger chỉ nhận `SoldierController`.
+`SceneTransitionRequest` giữ tên scene đích trong thời gian ngắn, tải scene `Loading`,
+sau đó `BootSceneController` hiển thị tiến độ và kích hoạt level kế tiếp. Không có
+hierarchy hoặc project asset nào được tạo ở runtime.
 
 Player feedback là event-driven: `Health.Damaged/Healed/Died` điều khiển screen
 overlay; `WeaponController.Fired`, `Health.Damaged` và `BombController.Exploded`

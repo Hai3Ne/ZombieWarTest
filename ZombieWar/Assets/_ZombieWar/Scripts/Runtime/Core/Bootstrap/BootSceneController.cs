@@ -16,7 +16,7 @@ namespace ZombieWar.Core
         {
             Application.targetFrameRate = 60;
             Screen.orientation = ScreenOrientation.LandscapeLeft;
-            _ = LoadSceneAsync(_nextScene);
+            _ = LoadSceneAsync(SceneTransitionRequest.ConsumeTarget(_nextScene));
         }
 
         public void SetViewReferences(Image progressFill, TMP_Text progressText)

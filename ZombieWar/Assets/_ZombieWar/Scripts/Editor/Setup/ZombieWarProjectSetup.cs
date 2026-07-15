@@ -41,6 +41,16 @@ namespace ZombieWar.Editor
         private const string SceneFolder = RootFolder + "/Scenes";
         private const string PrefabFolder = RootFolder + "/Prefabs";
         private const string ConfigFolder = RootFolder + "/Configs";
+        private const string AudioConfigFolder = ConfigFolder + "/Audio";
+        private const string WeaponAudioConfigFolder = AudioConfigFolder + "/Weapons";
+        private const string ZombieAudioConfigFolder = AudioConfigFolder + "/Zombies";
+        private const string EnemyConfigFolder = ConfigFolder + "/Enemies";
+        private const string EnemyAnimationConfigFolder = EnemyConfigFolder + "/Animation";
+        private const string EnemyArchetypeConfigFolder = EnemyConfigFolder + "/Archetypes";
+        private const string LevelConfigFolder = ConfigFolder + "/Levels";
+        private const string PlayerConfigFolder = ConfigFolder + "/Player";
+        private const string PlayerAnimationConfigFolder = PlayerConfigFolder + "/Animation";
+        private const string WeaponConfigFolder = ConfigFolder + "/Weapons";
         private const string MaterialFolder = RootFolder + "/Materials";
         private const string AudioFolder = RootFolder + "/Audio/Weapons";
         private const string ZombieAudioFolder = RootFolder + "/Audio/Zombies";
@@ -151,30 +161,30 @@ namespace ZombieWar.Editor
             Material projectileMaterial = GetOrCreateMaterial("Projectile", new Color(1f, 0.75f, 0.12f), "Universal Render Pipeline/Unlit");
             Material bombMaterial = GetOrCreateMaterial("Bomb", new Color(0.15f, 0.15f, 0.16f), "Universal Render Pipeline/Lit");
 
-            WeaponConfig rifle = GetOrCreateAsset<WeaponConfig>("Rifle");
+            WeaponConfig rifle = GetOrCreateAsset<WeaponConfig>(WeaponConfigFolder, "Rifle");
             rifle.Configure("ASSAULT RIFLE", 18f, 0.12f, 20f, 36f, 1, 1.5f, 0.08f, new Color(1f, 0.72f, 0.12f));
-            WeaponConfig shotgun = GetOrCreateAsset<WeaponConfig>("Shotgun");
+            WeaponConfig shotgun = GetOrCreateAsset<WeaponConfig>(WeaponConfigFolder, "Shotgun");
             shotgun.Configure("SHOTGUN", 14f, 0.62f, 11f, 30f, 7, 10f, 0.24f, new Color(1f, 0.28f, 0.08f));
             ConfigureWeaponPresentation(rifle, shotgun);
             EditorUtility.SetDirty(rifle);
             EditorUtility.SetDirty(shotgun);
 
-            EnemyConfig regular = GetOrCreateAsset<EnemyConfig>("Zombie");
+            EnemyConfig regular = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Walker");
             regular.Configure("WALKER", EnemyArchetype.Walker, 55f, 2.45f, 7f, 1.35f, 0.82f, 1f, Color.white);
-            EnemyConfig runner = GetOrCreateAsset<EnemyConfig>("RunnerZombie");
+            EnemyConfig runner = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Runner");
             runner.Configure("RUNNER", EnemyArchetype.Runner, 34f, 3.8f, 6f, 1.2f, 0.68f, 0.9f, new Color(0.72f, 0.95f, 0.58f));
-            EnemyConfig brute = GetOrCreateAsset<EnemyConfig>("BruteZombie");
+            EnemyConfig brute = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Brute");
             brute.Configure("BRUTE", EnemyArchetype.Brute, 145f, 1.75f, 15f, 1.55f, 1.1f, 1.32f, new Color(0.82f, 0.42f, 0.3f));
-            EnemyConfig giant = GetOrCreateAsset<EnemyConfig>("GiantZombie");
+            EnemyConfig giant = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Giant");
             giant.Configure("GIANT", EnemyArchetype.Giant, 900f, 1.5f, 24f, 2.4f, 1.6f, 2.2f, new Color(0.58f, 0.16f, 0.12f));
             EditorUtility.SetDirty(regular);
             EditorUtility.SetDirty(runner);
             EditorUtility.SetDirty(brute);
             EditorUtility.SetDirty(giant);
 
-            LevelConfig levelOne = GetOrCreateAsset<LevelConfig>("Level01");
+            LevelConfig levelOne = GetOrCreateAsset<LevelConfig>(GetLevelFolder("Level01"), "LevelConfig");
             levelOne.Configure("CONTAINMENT YARD", 180f, 25, 100, 120, false, 120f);
-            LevelConfig levelTwo = GetOrCreateAsset<LevelConfig>("Level02");
+            LevelConfig levelTwo = GetOrCreateAsset<LevelConfig>(GetLevelFolder("Level02"), "LevelConfig");
             levelTwo.Configure("BROKEN OVERPASS", 180f, 30, 120, 120, true, 120f);
             EditorUtility.SetDirty(levelOne);
             EditorUtility.SetDirty(levelTwo);
@@ -237,8 +247,10 @@ namespace ZombieWar.Editor
                 shotgunMuzzleVfx,
                 weaponAudioCatalog);
             RuntimeHud hudPrefab = CreateHudPrefab();
+            LevelTransitionInstaller.GetOrCreatePortalPrefab();
 
             CreateBootScene();
+            LevelTransitionInstaller.EnsureLoadingScene(true);
             CreateMainMenuScene(levelCatalog);
             CreateLevelScene(
                 "Level01",
@@ -273,7 +285,7 @@ namespace ZombieWar.Editor
             Debug.Log("[Zombie War] Authored prefabs, configs and scenes are ready. Runtime bootstrap is not used.");
         }
 
-        [MenuItem("Zombie War/Build Android Development")]
+        [MenuItem("Zombie War/Build/Build Android Development")]
         public static void BuildAndroidDevelopment()
         {
             AuthorProjectAssets();
@@ -300,7 +312,7 @@ namespace ZombieWar.Editor
             }
         }
 
-        [MenuItem("Zombie War/Build Addressables Content")]
+        [MenuItem("Zombie War/Build/Build Addressables Content")]
         public static void BuildAddressablesContent()
         {
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
@@ -319,7 +331,7 @@ namespace ZombieWar.Editor
             }
             GraphicsSettings.defaultRenderPipeline = pipeline;
             QualitySettings.renderPipeline = pipeline;
-            PlayerSettings.companyName = "Two Sleepy Cats";
+            PlayerSettings.companyName = "Test Game";
             PlayerSettings.productName = "Zombie War";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
             PlayerSettings.allowedAutorotateToPortrait = false;
@@ -328,7 +340,7 @@ namespace ZombieWar.Editor
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.defaultScreenWidth = 2560;
             PlayerSettings.defaultScreenHeight = 1440;
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.twosleepycats.zombiewar");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.testgame.zombiewar");
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         }
@@ -387,6 +399,20 @@ namespace ZombieWar.Editor
             EnsureFolder(RootFolder, "Prefabs");
             EnsureFolder(PrefabFolder, "VFX");
             EnsureFolder(RootFolder, "Configs");
+            EnsureFolder(ConfigFolder, "Audio");
+            EnsureFolder(AudioConfigFolder, "Weapons");
+            EnsureFolder(AudioConfigFolder, "Zombies");
+            EnsureFolder(ConfigFolder, "Enemies");
+            EnsureFolder(EnemyConfigFolder, "Animation");
+            EnsureFolder(EnemyConfigFolder, "Archetypes");
+            EnsureFolder(ConfigFolder, "Levels");
+            EnsureFolder(LevelConfigFolder, "Level01");
+            EnsureFolder(GetLevelFolder("Level01"), "Waves");
+            EnsureFolder(LevelConfigFolder, "Level02");
+            EnsureFolder(GetLevelFolder("Level02"), "Waves");
+            EnsureFolder(ConfigFolder, "Player");
+            EnsureFolder(PlayerConfigFolder, "Animation");
+            EnsureFolder(ConfigFolder, "Weapons");
             EnsureFolder(RootFolder, "Materials");
             EnsureFolder(RootFolder, "Scenes");
             EnsureFolder(RootFolder, "Resources");
@@ -508,7 +534,7 @@ namespace ZombieWar.Editor
                 "audio/weapons/shotgun/fire",
                 "audio-weapons");
 
-            WeaponAudioCatalog catalog = GetOrCreateAsset<WeaponAudioCatalog>("WeaponAudioCatalog");
+            WeaponAudioCatalog catalog = GetOrCreateAsset<WeaponAudioCatalog>(WeaponAudioConfigFolder, "WeaponAudioCatalog");
             catalog.Configure(
                 new AssetReferenceT<AudioClip>(rifleGuid),
                 new AssetReferenceT<AudioClip>(shotgunGuid));
@@ -567,7 +593,7 @@ namespace ZombieWar.Editor
             }
 
             AssetLabelReference label = new() { labelString = "audio-zombies" };
-            ZombieAudioCatalog catalog = GetOrCreateAsset<ZombieAudioCatalog>("ZombieAudioCatalog");
+            ZombieAudioCatalog catalog = GetOrCreateAsset<ZombieAudioCatalog>(ZombieAudioConfigFolder, "ZombieAudioCatalog");
             catalog.Configure(label);
             EditorUtility.SetDirty(catalog);
             EditorUtility.SetDirty(settings);
@@ -619,7 +645,7 @@ namespace ZombieWar.Editor
             entry.address = "prefabs/enemies/zombie";
             entry.SetLabel("enemies", true, true);
 
-            EnemyPrefabCatalog catalog = GetOrCreateAsset<EnemyPrefabCatalog>("EnemyPrefabCatalog");
+            EnemyPrefabCatalog catalog = GetOrCreateAsset<EnemyPrefabCatalog>(EnemyConfigFolder, "EnemyPrefabCatalog");
             catalog.Configure(new AssetReferenceT<GameObject>(guid));
             EditorUtility.SetDirty(catalog);
             EditorUtility.SetDirty(settings);
@@ -811,9 +837,9 @@ namespace ZombieWar.Editor
             }
         }
 
-        private static T GetOrCreateAsset<T>(string name) where T : ScriptableObject
+        private static T GetOrCreateAsset<T>(string folder, string name) where T : ScriptableObject
         {
-            string path = $"{ConfigFolder}/{name}.asset";
+            string path = $"{folder}/{name}.asset";
             T asset = AssetDatabase.LoadAssetAtPath<T>(path);
             if (asset != null)
             {
@@ -823,6 +849,16 @@ namespace ZombieWar.Editor
             asset = ScriptableObject.CreateInstance<T>();
             AssetDatabase.CreateAsset(asset, path);
             return asset;
+        }
+
+        private static string GetLevelFolder(string levelName)
+        {
+            return $"{LevelConfigFolder}/{levelName}";
+        }
+
+        private static string GetWaveFolder(string levelName)
+        {
+            return $"{GetLevelFolder(levelName)}/Waves";
         }
 
         private static WaveSequenceConfig CreateWaveSequence(
@@ -835,13 +871,14 @@ namespace ZombieWar.Editor
             EnemyConfig brute,
             EnemyConfig giant)
         {
-            WaveSequenceConfig existing = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{levelName}_Waves.asset");
+            string waveFolder = GetWaveFolder(levelName);
+            WaveSequenceConfig existing = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{waveFolder}/WaveSequence.asset");
             if (existing != null)
             {
                 return existing;
             }
 
-            WaveConfig waveOne = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave01");
+            WaveConfig waveOne = GetOrCreateAsset<WaveConfig>(waveFolder, "Wave01");
             waveOne.Configure(
                 "WAVE 1",
                 60f,
@@ -850,7 +887,7 @@ namespace ZombieWar.Editor
                 2,
                 new[] { CreateWaveEnemyEntry(walker, 1f) });
 
-            WaveConfig waveTwo = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave02");
+            WaveConfig waveTwo = GetOrCreateAsset<WaveConfig>(waveFolder, "Wave02");
             waveTwo.Configure(
                 "WAVE 2",
                 60f,
@@ -863,7 +900,7 @@ namespace ZombieWar.Editor
                     CreateWaveEnemyEntry(runner, 0.32f)
                 });
 
-            WaveConfig waveThree = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave03");
+            WaveConfig waveThree = GetOrCreateAsset<WaveConfig>(waveFolder, "Wave03");
             WaveEnemyEntry[] finalEntries = giant == null
                 ? new[]
                 {
@@ -886,7 +923,7 @@ namespace ZombieWar.Editor
                 4,
                 finalEntries);
 
-            WaveSequenceConfig sequence = GetOrCreateAsset<WaveSequenceConfig>($"{levelName}_Waves");
+            WaveSequenceConfig sequence = GetOrCreateAsset<WaveSequenceConfig>(waveFolder, "WaveSequence");
             sequence.Configure(displayName, hardCap, cameraProfile, new[] { waveOne, waveTwo, waveThree });
             EditorUtility.SetDirty(waveOne);
             EditorUtility.SetDirty(waveTwo);
@@ -904,13 +941,15 @@ namespace ZombieWar.Editor
             Vector3 damping,
             float previewSize)
         {
-            CameraProfileConfig existing = AssetDatabase.LoadAssetAtPath<CameraProfileConfig>($"{ConfigFolder}/{assetName}.asset");
+            string levelName = assetName.Replace("_Camera", string.Empty);
+            string levelFolder = GetLevelFolder(levelName);
+            CameraProfileConfig existing = AssetDatabase.LoadAssetAtPath<CameraProfileConfig>($"{levelFolder}/CameraProfile.asset");
             if (existing != null)
             {
                 return existing;
             }
 
-            CameraProfileConfig profile = GetOrCreateAsset<CameraProfileConfig>(assetName);
+            CameraProfileConfig profile = GetOrCreateAsset<CameraProfileConfig>(levelFolder, "CameraProfile");
             profile.Configure(displayName, followOffset, rotationEuler, fieldOfView, damping, previewSize);
             EditorUtility.SetDirty(profile);
             return profile;
@@ -920,7 +959,7 @@ namespace ZombieWar.Editor
             WaveSequenceConfig levelOneWaves,
             WaveSequenceConfig levelTwoWaves)
         {
-            LevelCatalogConfig existing = AssetDatabase.LoadAssetAtPath<LevelCatalogConfig>($"{ConfigFolder}/LevelCatalog.asset");
+            LevelCatalogConfig existing = AssetDatabase.LoadAssetAtPath<LevelCatalogConfig>($"{LevelConfigFolder}/LevelCatalog.asset");
             if (existing != null)
             {
                 return existing;
@@ -930,7 +969,7 @@ namespace ZombieWar.Editor
             levelOne.Configure("CONTAINMENT YARD", "Level01", levelOneWaves, true);
             LevelDefinition levelTwo = new();
             levelTwo.Configure("BROKEN OVERPASS", "Level02", levelTwoWaves, true);
-            LevelCatalogConfig catalog = GetOrCreateAsset<LevelCatalogConfig>("LevelCatalog");
+            LevelCatalogConfig catalog = GetOrCreateAsset<LevelCatalogConfig>(LevelConfigFolder, "LevelCatalog");
             catalog.Configure(new[] { levelOne, levelTwo });
             EditorUtility.SetDirty(catalog);
             return catalog;
@@ -1225,7 +1264,7 @@ namespace ZombieWar.Editor
 
         private static RuntimeAnimatorController CreateZombieAnimatorController()
         {
-            string controllerPath = ConfigFolder + "/ZombieAnimator.controller";
+            string controllerPath = EnemyAnimationConfigFolder + "/ZombieAnimator.controller";
             if (AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath) != null)
             {
                 AssetDatabase.DeleteAsset(controllerPath);
@@ -1455,7 +1494,7 @@ namespace ZombieWar.Editor
 
         private static RuntimeAnimatorController CreateSoldierAnimatorController()
         {
-            string controllerPath = ConfigFolder + "/SoldierAnimator.controller";
+            string controllerPath = PlayerAnimationConfigFolder + "/SoldierAnimator.controller";
             if (AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath) != null)
             {
                 AssetDatabase.DeleteAsset(controllerPath);
@@ -1649,7 +1688,7 @@ namespace ZombieWar.Editor
 
         private static AvatarMask GetOrCreateUpperBodyMask()
         {
-            string maskPath = ConfigFolder + "/SoldierUpperBody.mask";
+            string maskPath = PlayerAnimationConfigFolder + "/SoldierUpperBody.mask";
             AvatarMask mask = AssetDatabase.LoadAssetAtPath<AvatarMask>(maskPath);
             if (mask != null)
             {
@@ -1980,32 +2019,32 @@ namespace ZombieWar.Editor
             ground = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Ground.mat");
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
-            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
-            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
+            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(EnemyConfigFolder + "/EnemyPrefabCatalog.asset");
+            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ZombieAudioConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/LandscapeHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
             {
-                AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
-                AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Shotgun.asset")
+                AssetDatabase.LoadAssetAtPath<WeaponConfig>(WeaponConfigFolder + "/Rifle.asset"),
+                AssetDatabase.LoadAssetAtPath<WeaponConfig>(WeaponConfigFolder + "/Shotgun.asset")
             };
-            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{sceneName}_Waves.asset");
+            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{GetWaveFolder(sceneName)}/WaveSequence.asset");
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = sceneName;
             ground = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Ground.mat");
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
             soldierPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Soldier.prefab").GetComponent<SoldierController>();
-            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(ConfigFolder + "/EnemyPrefabCatalog.asset");
-            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ConfigFolder + "/ZombieAudioCatalog.asset");
+            enemyPrefabs = AssetDatabase.LoadAssetAtPath<EnemyPrefabCatalog>(EnemyConfigFolder + "/EnemyPrefabCatalog.asset");
+            zombieAudio = AssetDatabase.LoadAssetAtPath<ZombieAudioCatalog>(ZombieAudioConfigFolder + "/ZombieAudioCatalog.asset");
             projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Projectile.prefab").GetComponent<Projectile>();
             hudPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/LandscapeHUD.prefab").GetComponent<RuntimeHud>();
             weapons = new[]
             {
-                AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
-                AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Shotgun.asset")
+                AssetDatabase.LoadAssetAtPath<WeaponConfig>(WeaponConfigFolder + "/Rifle.asset"),
+                AssetDatabase.LoadAssetAtPath<WeaponConfig>(WeaponConfigFolder + "/Shotgun.asset")
             };
-            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{sceneName}_Waves.asset");
+            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{GetWaveFolder(sceneName)}/WaveSequence.asset");
             CreateEventSystem();
             CreateDirectionalLight();
 
@@ -2045,7 +2084,8 @@ namespace ZombieWar.Editor
             LevelSceneController controller = systems.AddComponent<LevelSceneController>();
 
             RuntimeHud hud = ((GameObject)PrefabUtility.InstantiatePrefab(hudPrefab.gameObject)).GetComponent<RuntimeHud>();
-            controller.SetReferences(weapons, waveSequence, levelCatalog, soldier, weapon, bomb, muzzle, projectilePool, enemyPool, scheduler, wave, session, hud, worldCamera);
+            LevelExitPortal exitPortal = LevelTransitionInstaller.InstantiatePortal(scene);
+            controller.SetReferences(weapons, waveSequence, levelCatalog, soldier, weapon, bomb, muzzle, projectilePool, enemyPool, scheduler, wave, session, hud, worldCamera, exitPortal);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, $"{SceneFolder}/{sceneName}.unity");
@@ -2350,9 +2390,10 @@ namespace ZombieWar.Editor
             List<EditorBuildSettingsScene> scenes = new()
             {
                 new EditorBuildSettingsScene($"{SceneFolder}/Boot.unity", true),
+                new EditorBuildSettingsScene($"{SceneFolder}/Loading.unity", true),
                 new EditorBuildSettingsScene($"{SceneFolder}/MainMenu.unity", true)
             };
-            HashSet<string> addedScenes = new() { "Boot", "MainMenu" };
+            HashSet<string> addedScenes = new() { "Boot", "Loading", "MainMenu" };
             LevelDefinition[] levels = levelCatalog != null ? levelCatalog.Levels : null;
             if (levels != null)
             {

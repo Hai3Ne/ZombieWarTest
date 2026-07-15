@@ -36,6 +36,7 @@ namespace ZombieWar.UI
         #region State
         private Action _restartAction;
         private Action _nextAction;
+        private bool _portalOpen;
         #endregion
 
         #region Lifecycle
@@ -50,7 +51,9 @@ namespace ZombieWar.UI
             _healthFill.fillAmount = _soldier.Health.Normalized;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
-            _crowdText.text = $"WAVE {_wave.CurrentWaveNumber}   THREAT {_enemyPool.ActiveCount:000}";
+            _crowdText.text = _portalOpen
+                ? "PORTAL OPEN   MOVE TO EXTRACTION"
+                : $"WAVE {_wave.CurrentWaveNumber}   THREAT {_enemyPool.ActiveCount:000}";
         }
 
         private void OnDestroy()
@@ -100,6 +103,8 @@ namespace ZombieWar.UI
             _retryButton.onClick.AddListener(OnRestart);
             _nextButton.onClick.AddListener(OnNext);
             _resultPanel.SetActive(false);
+            _nextButton.gameObject.SetActive(false);
+            _portalOpen = false;
         }
 
         public void SetViewReferences(
@@ -137,8 +142,17 @@ namespace ZombieWar.UI
 
         public void ShowResult(bool won)
         {
+            _portalOpen = false;
             _resultText.text = won ? "AREA SECURED" : "SOLDIER DOWN";
+            _nextButton.gameObject.SetActive(won);
             _resultPanel.SetActive(true);
+        }
+
+        public void ShowPortalOpened()
+        {
+            _portalOpen = true;
+            _timerText.text = "00:00";
+            _resultPanel.SetActive(false);
         }
         #endregion
 

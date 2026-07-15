@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ZombieWar.Combat;
+using ZombieWar.Core;
+using ZombieWar.Enemies;
 using ZombieWar.UI;
 
 namespace ZombieWar.Levels
@@ -12,6 +14,8 @@ namespace ZombieWar.Levels
         private WaveDirector _wave;
         private RuntimeHud _hud;
         private LevelCatalogConfig _levelCatalog;
+        private LevelExitPortal _exitPortal;
+        private EnemyPool _enemyPool;
         #endregion
 
         #region State
@@ -38,12 +42,20 @@ namespace ZombieWar.Levels
         #endregion
 
         #region API
-        public void Configure(Health playerHealth, WaveDirector wave, RuntimeHud hud, LevelCatalogConfig levelCatalog)
+        public void Configure(
+            Health playerHealth,
+            WaveDirector wave,
+            RuntimeHud hud,
+            LevelCatalogConfig levelCatalog,
+            LevelExitPortal exitPortal,
+            EnemyPool enemyPool)
         {
             _playerHealth = playerHealth;
             _wave = wave;
             _hud = hud;
             _levelCatalog = levelCatalog;
+            _exitPortal = exitPortal;
+            _enemyPool = enemyPool;
         }
 
         public void Restart()
@@ -60,7 +72,7 @@ namespace ZombieWar.Levels
                 : string.Empty;
             if (!string.IsNullOrEmpty(target))
             {
-                _ = LoadSceneAsync(target);
+                _ = SceneTransitionRequest.LoadThroughLoadingAsync(target);
             }
         }
         #endregion
@@ -69,7 +81,22 @@ namespace ZombieWar.Levels
         private void Finish(bool won)
         {
             _finished = true;
-            _hud.ShowResult(won);
+            if (!won)
+            {
+                _hud.ShowResult(false);
+                return;
+            }
+
+            _enemyPool.ReleaseAll();
+            string target = _levelCatalog.GetNextSceneName(SceneManager.GetActiveScene().name);
+            if (_exitPortal == null || string.IsNullOrWhiteSpace(target))
+            {
+                _hud.ShowResult(true);
+                return;
+            }
+
+            _exitPortal.Open(target);
+            _hud.ShowPortalOpened();
         }
 
         private static async Awaitable LoadSceneAsync(string sceneName)
