@@ -15,11 +15,35 @@ MonoBehaviour:
   m_GroupName: ZombieWar-VFX
   m_GUID: 2809a1b5f14c07e4d8feabc7b603f863
   m_SerializeEntries:
+  - m_GUID: 1c78ac668f324774fb8dbfbcad6d93e6
+    m_Address: vfx/weapons/impact/blood
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx-weapons
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1caf42ac947df9e4c84f90b5a638e6a6
     m_Address: vfx/bomb/explosion
     m_ReadOnly: 0
     m_SerializedLabels:
     - vfx-bomb
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5128bdf06232c1c4aa4bbcfb7f2e43f6
+    m_Address: vfx/weapons/impact/hard-surface
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx-weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a6851dce8e15bdd43a7360fb2d57201f
+    m_Address: vfx/weapons/rifle/muzzle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx-weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e544c13e548554c47a9eed177d8b79f6
+    m_Address: vfx/weapons/shotgun/muzzle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx-weapons
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}

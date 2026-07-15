@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: f2c82c976c497b34391ecacc264b3b53
   m_currentHash:
     serializedVersion: 2
-    Hash: d0fb9a0c1478bd0e604474b62760208d
+    Hash: 44fae8e07615c42afb500dd7f7935200
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
@@ -114,6 +114,7 @@ MonoBehaviour:
     - audio-zombies
     - weapons
     - vfx-bomb
+    - vfx-weapons
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 58786467ca177c44c9e96ae71e9be4f0, type: 2}

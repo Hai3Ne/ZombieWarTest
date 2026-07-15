@@ -70,7 +70,7 @@ namespace ZombieWar.Combat
             }
             if (GameplayMath.IsCooldownReady(Time.time, _nextFireTime))
             {
-                Fire(_weapons[_weaponIndex], targetPoint);
+                Fire(_weapons[_weaponIndex]);
             }
         }
 
@@ -124,15 +124,14 @@ namespace ZombieWar.Combat
         #endregion
 
         #region Internal
-        private void Fire(WeaponConfig weapon, Vector3 targetPoint)
+        private void Fire(WeaponConfig weapon)
         {
             _nextFireTime = Time.time + weapon.FireInterval;
-            Vector3 baseDirection = (targetPoint - _muzzle.position).normalized;
             for (int i = 0; i < weapon.PelletCount; i++)
             {
                 float yaw = UnityEngine.Random.Range(-weapon.SpreadDegrees, weapon.SpreadDegrees);
                 float pitch = UnityEngine.Random.Range(-weapon.SpreadDegrees * 0.35f, weapon.SpreadDegrees * 0.35f);
-                Vector3 direction = Quaternion.Euler(pitch, yaw, 0f) * baseDirection;
+                Vector3 direction = WeaponBallistics.CalculateDirection(_muzzle.rotation, yaw, pitch);
                 _projectilePool.Fire(_muzzle.position, direction, weapon.ProjectileSpeed, weapon.Range, weapon.Damage, gameObject, weapon.AccentColor);
             }
             Fired?.Invoke(weapon.Recoil);

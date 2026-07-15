@@ -71,6 +71,14 @@ namespace ZombieWar.Editor
         private const string ShotgunFireAudioPath = AudioFolder + "/ShotgunFire.wav";
         private const string JmoBombExplosionPath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/Explosions/WFXMR_Explosion Small.prefab";
         private const string BombExplosionVfxPath = PrefabFolder + "/VFX/BombExplosion.prefab";
+        private const string JmoRifleMuzzlePath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/MuzzleFlashes/4Planes/WFXMR_MF 4P RIFLE1.prefab";
+        private const string JmoShotgunMuzzlePath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/MuzzleFlashes/4Planes/WFXMR_MF 4P RIFLE3.prefab";
+        private const string JmoSoftBodyImpactPath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/Bullet Impacts/WFXMR_BImpact SoftBody.prefab";
+        private const string JmoHardSurfaceImpactPath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/Bullet Impacts/WFXMR_BImpact Concrete NoCollision.prefab";
+        private const string RifleMuzzleVfxPath = PrefabFolder + "/VFX/RifleMuzzle.prefab";
+        private const string ShotgunMuzzleVfxPath = PrefabFolder + "/VFX/ShotgunMuzzle.prefab";
+        private const string SoftBodyImpactVfxPath = PrefabFolder + "/VFX/SoftBodyImpact.prefab";
+        private const string HardSurfaceImpactVfxPath = PrefabFolder + "/VFX/HardSurfaceImpact.prefab";
 
         [MenuItem("Zombie War/Open Level 01 _F8")]
         public static void OpenLevel01()
@@ -88,6 +96,39 @@ namespace ZombieWar.Editor
         public static void OpenMainMenu()
         {
             EditorSceneManager.OpenScene(SceneFolder + "/MainMenu.unity", OpenSceneMode.Single);
+        }
+
+        [MenuItem("Zombie War/Refresh Hand Grip Guides _F10")]
+        public static void RefreshHandGripGuides()
+        {
+            string prefabPath = PrefabFolder + "/Soldier.prefab";
+            GameObject root = PrefabUtility.LoadPrefabContents(prefabPath);
+            try
+            {
+                Transform[] transforms = root.GetComponentsInChildren<Transform>(true);
+                for (int i = 0; i < transforms.Length; i++)
+                {
+                    bool isLeftHand = transforms[i].name == "Left Hand Grip";
+                    bool isRightHand = transforms[i].name == "Right Hand Grip";
+                    if (!isLeftHand && !isRightHand)
+                    {
+                        continue;
+                    }
+
+                    if (!transforms[i].TryGetComponent(out HandGripGuide guide))
+                    {
+                        guide = transforms[i].gameObject.AddComponent<HandGripGuide>();
+                    }
+                    guide.Configure(isLeftHand);
+                    EditorUtility.SetDirty(guide);
+                }
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+                Debug.Log("[Zombie War] Hand grip drawing guides refreshed on Soldier.prefab.");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
         }
 
         [MenuItem("Zombie War/Author Project Assets _F6")]
@@ -137,10 +178,20 @@ namespace ZombieWar.Editor
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             BombProjectile bombPrefab = CreateBombPrefab(bombMaterial);
             GameObject bombExplosionVfx = CreateBombExplosionVfxPrefab();
-            ConfigureBombVfxAddressable();
+            GameObject rifleMuzzleVfx = CreateJmoWeaponVfxPrefab(JmoRifleMuzzlePath, RifleMuzzleVfxPath, "Rifle Muzzle", 0.42f, 0.1f);
+            GameObject shotgunMuzzleVfx = CreateJmoWeaponVfxPrefab(JmoShotgunMuzzlePath, ShotgunMuzzleVfxPath, "Shotgun Muzzle", 0.58f, 0.12f);
+            CreateJmoWeaponVfxPrefab(JmoSoftBodyImpactPath, SoftBodyImpactVfxPath, "Zombie Blood Impact", 0.62f, 0.8f, true);
+            CreateJmoWeaponVfxPrefab(JmoHardSurfaceImpactPath, HardSurfaceImpactVfxPath, "Hard Surface Impact", 0.48f, 1.25f);
+            ConfigureCombatVfxAddressables();
             ZombieAgent zombiePrefab = CreateZombiePrefab(zombieMaterial);
             EnemyPrefabCatalog enemyPrefabCatalog = GetOrCreateEnemyPrefabCatalog(zombiePrefab);
-            SoldierController soldierPrefab = CreateSoldierPrefab(soldierMaterial, bombPrefab, bombExplosionVfx, weaponAudioCatalog);
+            SoldierController soldierPrefab = CreateSoldierPrefab(
+                soldierMaterial,
+                bombPrefab,
+                bombExplosionVfx,
+                rifleMuzzleVfx,
+                shotgunMuzzleVfx,
+                weaponAudioCatalog);
             RuntimeHud hudPrefab = CreateHudPrefab();
 
             CreateBootScene();
@@ -809,6 +860,14 @@ namespace ZombieWar.Editor
             root.transform.localScale = Vector3.one * 0.12f;
             Object.DestroyImmediate(root.GetComponent<Collider>());
             root.GetComponent<MeshRenderer>().sharedMaterial = material;
+            TrailRenderer trail = root.AddComponent<TrailRenderer>();
+            trail.sharedMaterial = material;
+            trail.time = 0.09f;
+            trail.startWidth = 0.075f;
+            trail.endWidth = 0f;
+            trail.minVertexDistance = 0.035f;
+            trail.numCapVertices = 2;
+            trail.alignment = LineAlignment.View;
             root.AddComponent<Projectile>();
             Projectile result = SavePrefab<Projectile>(root, "Projectile");
             return result;
@@ -863,7 +922,65 @@ namespace ZombieWar.Editor
             return AssetDatabase.LoadAssetAtPath<GameObject>(BombExplosionVfxPath);
         }
 
-        private static void ConfigureBombVfxAddressable()
+        private static GameObject CreateJmoWeaponVfxPrefab(
+            string sourcePath,
+            string destinationPath,
+            string objectName,
+            float scale,
+            float duration,
+            bool tintAsBlood = false)
+        {
+            GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
+            if (source == null)
+            {
+                throw new FileNotFoundException($"JMO weapon VFX prefab was not found: {sourcePath}");
+            }
+
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            instance.name = objectName;
+            instance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            instance.transform.localScale = Vector3.one * scale;
+
+            if (tintAsBlood)
+            {
+                TintParticlesAsBlood(instance);
+            }
+
+            Light[] lights = instance.GetComponentsInChildren<Light>(true);
+            for (int i = 0; i < lights.Length; i++)
+            {
+                Object.DestroyImmediate(lights[i]);
+            }
+
+            MonoBehaviour[] behaviours = instance.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = behaviours.Length - 1; i >= 0; i--)
+            {
+                if (behaviours[i] != null && behaviours[i].GetType().Name == "CFX_AutoDestructShuriken")
+                {
+                    Object.DestroyImmediate(behaviours[i]);
+                }
+            }
+
+            PooledVfxAutoDisable autoDisable = instance.AddComponent<PooledVfxAutoDisable>();
+            autoDisable.SetDuration(duration);
+            PrefabUtility.SaveAsPrefabAsset(instance, destinationPath);
+            Object.DestroyImmediate(instance);
+            return AssetDatabase.LoadAssetAtPath<GameObject>(destinationPath);
+        }
+
+        private static void TintParticlesAsBlood(GameObject instance)
+        {
+            Color darkBlood = new(0.16f, 0.005f, 0.008f, 0.78f);
+            Color freshBlood = new(0.72f, 0.025f, 0.018f, 0.95f);
+            ParticleSystem[] particleSystems = instance.GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < particleSystems.Length; i++)
+            {
+                ParticleSystem.MainModule main = particleSystems[i].main;
+                main.startColor = new ParticleSystem.MinMaxGradient(darkBlood, freshBlood);
+            }
+        }
+
+        private static void ConfigureCombatVfxAddressables()
         {
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             AddressableAssetGroup group = settings.FindGroup("ZombieWar-VFX");
@@ -883,6 +1000,10 @@ namespace ZombieWar.Editor
             bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
             bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
             ConfigureAddressableEntry(settings, group, BombExplosionVfxPath, "vfx/bomb/explosion", "vfx-bomb");
+            ConfigureAddressableEntry(settings, group, RifleMuzzleVfxPath, "vfx/weapons/rifle/muzzle", "vfx-weapons");
+            ConfigureAddressableEntry(settings, group, ShotgunMuzzleVfxPath, "vfx/weapons/shotgun/muzzle", "vfx-weapons");
+            ConfigureAddressableEntry(settings, group, SoftBodyImpactVfxPath, "vfx/weapons/impact/blood", "vfx-weapons");
+            ConfigureAddressableEntry(settings, group, HardSurfaceImpactVfxPath, "vfx/weapons/impact/hard-surface", "vfx-weapons");
             EditorUtility.SetDirty(settings);
         }
 
@@ -1033,6 +1154,8 @@ namespace ZombieWar.Editor
             Material material,
             BombProjectile bombPrefab,
             GameObject bombExplosionVfx,
+            GameObject rifleMuzzleVfx,
+            GameObject shotgunMuzzleVfx,
             WeaponAudioCatalog weaponAudioCatalog)
         {
             GameObject root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -1137,6 +1260,16 @@ namespace ZombieWar.Editor
                 new[] { rifleMuzzle, shotgunMuzzle },
                 muzzle.transform,
                 weaponIk);
+            GameObject rifleMuzzleEffect = (GameObject)PrefabUtility.InstantiatePrefab(rifleMuzzleVfx, rifleMuzzle);
+            rifleMuzzleEffect.name = "Rifle Muzzle VFX";
+            rifleMuzzleEffect.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            rifleMuzzleEffect.SetActive(false);
+            GameObject shotgunMuzzleEffect = (GameObject)PrefabUtility.InstantiatePrefab(shotgunMuzzleVfx, shotgunMuzzle);
+            shotgunMuzzleEffect.name = "Shotgun Muzzle VFX";
+            shotgunMuzzleEffect.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            shotgunMuzzleEffect.SetActive(false);
+            WeaponMuzzleVfxController muzzleVfx = root.AddComponent<WeaponMuzzleVfxController>();
+            muzzleVfx.SetViewReferences(new[] { rifleMuzzleEffect, shotgunMuzzleEffect });
             return SavePrefab<SoldierController>(root, "Soldier");
         }
 
@@ -1288,6 +1421,8 @@ namespace ZombieWar.Editor
             rightGrip = CreateWeaponPoint(mount.transform, "Right Hand Grip", rightGripPosition);
             leftGrip = CreateWeaponPoint(mount.transform, "Left Hand Grip", leftGripPosition);
             muzzle = CreateWeaponPoint(mount.transform, "Muzzle", new Vector3(0f, 0f, targetLength * 0.56f));
+            rightGrip.gameObject.AddComponent<HandGripGuide>().Configure(false);
+            leftGrip.gameObject.AddComponent<HandGripGuide>().Configure(true);
             rightGrip.localRotation = Quaternion.Euler(0f, 90f, 75f);
             leftGrip.localRotation = Quaternion.Euler(0f, 90f, 85f);
         }
@@ -1682,6 +1817,14 @@ namespace ZombieWar.Editor
             ProjectilePool projectilePool = new GameObject("Projectile Pool", typeof(ProjectilePool)).GetComponent<ProjectilePool>();
             projectilePool.transform.SetParent(systems.transform);
             projectilePool.SetPrefab(projectilePrefab, 96);
+            ProjectileImpactVfxPool impactVfxPool = new GameObject("Projectile Impact VFX Pool", typeof(ProjectileImpactVfxPool)).GetComponent<ProjectileImpactVfxPool>();
+            impactVfxPool.transform.SetParent(systems.transform);
+            impactVfxPool.SetPrefabs(
+                AssetDatabase.LoadAssetAtPath<GameObject>(SoftBodyImpactVfxPath),
+                AssetDatabase.LoadAssetAtPath<GameObject>(HardSurfaceImpactVfxPath),
+                24,
+                12);
+            projectilePool.SetImpactVfxPool(impactVfxPool);
             EnemyPool enemyPool = new GameObject("Enemy Pool", typeof(EnemyPool)).GetComponent<EnemyPool>();
             enemyPool.transform.SetParent(systems.transform);
             enemyPool.SetCatalog(enemyPrefabs, 130);

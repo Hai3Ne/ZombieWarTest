@@ -7,6 +7,7 @@ namespace ZombieWar.Combat
     {
         [SerializeField] private Projectile _prefab;
         [SerializeField] private int _capacity = 96;
+        [SerializeField] private ProjectileImpactVfxPool _impactVfxPool;
 
         private readonly Queue<Projectile> _available = new(96);
 
@@ -23,7 +24,7 @@ namespace ZombieWar.Combat
             {
                 Projectile projectile = Instantiate(_prefab, transform);
                 projectile.gameObject.name = $"Projectile_{i:000}";
-                projectile.Initialize(this);
+                projectile.Initialize(this, _impactVfxPool);
                 projectile.gameObject.SetActive(false);
                 _available.Enqueue(projectile);
             }
@@ -33,6 +34,11 @@ namespace ZombieWar.Combat
         {
             _prefab = prefab;
             _capacity = Mathf.Max(1, capacity);
+        }
+
+        public void SetImpactVfxPool(ProjectileImpactVfxPool impactVfxPool)
+        {
+            _impactVfxPool = impactVfxPool;
         }
 
         public void Fire(Vector3 origin, Vector3 direction, float speed, float range, float damage, GameObject instigator, Color color)

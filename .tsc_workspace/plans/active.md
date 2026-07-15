@@ -22,6 +22,7 @@ hai súng, bom vật lý và cao trào 80–120 zombie ở 60 FPS trên thiết 
 - [x] Bomb aiming: `Play_Joystick_Skill_3Step` cố định, preview quỹ đạo, vòng giới hạn ném 5 m, vùng nổ và cooldown 10 giây.
 - [x] Bomb inventory: tối đa 3 quả, UI 3 bước đồng bộ số lượng và JMO mobile explosion VFX được pool/tự tắt.
 - [x] Weapon selection: radial menu 3 slot; icon và prefab vũ khí được lưu bằng Addressable reference trong `WeaponConfig`.
+- [x] Hand grip authoring: Scene View drawing guide cho hướng ngón tay, pháp tuyến lòng bàn tay và hướng ngón cái trên cả Rifle/Shotgun.
 - [x] Verification: runtime/editor/test assemblies build sạch và 10 EditMode tests pass.
 - [ ] Content pass: thay placeholder bằng model, animation layer/blend tree, AudioClip, particle và LOD hoàn chỉnh.
 - [ ] Device pass: profile APK ARM64 IL2CPP trên Android tầm trung tại cao trào 120 zombie.

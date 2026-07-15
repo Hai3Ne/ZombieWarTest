@@ -2,13 +2,15 @@ using UnityEngine;
 
 namespace ZombieWar.Combat
 {
-    [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(MeshRenderer), typeof(TrailRenderer))]
     public sealed class Projectile : MonoBehaviour
     {
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private readonly RaycastHit[] _hits = new RaycastHit[8];
         private ProjectilePool _pool;
+        private ProjectileImpactVfxPool _impactVfxPool;
         private MeshRenderer _renderer;
+        private TrailRenderer _trail;
         private MaterialPropertyBlock _propertyBlock;
         private Vector3 _direction;
         private float _speed;
@@ -24,6 +26,7 @@ namespace ZombieWar.Combat
                 Debug.LogError("[Zombie War] Projectile requires a MeshRenderer.", this);
                 enabled = false;
             }
+            TryGetComponent(out _trail);
         }
 
         private void Update()
@@ -39,6 +42,7 @@ namespace ZombieWar.Combat
                 }
                 if (hit.TryGetComponent(out Health health))
                 {
+                    _impactVfxPool?.PlayBlood(_hits[i].point, _hits[i].normal);
                     DamageInfo damage = new(_damage, _hits[i].point, _direction * 2f, _instigator, DamageType.Bullet);
                     health.ApplyDamage(in damage);
                     _pool.Release(this);
@@ -46,6 +50,7 @@ namespace ZombieWar.Combat
                 }
                 if (!hit.CompareTag("Player"))
                 {
+                    _impactVfxPool?.PlayHardSurface(_hits[i].point, _hits[i].normal);
                     _pool.Release(this);
                     return;
                 }
@@ -59,12 +64,17 @@ namespace ZombieWar.Combat
             }
         }
 
-        public void Initialize(ProjectilePool pool) => _pool = pool;
+        public void Initialize(ProjectilePool pool, ProjectileImpactVfxPool impactVfxPool)
+        {
+            _pool = pool;
+            _impactVfxPool = impactVfxPool;
+        }
 
         public void Launch(Vector3 origin, Vector3 direction, float speed, float range, float damage, GameObject instigator, Color color)
         {
             transform.position = origin;
             _direction = direction.normalized;
+            transform.rotation = Quaternion.LookRotation(_direction);
             _speed = speed;
             _remainingRange = range;
             _damage = damage;
@@ -72,6 +82,7 @@ namespace ZombieWar.Combat
             _renderer.GetPropertyBlock(_propertyBlock);
             _propertyBlock.SetColor(BaseColorId, color);
             _renderer.SetPropertyBlock(_propertyBlock);
+            _trail.Clear();
             gameObject.SetActive(true);
         }
     }

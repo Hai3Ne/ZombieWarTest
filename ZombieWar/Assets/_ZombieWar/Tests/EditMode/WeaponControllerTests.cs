@@ -7,6 +7,16 @@ namespace ZombieWar.Tests
     public sealed class WeaponControllerTests
     {
         [Test]
+        public void CalculateDirection_WithNoSpread_FollowsMuzzleForward()
+        {
+            Quaternion muzzleRotation = Quaternion.Euler(12f, 90f, 0f);
+
+            Vector3 direction = WeaponBallistics.CalculateDirection(muzzleRotation, 0f, 0f);
+
+            Assert.That(Vector3.Angle(direction, muzzleRotation * Vector3.forward), Is.LessThan(0.001f));
+        }
+
+        [Test]
         public void SwitchWeapon_CyclesThroughBothAuthoredWeapons()
         {
             GameObject root = new("Weapon Controller Test", typeof(Rigidbody), typeof(WeaponController));
