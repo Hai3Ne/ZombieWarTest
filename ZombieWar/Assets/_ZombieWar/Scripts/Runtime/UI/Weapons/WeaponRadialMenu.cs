@@ -68,10 +68,11 @@ namespace ZombieWar.UI
             }
             for (int i = 0; i < _iconHandles.Length; i++)
             {
-                if (_hasIconHandle[i])
+                if (_hasIconHandle[i] && _iconHandles[i].IsValid())
                 {
                     Addressables.Release(_iconHandles[i]);
                 }
+                _hasIconHandle[i] = false;
             }
         }
 

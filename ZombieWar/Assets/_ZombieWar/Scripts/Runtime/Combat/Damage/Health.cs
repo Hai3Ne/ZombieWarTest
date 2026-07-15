@@ -17,6 +17,7 @@ namespace ZombieWar.Combat
 
         public event Action<float> Changed;
         public event Action<DamageInfo> Damaged;
+        public event Action<float> Healed;
         public event Action Died;
 
         private void Awake()
@@ -54,6 +55,21 @@ namespace ZombieWar.Combat
 
             _isDead = true;
             Died?.Invoke();
+        }
+
+        public float Heal(float amount)
+        {
+            if (_isDead || amount <= 0f || _currentHealth >= _maxHealth)
+            {
+                return 0f;
+            }
+
+            float previousHealth = _currentHealth;
+            _currentHealth = Mathf.Min(_maxHealth, _currentHealth + amount);
+            float restoredAmount = _currentHealth - previousHealth;
+            Healed?.Invoke(restoredAmount);
+            Changed?.Invoke(Normalized);
+            return restoredAmount;
         }
     }
 }

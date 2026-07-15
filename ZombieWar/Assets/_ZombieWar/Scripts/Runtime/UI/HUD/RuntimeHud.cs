@@ -16,6 +16,7 @@ namespace ZombieWar.UI
         [SerializeField] private BombAimJoystick _bombJoystick;
         [SerializeField] private WeaponRadialMenu _weaponMenu;
         [SerializeField] private BombInventoryView _bombInventoryView;
+        [SerializeField] private ScreenFeedbackView _screenFeedback;
         [SerializeField] private Image _healthFill;
         [SerializeField] private TMP_Text _timerText;
         [SerializeField] private TMP_Text _weaponText;
@@ -86,6 +87,14 @@ namespace ZombieWar.UI
 
             _weaponMenu.Initialize(_weapon);
             _bombInventoryView.Initialize(_bomb);
+            if (_screenFeedback != null)
+            {
+                _screenFeedback.Initialize(_soldier.Health);
+            }
+            else
+            {
+                Debug.LogError("[Zombie War] RuntimeHud requires an authored ScreenFeedbackView.", this);
+            }
             _bombJoystick.AimChanged += OnBombAimChanged;
             _bombJoystick.Released += OnBombReleased;
             _retryButton.onClick.AddListener(OnRestart);
@@ -119,6 +128,11 @@ namespace ZombieWar.UI
             _resultText = resultText;
             _retryButton = retryButton;
             _nextButton = nextButton;
+        }
+
+        public void SetScreenFeedback(ScreenFeedbackView screenFeedback)
+        {
+            _screenFeedback = screenFeedback;
         }
 
         public void ShowResult(bool won)

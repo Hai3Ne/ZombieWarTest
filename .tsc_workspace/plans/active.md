@@ -20,6 +20,7 @@ Hoàn thiện vertical slice Android landscape 2560×1440 có thời lượng v�
 - [x] Combat core: damage API, auto-target, Rifle, Shotgun, switch, bomb và projectile pool.
 - [x] Crowd core: pool 130, hard cap 120, AI scheduler 10/4/2 Hz và viewport spawn có NavMesh sampling.
 - [x] Presentation core: safe-area HUD, hit flash, dissolve shader và recoil event hook.
+- [x] Player feedback: Cinemachine Impulse cho súng/bom/take damage; UI damage, healing và low-health pulse chạy bằng Health events.
 - [x] Bomb aiming: `Play_Joystick_Skill_3Step` cố định, preview quỹ đạo, vòng giới hạn ném 5 m, vùng nổ và cooldown 10 giây.
 - [x] Bomb inventory: tối đa 3 quả, UI 3 bước đồng bộ số lượng và JMO mobile explosion VFX được pool/tự tắt.
 - [x] Weapon selection: radial menu 3 slot; icon và prefab vũ khí được lưu bằng Addressable reference trong `WeaponConfig`.

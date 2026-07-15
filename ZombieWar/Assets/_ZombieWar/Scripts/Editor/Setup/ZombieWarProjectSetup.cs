@@ -1326,10 +1326,10 @@ namespace ZombieWar.Editor
             body.mass = 1.2f;
             body.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            root.AddComponent<Health>();
+            Health health = root.AddComponent<Health>();
             SoldierAnimationController animation = root.AddComponent<SoldierAnimationController>();
             root.AddComponent<SoldierController>();
-            root.AddComponent<WeaponController>();
+            WeaponController weaponController = root.AddComponent<WeaponController>();
             SoldierWeaponVisualController weaponVisual = root.AddComponent<SoldierWeaponVisualController>();
             SoldierWeaponAudioController weaponAudioController = root.AddComponent<SoldierWeaponAudioController>();
             weaponAudioController.SetCatalog(weaponAudioCatalog);
@@ -1350,6 +1350,10 @@ namespace ZombieWar.Editor
             LineRenderer rangeRing = CreateBombPreviewLine(root.transform, "Bomb Range", aimMaterial, 0.035f, true);
             LineRenderer blastRadiusRing = CreateBombPreviewLine(root.transform, "Bomb Blast Radius", blastMaterial, 0.055f, true);
             bomb.SetPreviewReferences(trajectory, rangeRing, blastRadiusRing);
+            CinemachineImpulseSource impulseSource = root.AddComponent<CinemachineImpulseSource>();
+            ConfigureFeedbackImpulse(impulseSource);
+            CameraShakeController cameraShake = root.AddComponent<CameraShakeController>();
+            cameraShake.SetReferences(impulseSource, health, weaponController, bomb);
             GameObject muzzle = new("Muzzle");
             muzzle.transform.SetParent(root.transform, false);
             muzzle.transform.localPosition = new Vector3(0f, 1.2f, 0.65f);
@@ -1721,6 +1725,7 @@ namespace ZombieWar.Editor
             safeObject.transform.SetParent(root.transform, false);
             RectTransform safe = safeObject.GetComponent<RectTransform>();
             Stretch(safe, Vector2.zero, Vector2.one);
+            ScreenFeedbackView screenFeedback = CreateScreenFeedback(root.GetComponent<RectTransform>());
 
             GameObject healthObject = InstantiateLayerLabPrefab(LayerLabSliderPrefabs + "/Slider06_Red.prefab", safe, "Health");
             ConfigureAnchoredPrefab(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(285f, -86f), 0.82f);
@@ -1840,7 +1845,35 @@ namespace ZombieWar.Editor
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
             hud.SetViewReferences(joystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
+            hud.SetScreenFeedback(screenFeedback);
             return SavePrefab<RuntimeHud>(root, "LandscapeHUD");
+        }
+
+        private static ScreenFeedbackView CreateScreenFeedback(RectTransform canvasRoot)
+        {
+            GameObject feedbackObject = new("Screen Feedback", typeof(RectTransform), typeof(ScreenFeedbackView));
+            feedbackObject.transform.SetParent(canvasRoot, false);
+            RectTransform feedbackRect = feedbackObject.GetComponent<RectTransform>();
+            Stretch(feedbackRect, Vector2.zero, Vector2.one);
+            feedbackRect.SetAsFirstSibling();
+
+            CanvasGroup damage = CreateFeedbackOverlay(feedbackRect, "Damage Flash", new Color(0.85f, 0.015f, 0.01f, 1f));
+            CanvasGroup healing = CreateFeedbackOverlay(feedbackRect, "Healing Flash", new Color(0.05f, 0.9f, 0.42f, 1f));
+            CanvasGroup lowHealth = CreateFeedbackOverlay(feedbackRect, "Low Health Pulse", new Color(0.55f, 0.005f, 0.005f, 1f));
+            ScreenFeedbackView feedback = feedbackObject.GetComponent<ScreenFeedbackView>();
+            feedback.SetViewReferences(damage, healing, lowHealth);
+            return feedback;
+        }
+
+        private static CanvasGroup CreateFeedbackOverlay(RectTransform parent, string name, Color color)
+        {
+            Image image = CreateImage(parent, name, color, Vector2.zero, Vector2.one);
+            image.raycastTarget = false;
+            CanvasGroup group = image.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+            return group;
         }
 
         private static T SavePrefab<T>(GameObject root, string name) where T : Component
@@ -2079,7 +2112,8 @@ namespace ZombieWar.Editor
             GameObject virtualCameraObject = new(
                 "Landscape Top-Down Camera",
                 typeof(CinemachineCamera),
-                typeof(CinemachineFollow));
+                typeof(CinemachineFollow),
+                typeof(CinemachineImpulseListener));
             CinemachineCamera virtualCamera = virtualCameraObject.GetComponent<CinemachineCamera>();
             virtualCamera.Follow = target;
             virtualCamera.Lens.FieldOfView = profile.FieldOfView;
@@ -2090,7 +2124,24 @@ namespace ZombieWar.Editor
             settings.BindingMode = BindingMode.WorldSpace;
             settings.PositionDamping = profile.PositionDamping;
             follow.TrackerSettings = settings;
+            CinemachineImpulseListener listener = virtualCameraObject.GetComponent<CinemachineImpulseListener>();
+            listener.ChannelMask = 1;
+            listener.Gain = 0.55f;
+            listener.UseCameraSpace = true;
+            listener.SignalCombinationMode = CinemachineImpulseListener.SignalCombinationModes.UseLargest;
             return camera;
+        }
+
+        private static void ConfigureFeedbackImpulse(CinemachineImpulseSource source)
+        {
+            source.ImpulseDefinition.ImpulseChannel = 1;
+            source.ImpulseDefinition.ImpulseShape = CinemachineImpulseDefinition.ImpulseShapes.Bump;
+            source.ImpulseDefinition.ImpulseDuration = 0.16f;
+            source.ImpulseDefinition.ImpulseType = CinemachineImpulseDefinition.ImpulseTypes.Uniform;
+            source.ImpulseDefinition.DissipationDistance = 100f;
+            source.ImpulseDefinition.DissipationRate = 0.25f;
+            source.ImpulseDefinition.PropagationSpeed = 343f;
+            source.DefaultVelocity = new Vector3(0.7f, -1f, 0.25f);
         }
 
         private static void CreateDirectionalLight()

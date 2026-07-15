@@ -37,6 +37,7 @@ namespace ZombieWar.Combat
         public int BombCount => _bombCount;
         public int MaxBombs => _maximumBombs;
         public event Action<int, int> BombCountChanged;
+        public event Action<Vector3, float> Exploded;
         #endregion
 
         #region Lifecycle
@@ -161,6 +162,7 @@ namespace ZombieWar.Combat
         {
             Vector3 center = bomb.transform.position;
             _explosionVfxPool.Play(center);
+            Exploded?.Invoke(center, _blastRadius);
             for (int i = _enemyPool.Active.Count - 1; i >= 0; i--)
             {
                 ZombieAgent zombie = _enemyPool.Active[i];

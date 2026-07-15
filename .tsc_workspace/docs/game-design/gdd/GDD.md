@@ -87,6 +87,10 @@ lạnh/sáng; zombie dùng xanh bẩn/đỏ; interactable dùng accent vàng cam
 VFX gồm muzzle, tracer, impact, blood, explosion, hit flash và dissolve. Audio
 Mixer có Master/Music/SFX; nhạc tăng cường độ theo phase của wave.
 
+Khi soldier trúng đòn, màn hình flash đỏ và camera rung theo lượng damage. Khi hồi
+máu, màn hình flash xanh; dưới 30% HP có nhịp đỏ nhẹ liên tục. Rifle tạo impulse
+nhỏ, Shotgun mạnh hơn và bom tạo impulse lớn theo khoảng cách tới tâm nổ.
+
 ## Performance budget
 
 Target 100, hard cap 120 zombie; pool prewarm 130. AI được stagger theo khoảng

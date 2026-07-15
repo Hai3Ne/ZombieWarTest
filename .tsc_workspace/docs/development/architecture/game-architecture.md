@@ -9,6 +9,31 @@ VFX. Không dùng DI framework, service locator hoặc global event bus.
 Boot giữ scene loader và audio root. Level scene có composition root nối
 dependency bằng SerializeField. Async scene/fuse chỉ dùng Unity Awaitable.
 
+## Code organization
+
+Mỗi feature trong `Assets/_ZombieWar/Scripts` phải chia tiếp theo trách nhiệm;
+không đặt toàn bộ controller, config, presentation và pooling chung một thư mục phẳng.
+Việc di chuyển file phải giữ nguyên `.meta` để không đổi GUID của MonoScript.
+
+```text
+Runtime/
+├── Core/{Bootstrap,SceneFlow,Utilities}
+├── Audio/{Configuration,Services}
+├── Combat/{Bombs,Damage,Projectiles,Weapons}
+├── Enemies/{Configuration,Pooling,Presentation,Simulation}
+├── Levels/{Configuration,Session,Waves}
+├── Player/{Animation,Controllers,Feedback,Weapons}
+├── UI/{Feedback,HUD,Input,Layout,Menu,Weapons}
+└── VFX/{Pooling,Weapons}
+
+Editor/{Importers,Levels,Player,Polish,Setup}
+Tests/EditMode/{Combat,Core,Levels}
+```
+
+Folder chỉ mô tả ownership; namespace hiện tại giữ ổn định theo feature để tránh
+refactor API không cần thiết. Assembly definition vẫn đặt tại root Runtime/Editor/Test
+và áp dụng cho toàn bộ thư mục con.
+
 ## Public contracts
 
 - IDamageable.ApplyDamage(in DamageInfo): contract damage chung.
@@ -24,6 +49,11 @@ PlayerInputReader -> SoldierMotor -> AutoTargeter -> WeaponController.
 WaveDirector -> EnemyPool -> EnemySimulationScheduler -> ZombieAgent.
 WaveDirector lấy timer từ tổng thời lượng các wave. GameSessionController sở hữu
 state Playing/Won/Lost và chuyển level theo thứ tự enabled trong catalog.
+
+Player feedback là event-driven: `Health.Damaged/Healed/Died` điều khiển screen
+overlay; `WeaponController.Fired`, `Health.Damaged` và `BombController.Exploded`
+phát Cinemachine Impulse. UI và camera listener phải được author trong prefab/scene,
+không tạo hierarchy feedback khi runtime.
 
 EnemySimulationScheduler chia bucket theo distance: near 10 Hz, mid 4 Hz, far
 2 Hz. SetDestination được stagger; movement của NavMeshAgent vẫn nội suy.
