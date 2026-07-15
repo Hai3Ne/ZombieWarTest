@@ -87,6 +87,18 @@ overlay; `WeaponController.Fired`, `Health.Damaged` và `BombController.Exploded
 phát Cinemachine Impulse. UI và camera listener phải được author trong prefab/scene,
 không tạo hierarchy feedback khi runtime.
 
+`GameOptions` là nguồn trạng thái nhỏ gọn cho SFX, Music và Camera Shake, lưu bằng
+PlayerPrefs. `OptionsPanelController` chỉ điều khiển view đã author và tạm dừng timeScale
+khi mở trong gameplay. Weapon/zombie audio kiểm tra SFX trước khi phát;
+`MusicSourceController` áp dụng Music cho AudioSource nhạc nền; `CameraShakeController`
+kiểm tra Camera Shake trước khi phát impulse. `FpsDisplay` cập nhật TMP theo unscaled time.
+
+Floating combat text đi theo chuỗi `Health event -> FloatingCombatTextEmitter ->
+FloatingCombatTextPool`. Soldier và prefab zombie đều có emitter; `EnemyPool` truyền
+pool scene cho từng zombie khi prewarm. Mỗi level author sẵn 96 TMP world-space,
+billboard theo camera, bay lên và fade trước khi trả về pool. Gameplay không
+Instantiate/Destroy combat text và khi pool đầy sẽ bỏ qua text mới thay vì cấp phát.
+
 EnemySimulationScheduler chia bucket theo distance: near 10 Hz, mid 4 Hz, far
 2 Hz. SetDestination được stagger; movement của NavMeshAgent vẫn nội suy.
 

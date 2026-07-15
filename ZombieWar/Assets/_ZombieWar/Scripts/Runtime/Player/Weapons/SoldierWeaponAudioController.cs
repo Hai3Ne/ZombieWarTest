@@ -4,6 +4,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using ZombieWar.Audio;
 using ZombieWar.Combat;
+using ZombieWar.Core;
 
 namespace ZombieWar.Player
 {
@@ -89,7 +90,7 @@ namespace ZombieWar.Player
         private void OnFired(float recoil)
         {
             AudioClip clip = _activeWeaponIndex == 0 ? _rifleClip : _shotgunClip;
-            if (clip == null)
+            if (!GameOptions.SfxEnabled || clip == null)
             {
                 return;
             }

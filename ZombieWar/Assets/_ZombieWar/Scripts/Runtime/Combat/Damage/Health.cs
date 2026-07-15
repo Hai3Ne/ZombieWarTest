@@ -45,8 +45,16 @@ namespace ZombieWar.Combat
                 return;
             }
 
+            float previousHealth = _currentHealth;
             _currentHealth = Mathf.Max(0f, _currentHealth - damage.Amount);
-            Damaged?.Invoke(damage);
+            float appliedAmount = previousHealth - _currentHealth;
+            DamageInfo appliedDamage = new(
+                appliedAmount,
+                damage.Point,
+                damage.Impulse,
+                damage.Instigator,
+                damage.Type);
+            Damaged?.Invoke(appliedDamage);
             Changed?.Invoke(Normalized);
             if (_currentHealth > 0f)
             {

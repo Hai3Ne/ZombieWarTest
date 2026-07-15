@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using ZombieWar.Core;
 
 namespace ZombieWar.Audio
 {
@@ -135,7 +136,10 @@ namespace ZombieWar.Audio
             float volumeScale,
             ref float lastPlayTime)
         {
-            if (!IsReady || clips.Count == 0 || Time.time - lastPlayTime < minimumInterval)
+            if (!GameOptions.SfxEnabled
+                || !IsReady
+                || clips.Count == 0
+                || Time.time - lastPlayTime < minimumInterval)
             {
                 return;
             }

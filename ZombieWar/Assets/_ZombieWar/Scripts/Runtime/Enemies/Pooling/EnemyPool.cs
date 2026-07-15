@@ -6,6 +6,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using ZombieWar.Audio;
 using ZombieWar.Combat;
 using ZombieWar.Core;
+using ZombieWar.UI;
 
 namespace ZombieWar.Enemies
 {
@@ -19,6 +20,7 @@ namespace ZombieWar.Enemies
 
         #region Refs
         private ZombieAudioService _audio;
+        [SerializeField] private FloatingCombatTextPool _combatTextPool;
         #endregion
 
         #region State
@@ -37,6 +39,7 @@ namespace ZombieWar.Enemies
         {
             if (!TryGetComponent(out _audio)
                 || _catalog == null
+                || _combatTextPool == null
                 || !_catalog.Zombie.RuntimeKeyIsValid())
             {
                 Debug.LogError("[Zombie War] EnemyPool requires an authored enemy Addressables catalog.", this);
@@ -95,6 +98,11 @@ namespace ZombieWar.Enemies
         {
             _catalog = catalog;
             _capacity = Mathf.Max(1, capacity);
+        }
+
+        public void SetCombatTextPool(FloatingCombatTextPool combatTextPool)
+        {
+            _combatTextPool = combatTextPool;
         }
 
         public void PlayAttackAudio(ZombieAgent zombie)
@@ -193,7 +201,8 @@ namespace ZombieWar.Enemies
         {
             if (handle.Status != AsyncOperationStatus.Succeeded
                 || handle.Result == null
-                || !handle.Result.TryGetComponent(out _prefab))
+                || !handle.Result.TryGetComponent(out _prefab)
+                || !_prefab.TryGetComponent(out FloatingCombatTextEmitter _))
             {
                 Debug.LogError("[Zombie War] Addressable zombie prefab failed to load.", this);
                 enabled = false;
@@ -213,6 +222,10 @@ namespace ZombieWar.Enemies
             GameObject instance = zombie.gameObject;
             instance.name = $"Zombie_{index:000}";
             zombie.Initialize(this, index);
+            if (zombie.TryGetComponent(out FloatingCombatTextEmitter emitter))
+            {
+                emitter.SetPool(_combatTextPool);
+            }
             instance.SetActive(false);
             _available.Enqueue(zombie);
         }

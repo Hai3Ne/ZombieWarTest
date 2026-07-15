@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CameraProfile
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.CameraProfileConfig
   _displayName: YARD TOP DOWN
-  _followOffset: {x: 0, y: 19, z: -11}
+  _followOffset: {x: 0, y: 9.5, z: -4}
   _rotationEuler: {x: 60, y: 0, z: 0}
   _fieldOfView: 50
   _positionDamping: {x: 0.22, y: 0.22, z: 0.22}

@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 7830687489296918465}
   - component: {fileID: 5603649672677956270}
   - component: {fileID: 3424044316990158983}
+  - component: {fileID: 1020794291872358627}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -254,6 +255,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a532b08738550ee4cad32afc8dac6283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Enemies.ZombieAgent
+--- !u!114 &1020794291872358627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3804885677171863549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a175642899064a896e17a650ad27c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.UI.FloatingCombatTextEmitter
+  _height: 2
+  _isPlayer: 0
+  _useDamagePoint: 1
+  _pool: {fileID: 0}
 --- !u!1001 &8097214382187789569
 PrefabInstance:
   m_ObjectHideFlags: 0

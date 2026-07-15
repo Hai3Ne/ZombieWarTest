@@ -51,5 +51,27 @@ namespace ZombieWar.Tests
                 Object.DestroyImmediate(owner);
             }
         }
+
+        [Test]
+        public void DamageEvent_ReportsOnlyDamageActuallyApplied()
+        {
+            GameObject owner = new("Health Test", typeof(Health));
+            try
+            {
+                Health health = owner.GetComponent<Health>();
+                health.Configure(25f);
+                float reportedDamage = 0f;
+                health.Damaged += damage => reportedDamage = damage.Amount;
+                DamageInfo damage = new(100f, Vector3.zero, Vector3.zero, owner, DamageType.Bullet);
+
+                health.ApplyDamage(in damage);
+
+                Assert.That(reportedDamage, Is.EqualTo(25f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(owner);
+            }
+        }
     }
 }

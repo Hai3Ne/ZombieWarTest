@@ -1,6 +1,7 @@
 using Unity.Cinemachine;
 using UnityEngine;
 using ZombieWar.Combat;
+using ZombieWar.Core;
 
 namespace ZombieWar.Player
 {
@@ -87,7 +88,7 @@ namespace ZombieWar.Player
 
         public void Shake(float force)
         {
-            if (_impulseSource != null && force > 0f)
+            if (GameOptions.CameraShakeEnabled && _impulseSource != null && force > 0f)
             {
                 _impulseSource.GenerateImpulseWithForce(force);
             }

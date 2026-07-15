@@ -22,9 +22,10 @@ GameObject:
   - component: {fileID: 6630028160787761261}
   - component: {fileID: 6585651923232765049}
   - component: {fileID: 1548423617612583597}
-  - component: {fileID: 1703170869103870178}
   - component: {fileID: 5416494364278236830}
   - component: {fileID: 7205965237989681879}
+  - component: {fileID: 1703170869103870178}
+  - component: {fileID: 8279939586516652325}
   m_Layer: 0
   m_Name: Soldier
   m_TagString: Player
@@ -169,7 +170,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0e4c82ade2e847468468bd4edd86026, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.Health
   _maxHealth: 100
 --- !u!114 &5027367622304227143
@@ -182,7 +183,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 557f8061ef3cd8f48aacd949e04e0d21, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierAnimationController
   _locomotionDampTime: 0.12
   _recoilAngle: 7
@@ -205,7 +206,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f46766620a2408c4eb69b4b05052af0b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierController
   _moveSpeed: 6
 --- !u!114 &1356212830082031972
@@ -218,7 +219,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d78b8edcbc0834848bef2648c0b01793, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.WeaponController
 --- !u!114 &4512003344769760132
 MonoBehaviour:
@@ -230,20 +231,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9347b5c7717c7dc4491e2988371badb9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierWeaponVisualController
   _weaponModels:
   - {fileID: 7102207180178859569}
   - {fileID: 5362995944219029810}
   _rightHandTargets:
   - {fileID: 4638627146357953250}
-  - {fileID: 6250625158188911480}
+  - {fileID: 3647716682309265572}
   _leftHandTargets:
   - {fileID: 1490860958843237093}
-  - {fileID: 8840140839599778813}
+  - {fileID: 2849638119356130066}
   _muzzleTargets:
-  - {fileID: 8032319323831178999}
-  - {fileID: 5978146873033289033}
+  - {fileID: 6725571681945039964}
+  - {fileID: 2653438232204429076}
   _gameplayMuzzle: {fileID: 1897646409523743919}
   _weaponIk: {fileID: 6330900667248396560}
 --- !u!82 &2695958693125612402
@@ -353,7 +354,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bfba59704b99c8c4e968faf824899855, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierWeaponAudioController
   _catalog: {fileID: 11400000, guid: 2c515160a8e258f4abfccbac9640a182, type: 2}
 --- !u!114 &6585651923232765049
@@ -366,7 +367,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f84dde75be2acb24bb8d8028c072e42b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.BombController
   _bombPrefab: {fileID: 7408274157714200352, guid: 3381d320a2af54b42b8512dc015112d2,
     type: 3}
@@ -392,25 +393,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb5c87eab5927a4e9871521877cfd15, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.BombExplosionVfxPool
   _prefab: {fileID: 3065220633792020497, guid: 1caf42ac947df9e4c84f90b5a638e6a6, type: 3}
   _capacity: 4
---- !u!114 &1703170869103870178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 858186083080375164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e98882b297acb442a43cb393adccc6f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.VFX.WeaponMuzzleVfxController
-  _effects:
-  - {fileID: 5681319563898530145}
-  - {fileID: 6288500723260583204}
 --- !u!114 &5416494364278236830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -421,7 +407,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseSource
   ImpulseDefinition:
     ImpulseChannel: 1
@@ -474,7 +460,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d7bd6fb582925040952e5832ad8ab92, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.CameraShakeController
   _minimumDamageForce: 0.22
   _maximumDamageForce: 0.85
@@ -485,6 +471,37 @@ MonoBehaviour:
   _health: {fileID: 5532656432422780256}
   _weaponController: {fileID: 1356212830082031972}
   _bombController: {fileID: 6585651923232765049}
+--- !u!114 &1703170869103870178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 858186083080375164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e98882b297acb442a43cb393adccc6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.VFX.WeaponMuzzleVfxController
+  _effects:
+  - {fileID: 5681319563898530145}
+  - {fileID: 6288500723260583204}
+--- !u!114 &8279939586516652325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 858186083080375164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a175642899064a896e17a650ad27c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.UI.FloatingCombatTextEmitter
+  _height: 2.15
+  _isPlayer: 1
+  _useDamagePoint: 0
+  _pool: {fileID: 0}
 --- !u!1 &1528477253655338691
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,10 +544,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
   _isLeftHand: 0
   _guideSize: 0.14
+--- !u!1 &1847194257954822065
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2653438232204429076}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2653438232204429076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847194257954822065}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5376}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6288500723260616964}
+  m_Father: {fileID: 9196091449190108500}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2844981447761013057
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,7 +622,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
   _isLeftHand: 1
   _guideSize: 0.14
@@ -728,7 +777,7 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 1
   m_ApplyActiveColorSpace: 1
---- !u!1 &3979332066015421239
+--- !u!1 &3738785323574515372
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -736,30 +785,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5978146873033289033}
+  - component: {fileID: 3647716682309265572}
+  - component: {fileID: 2856263757766717871}
   m_Layer: 0
-  m_Name: Muzzle
+  m_Name: Right Hand Grip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5978146873033289033
+--- !u!4 &3647716682309265572
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3979332066015421239}
+  m_GameObject: {fileID: 3738785323574515372}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.5376}
+  m_LocalRotation: {x: 0.43045935, y: 0.56098557, z: 0.43045935, w: 0.56098557}
+  m_LocalPosition: {x: 0.09, y: -0.02, z: -0.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6288500723260616964}
+  m_Children: []
   m_Father: {fileID: 9196091449190108500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2856263757766717871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3738785323574515372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
+  _isLeftHand: 0
+  _guideSize: 0.14
 --- !u!1 &5362995944219029810
 GameObject:
   m_ObjectHideFlags: 0
@@ -790,12 +853,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5191187475953545848}
-  - {fileID: 6250625158188911480}
-  - {fileID: 8840140839599778813}
-  - {fileID: 5978146873033289033}
+  - {fileID: 3647716682309265572}
+  - {fileID: 2849638119356130066}
+  - {fileID: 2653438232204429076}
   m_Father: {fileID: 6480831888177945422}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &6195502446057028330
+--- !u!1 &5884221013610037536
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -803,44 +866,30 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8840140839599778813}
-  - component: {fileID: 3420599551448603524}
+  - component: {fileID: 6725571681945039964}
   m_Layer: 0
-  m_Name: Left Hand Grip
+  m_Name: Muzzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8840140839599778813
+--- !u!4 &6725571681945039964
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6195502446057028330}
+  m_GameObject: {fileID: 5884221013610037536}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.4777144, y: 0.5213339, z: 0.4777144, w: 0.5213339}
-  m_LocalPosition: {x: -0.09, y: -0.015, z: 0.27}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.48160002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9196091449190108500}
+  m_Children:
+  - {fileID: 5681319563898238273}
+  m_Father: {fileID: 1604682947071086515}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3420599551448603524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6195502446057028330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
-  _isLeftHand: 1
-  _guideSize: 0.14
 --- !u!1 &6440761873119052160
 GameObject:
   m_ObjectHideFlags: 0
@@ -872,6 +921,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1373540190168283616}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7062082586309476382
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2849638119356130066}
+  - component: {fileID: 7834040046256080467}
+  m_Layer: 0
+  m_Name: Left Hand Grip
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2849638119356130066
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7062082586309476382}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.4777144, y: 0.5213339, z: 0.4777144, w: 0.5213339}
+  m_LocalPosition: {x: -0.09, y: -0.015, z: 0.27}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9196091449190108500}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7834040046256080467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7062082586309476382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
+  _isLeftHand: 1
+  _guideSize: 0.14
 --- !u!1 &7102207180178859569
 GameObject:
   m_ObjectHideFlags: 0
@@ -904,40 +999,8 @@ Transform:
   - {fileID: 7975312777206679169}
   - {fileID: 4638627146357953250}
   - {fileID: 1490860958843237093}
-  - {fileID: 8032319323831178999}
+  - {fileID: 6725571681945039964}
   m_Father: {fileID: 6480831888177945422}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7531895571227569625
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8032319323831178999}
-  m_Layer: 0
-  m_Name: Muzzle
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8032319323831178999
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7531895571227569625}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.48160002}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5681319563898238273}
-  m_Father: {fileID: 1604682947071086515}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7745691302450219697
 GameObject:
@@ -1090,52 +1153,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!1 &7959283069046980725
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6250625158188911480}
-  - component: {fileID: 1703908453532308764}
-  m_Layer: 0
-  m_Name: Right Hand Grip
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6250625158188911480
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7959283069046980725}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.43045935, y: 0.56098557, z: 0.43045935, w: 0.56098557}
-  m_LocalPosition: {x: 0.09, y: -0.02, z: -0.06}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9196091449190108500}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1703908453532308764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7959283069046980725}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
-  _isLeftHand: 0
-  _guideSize: 0.14
 --- !u!1 &8046757821905643869
 GameObject:
   m_ObjectHideFlags: 0
@@ -1327,7 +1344,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 8032319323831178999}
+    m_TransformParent: {fileID: 6725571681945039964}
     m_Modifications:
     - target: {fileID: 4653138123715392518, guid: a6851dce8e15bdd43a7360fb2d57201f,
         type: 3}
@@ -1559,7 +1576,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba8d0a27ceb26eb4b85a8e35e384226e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierWeaponIkController
   _positionWeight: 1
   _rotationWeight: 1
@@ -1573,7 +1590,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 498fb14f8e1521f41940a7eeb2bbc051, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.SoldierFootstepRelay
 --- !u!4 &2056524957009539158 stripped
 Transform:
@@ -1799,7 +1816,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5978146873033289033}
+    m_TransformParent: {fileID: 2653438232204429076}
     m_Modifications:
     - target: {fileID: 4231817558048185824, guid: e544c13e548554c47a9eed177d8b79f6,
         type: 3}

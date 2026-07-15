@@ -246,6 +246,9 @@ namespace ZombieWar.Editor
                 rifleMuzzleVfx,
                 shotgunMuzzleVfx,
                 weaponAudioCatalog);
+            CombatTextInstaller.CreateOrReplacePrefab();
+            CombatTextInstaller.ConfigureGameplayPrefabs();
+            OptionsUiInstaller.CreateOrReplaceOverlayPrefab();
             RuntimeHud hudPrefab = CreateHudPrefab();
             LevelTransitionInstaller.GetOrCreatePortalPrefab();
 
@@ -1885,6 +1888,7 @@ namespace ZombieWar.Editor
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
             hud.SetViewReferences(joystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
             hud.SetScreenFeedback(screenFeedback);
+            OptionsUiInstaller.InstantiateOverlay(safe);
             return SavePrefab<RuntimeHud>(root, "LandscapeHUD");
         }
 
@@ -1999,6 +2003,7 @@ namespace ZombieWar.Editor
                 levelButtons[i] = levelButton;
             }
             controller.SetReferences(levelCatalog, levelButtons);
+            OptionsUiInstaller.InstantiateOverlay(root);
             EditorSceneManager.SaveScene(scene, SceneFolder + "/MainMenu.unity");
         }
 
@@ -2076,6 +2081,12 @@ namespace ZombieWar.Editor
             EnemyPool enemyPool = new GameObject("Enemy Pool", typeof(EnemyPool)).GetComponent<EnemyPool>();
             enemyPool.transform.SetParent(systems.transform);
             enemyPool.SetCatalog(enemyPrefabs, 130);
+            FloatingCombatTextPool combatTextPool = CombatTextInstaller.CreateScenePool(systems.transform, worldCamera);
+            enemyPool.SetCombatTextPool(combatTextPool);
+            if (soldier.TryGetComponent(out FloatingCombatTextEmitter soldierCombatText))
+            {
+                soldierCombatText.SetPool(combatTextPool);
+            }
             ZombieAudioService zombieAudioService = enemyPool.GetComponent<ZombieAudioService>();
             zombieAudioService.SetReferences(zombieAudio, CreateZombieAudioSources(enemyPool.transform, 8));
             EnemySimulationScheduler scheduler = systems.AddComponent<EnemySimulationScheduler>();
