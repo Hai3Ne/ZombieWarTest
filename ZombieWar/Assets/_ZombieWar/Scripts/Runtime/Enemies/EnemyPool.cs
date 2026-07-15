@@ -112,6 +112,19 @@ namespace ZombieWar.Enemies
             _audio.PlayDeath(zombie.transform.position, zombie.IsGiant);
         }
 
+        public int CountActive(EnemyConfig config)
+        {
+            int count = 0;
+            for (int i = 0; i < _active.Count; i++)
+            {
+                if (_active[i].IsAlive && _active[i].Config == config)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         public void Release(ZombieAgent zombie)
         {
             int index = _active.IndexOf(zombie);

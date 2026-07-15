@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 using ZombieWar.Combat;
 using ZombieWar.Core;
 using ZombieWar.Enemies;
+using Random = UnityEngine.Random;
 
 namespace ZombieWar.Levels
 {
@@ -10,9 +12,7 @@ namespace ZombieWar.Levels
     {
         #region Refs
         private EnemyPool _pool;
-        private EnemyConfig _regularConfig;
-        private EnemyConfig _giantConfig;
-        private LevelConfig _levelConfig;
+        private WaveSequenceConfig _sequence;
         private Transform _target;
         private Health _targetHealth;
         private Camera _camera;
@@ -20,16 +20,18 @@ namespace ZombieWar.Levels
 
         #region State
         private float _elapsed;
-        private bool _giantSpawned;
+        private int _currentWaveIndex = -1;
         public float Elapsed => _elapsed;
-        public float Remaining => Mathf.Max(0f, _levelConfig.DurationSeconds - _elapsed);
-        public float NormalizedTime => Mathf.Clamp01(_elapsed / _levelConfig.DurationSeconds);
+        public float Remaining => _sequence != null ? Mathf.Max(0f, _sequence.TotalDuration - _elapsed) : 0f;
+        public int CurrentWaveNumber => _currentWaveIndex + 1;
+        public string CurrentWaveName { get; private set; } = string.Empty;
+        public event Action<int, string> WaveChanged;
         #endregion
 
         #region Lifecycle
         private void Update()
         {
-            if (_levelConfig == null
+            if (_sequence == null
                 || _pool == null
                 || !_pool.IsReady
                 || _targetHealth == null
@@ -39,24 +41,33 @@ namespace ZombieWar.Levels
             }
 
             _elapsed += Time.deltaTime;
-            int targetCount = Mathf.RoundToInt(Mathf.Lerp(
-                _levelConfig.StartCount,
-                _levelConfig.PeakCount,
-                GameplayMath.EvaluateWaveIntensity(NormalizedTime)));
-            targetCount = Mathf.Min(targetCount, _levelConfig.HardCap);
-
-            int spawnBudget = Mathf.Min(3, targetCount - _pool.ActiveCount);
-            for (int i = 0; i < spawnBudget; i++)
+            if (_elapsed >= _sequence.TotalDuration)
             {
-                _pool.Spawn(GetSpawnPosition(), _regularConfig, _target, _targetHealth);
+                return;
             }
 
-            if (_levelConfig.SpawnGiant
-                && !_giantSpawned
-                && _elapsed >= _levelConfig.GiantSpawnTime)
+            WaveConfig wave = _sequence.GetWaveAtTime(_elapsed, out int waveIndex, out float normalizedWaveTime);
+            if (wave == null)
             {
-                _giantSpawned = true;
-                _pool.Spawn(GetSpawnPosition(), _giantConfig, _target, _targetHealth);
+                return;
+            }
+            if (waveIndex != _currentWaveIndex)
+            {
+                _currentWaveIndex = waveIndex;
+                CurrentWaveName = wave.DisplayName;
+                WaveChanged?.Invoke(CurrentWaveNumber, CurrentWaveName);
+            }
+
+            int targetCount = Mathf.Min(wave.EvaluateTargetCount(normalizedWaveTime), _sequence.HardCap);
+
+            int spawnBudget = Mathf.Min(wave.SpawnPerFrame, targetCount - _pool.ActiveCount);
+            for (int i = 0; i < spawnBudget; i++)
+            {
+                EnemyConfig enemy = wave.SelectEnemy(Random.value, _pool);
+                if (enemy != null)
+                {
+                    _pool.Spawn(GetSpawnPosition(), enemy, _target, _targetHealth);
+                }
             }
         }
         #endregion
@@ -64,20 +75,19 @@ namespace ZombieWar.Levels
         #region API
         public void Configure(
             EnemyPool pool,
-            EnemyConfig regularConfig,
-            EnemyConfig giantConfig,
-            LevelConfig levelConfig,
+            WaveSequenceConfig sequence,
             Transform target,
             Health targetHealth,
             Camera worldCamera)
         {
             _pool = pool;
-            _regularConfig = regularConfig;
-            _giantConfig = giantConfig;
-            _levelConfig = levelConfig;
+            _sequence = sequence;
             _target = target;
             _targetHealth = targetHealth;
             _camera = worldCamera;
+            WaveConfig firstWave = _sequence.GetWaveAtTime(0f, out _currentWaveIndex, out _);
+            CurrentWaveName = firstWave != null ? firstWave.DisplayName : string.Empty;
+            WaveChanged?.Invoke(CurrentWaveNumber, CurrentWaveName);
         }
         #endregion
 

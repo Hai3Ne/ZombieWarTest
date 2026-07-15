@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808fc2dd48c46d64c9b0dbdc2481f97e, type: 3}
+  m_Name: Level01_Waves
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.WaveSequenceConfig
+  _displayName: CONTAINMENT YARD WAVES
+  _hardCap: 110
+  _cameraProfile: {fileID: 11400000, guid: b7fb50e382f8dd64a837fbf65a2f493d, type: 2}
+  _waves:
+  - {fileID: 11400000, guid: 4edadfd71c4c45248a61703396729b81, type: 2}
+  - {fileID: 11400000, guid: 25dd308fc5d042f48993038b4af36933, type: 2}
+  - {fileID: 11400000, guid: ff3b33968a37b4948aa258c51d7f5357, type: 2}

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ffe0872acd1d343bb183f74190ae27, type: 3}
+  m_Name: Shotgun
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.WeaponConfig
+  _displayName: SHOTGUN
+  _damage: 14
+  _fireInterval: 0.62
+  _range: 11
+  _projectileSpeed: 30
+  _pelletCount: 7
+  _spreadDegrees: 10
+  _recoil: 0.24
+  _accentColor: {r: 1, g: 0.28, b: 0.08, a: 1}
+  _icon:
+    m_AssetGUID: 70373c395678d4a798f2a819e8ce47e6
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _viewPrefab:
+    m_AssetGUID: 8b36fb41929fc22429f0083d817b8040
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

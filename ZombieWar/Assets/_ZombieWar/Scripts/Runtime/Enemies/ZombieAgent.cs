@@ -44,6 +44,7 @@ namespace ZombieWar.Enemies
         public int SimulationSlot { get; private set; }
         public Vector3 AimPoint => transform.position + Vector3.up * (IsGiant ? 1.8f : 0.8f);
         public ZombieState State => _state;
+        public EnemyConfig Config => _config;
         #endregion
 
         #region Lifecycle
@@ -95,7 +96,7 @@ namespace ZombieWar.Enemies
             _nextAttackTime = 0f;
 
             transform.position = position;
-            transform.localScale = config.IsGiant ? _spawnScale * 2.2f : _spawnScale;
+            transform.localScale = _spawnScale * config.ScaleMultiplier;
             _collider.enabled = true;
             _rigidbody.isKinematic = true;
             _health.Configure(config.MaxHealth);
@@ -121,7 +122,7 @@ namespace ZombieWar.Enemies
                 _animation.SetMoving(false);
                 SetVisual(0f, _deathProgress);
                 transform.localScale = Vector3.Lerp(
-                    IsGiant ? _spawnScale * 2.2f : _spawnScale,
+                    _spawnScale * _config.ScaleMultiplier,
                     Vector3.one * 0.05f,
                     _deathProgress);
 
@@ -284,7 +285,7 @@ namespace ZombieWar.Enemies
 
         private void SetVisual(float hitFlash, float dissolve)
         {
-            _visual.SetState(IsGiant, hitFlash, dissolve);
+            _visual.SetState(_config != null ? _config.TintColor : Color.white, hitFlash, dissolve);
         }
         #endregion
     }

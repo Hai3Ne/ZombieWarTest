@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b673f4cbc48f50498baa982b2f7f578, type: 3}
+  m_Name: Level01_Camera
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.CameraProfileConfig
+  _displayName: YARD TOP DOWN
+  _followOffset: {x: 0, y: 19, z: -11}
+  _rotationEuler: {x: 60, y: 0, z: 0}
+  _fieldOfView: 50
+  _positionDamping: {x: 0.22, y: 0.22, z: 0.22}
+  _previewSize: 12

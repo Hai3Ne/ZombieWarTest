@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18600cf164f87bf4e9c91ea2d30f3f90, type: 3}
+  m_Name: WeaponAudioCatalog
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Audio.WeaponAudioCatalog
+  _rifleFire:
+    m_AssetGUID: 4f933d6682d2b98498606e1433108936
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _shotgunFire:
+    m_AssetGUID: 9ffedca287d888b46928b023224ab7e4
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

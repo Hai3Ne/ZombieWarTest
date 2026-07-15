@@ -11,6 +11,7 @@ namespace ZombieWar.Levels
         private Health _playerHealth;
         private WaveDirector _wave;
         private RuntimeHud _hud;
+        private LevelCatalogConfig _levelCatalog;
         #endregion
 
         #region State
@@ -37,11 +38,12 @@ namespace ZombieWar.Levels
         #endregion
 
         #region API
-        public void Configure(Health playerHealth, WaveDirector wave, RuntimeHud hud)
+        public void Configure(Health playerHealth, WaveDirector wave, RuntimeHud hud, LevelCatalogConfig levelCatalog)
         {
             _playerHealth = playerHealth;
             _wave = wave;
             _hud = hud;
+            _levelCatalog = levelCatalog;
         }
 
         public void Restart()
@@ -53,8 +55,13 @@ namespace ZombieWar.Levels
         public void LoadNext()
         {
             Time.timeScale = 1f;
-            string target = SceneManager.GetActiveScene().name == "Level01" ? "Level02" : "Level01";
-            _ = LoadSceneAsync(target);
+            string target = _levelCatalog != null
+                ? _levelCatalog.GetNextSceneName(SceneManager.GetActiveScene().name)
+                : string.Empty;
+            if (!string.IsNullOrEmpty(target))
+            {
+                _ = LoadSceneAsync(target);
+            }
         }
         #endregion
 

@@ -34,12 +34,8 @@ namespace ZombieWar.Enemies
             _renderers = renderers;
         }
 
-        public void SetState(bool isGiant, float hitFlash, float dissolve)
+        public void SetState(Color tint, float hitFlash, float dissolve)
         {
-            Color tint = isGiant
-                ? new Color(0.72f, 0.32f, 0.27f, 1f)
-                : Color.white;
-
             for (int i = 0; i < _renderers.Length; i++)
             {
                 Renderer renderer = _renderers[i];

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Unity.AI.Navigation;
 using Unity.Cinemachine;
@@ -80,19 +81,19 @@ namespace ZombieWar.Editor
         private const string SoftBodyImpactVfxPath = PrefabFolder + "/VFX/SoftBodyImpact.prefab";
         private const string HardSurfaceImpactVfxPath = PrefabFolder + "/VFX/HardSurfaceImpact.prefab";
 
-        [MenuItem("Zombie War/Open Level 01 _F8")]
+        [MenuItem("Zombie War/Scenes/Open Level 01 _F8")]
         public static void OpenLevel01()
         {
             EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
         }
 
-        [MenuItem("Zombie War/Open Boot _F7")]
+        [MenuItem("Zombie War/Scenes/Open Boot _F7")]
         public static void OpenBoot()
         {
             EditorSceneManager.OpenScene(SceneFolder + "/Boot.unity", OpenSceneMode.Single);
         }
 
-        [MenuItem("Zombie War/Open Main Menu _F9")]
+        [MenuItem("Zombie War/Scenes/Open Main Menu _F9")]
         public static void OpenMainMenu()
         {
             EditorSceneManager.OpenScene(SceneFolder + "/MainMenu.unity", OpenSceneMode.Single);
@@ -159,10 +160,16 @@ namespace ZombieWar.Editor
             EditorUtility.SetDirty(shotgun);
 
             EnemyConfig regular = GetOrCreateAsset<EnemyConfig>("Zombie");
-            regular.Configure(55f, 2.45f, 7f, 1.35f, 0.82f, false);
+            regular.Configure("WALKER", EnemyArchetype.Walker, 55f, 2.45f, 7f, 1.35f, 0.82f, 1f, Color.white);
+            EnemyConfig runner = GetOrCreateAsset<EnemyConfig>("RunnerZombie");
+            runner.Configure("RUNNER", EnemyArchetype.Runner, 34f, 3.8f, 6f, 1.2f, 0.68f, 0.9f, new Color(0.72f, 0.95f, 0.58f));
+            EnemyConfig brute = GetOrCreateAsset<EnemyConfig>("BruteZombie");
+            brute.Configure("BRUTE", EnemyArchetype.Brute, 145f, 1.75f, 15f, 1.55f, 1.1f, 1.32f, new Color(0.82f, 0.42f, 0.3f));
             EnemyConfig giant = GetOrCreateAsset<EnemyConfig>("GiantZombie");
-            giant.Configure(900f, 1.5f, 24f, 2.4f, 1.6f, true);
+            giant.Configure("GIANT", EnemyArchetype.Giant, 900f, 1.5f, 24f, 2.4f, 1.6f, 2.2f, new Color(0.58f, 0.16f, 0.12f));
             EditorUtility.SetDirty(regular);
+            EditorUtility.SetDirty(runner);
+            EditorUtility.SetDirty(brute);
             EditorUtility.SetDirty(giant);
 
             LevelConfig levelOne = GetOrCreateAsset<LevelConfig>("Level01");
@@ -171,6 +178,43 @@ namespace ZombieWar.Editor
             levelTwo.Configure("BROKEN OVERPASS", 180f, 30, 120, 120, true, 120f);
             EditorUtility.SetDirty(levelOne);
             EditorUtility.SetDirty(levelTwo);
+            CameraProfileConfig levelOneCamera = GetOrCreateDefaultCameraProfile(
+                "Level01_Camera",
+                "YARD TOP DOWN",
+                new Vector3(0f, 19f, -11f),
+                new Vector3(60f, 0f, 0f),
+                50f,
+                new Vector3(0.22f, 0.22f, 0.22f),
+                12f);
+            CameraProfileConfig levelTwoCamera = GetOrCreateDefaultCameraProfile(
+                "Level02_Camera",
+                "OVERPASS TOP DOWN",
+                new Vector3(0f, 21f, -12.5f),
+                new Vector3(60f, 0f, 0f),
+                52f,
+                new Vector3(0.25f, 0.25f, 0.25f),
+                13f);
+            WaveSequenceConfig levelOneWaves = CreateWaveSequence(
+                "Level01",
+                "CONTAINMENT YARD WAVES",
+                110,
+                levelOneCamera,
+                regular,
+                runner,
+                brute,
+                null);
+            WaveSequenceConfig levelTwoWaves = CreateWaveSequence(
+                "Level02",
+                "BROKEN OVERPASS WAVES",
+                120,
+                levelTwoCamera,
+                regular,
+                runner,
+                brute,
+                giant);
+            LevelCatalogConfig levelCatalog = GetOrCreateLevelCatalog(levelOneWaves, levelTwoWaves);
+            EditorUtility.SetDirty(levelOneCamera);
+            EditorUtility.SetDirty(levelTwoCamera);
             AssetDatabase.SaveAssets();
             WeaponAudioCatalog weaponAudioCatalog = GetOrCreateWeaponAudioCatalog();
             ZombieAudioCatalog zombieAudioCatalog = GetOrCreateZombieAudioCatalog();
@@ -195,7 +239,7 @@ namespace ZombieWar.Editor
             RuntimeHud hudPrefab = CreateHudPrefab();
 
             CreateBootScene();
-            CreateMainMenuScene();
+            CreateMainMenuScene(levelCatalog);
             CreateLevelScene(
                 "Level01",
                 false,
@@ -207,9 +251,8 @@ namespace ZombieWar.Editor
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
-                regular,
-                giant,
-                levelOne);
+                levelOneWaves,
+                levelCatalog);
             CreateLevelScene(
                 "Level02",
                 true,
@@ -221,11 +264,10 @@ namespace ZombieWar.Editor
                 projectilePrefab,
                 hudPrefab,
                 new[] { rifle, shotgun },
-                regular,
-                giant,
-                levelTwo);
+                levelTwoWaves,
+                levelCatalog);
 
-            SetBuildScenes();
+            SetBuildScenes(levelCatalog);
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
             Debug.Log("[Zombie War] Authored prefabs, configs and scenes are ready. Runtime bootstrap is not used.");
@@ -781,6 +823,124 @@ namespace ZombieWar.Editor
             asset = ScriptableObject.CreateInstance<T>();
             AssetDatabase.CreateAsset(asset, path);
             return asset;
+        }
+
+        private static WaveSequenceConfig CreateWaveSequence(
+            string levelName,
+            string displayName,
+            int hardCap,
+            CameraProfileConfig cameraProfile,
+            EnemyConfig walker,
+            EnemyConfig runner,
+            EnemyConfig brute,
+            EnemyConfig giant)
+        {
+            WaveSequenceConfig existing = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{levelName}_Waves.asset");
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            WaveConfig waveOne = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave01");
+            waveOne.Configure(
+                "WAVE 1",
+                60f,
+                10,
+                levelName == "Level01" ? 24 : 28,
+                2,
+                new[] { CreateWaveEnemyEntry(walker, 1f) });
+
+            WaveConfig waveTwo = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave02");
+            waveTwo.Configure(
+                "WAVE 2",
+                60f,
+                28,
+                levelName == "Level01" ? 58 : 68,
+                3,
+                new[]
+                {
+                    CreateWaveEnemyEntry(walker, 0.68f),
+                    CreateWaveEnemyEntry(runner, 0.32f)
+                });
+
+            WaveConfig waveThree = GetOrCreateAsset<WaveConfig>($"{levelName}_Wave03");
+            WaveEnemyEntry[] finalEntries = giant == null
+                ? new[]
+                {
+                    CreateWaveEnemyEntry(walker, 0.48f),
+                    CreateWaveEnemyEntry(runner, 0.32f),
+                    CreateWaveEnemyEntry(brute, 0.2f, 18)
+                }
+                : new[]
+                {
+                    CreateWaveEnemyEntry(walker, 0.42f),
+                    CreateWaveEnemyEntry(runner, 0.3f),
+                    CreateWaveEnemyEntry(brute, 0.2f, 18),
+                    CreateWaveEnemyEntry(giant, 0.08f, 1)
+                };
+            waveThree.Configure(
+                "WAVE 3",
+                60f,
+                levelName == "Level01" ? 62 : 72,
+                hardCap,
+                4,
+                finalEntries);
+
+            WaveSequenceConfig sequence = GetOrCreateAsset<WaveSequenceConfig>($"{levelName}_Waves");
+            sequence.Configure(displayName, hardCap, cameraProfile, new[] { waveOne, waveTwo, waveThree });
+            EditorUtility.SetDirty(waveOne);
+            EditorUtility.SetDirty(waveTwo);
+            EditorUtility.SetDirty(waveThree);
+            EditorUtility.SetDirty(sequence);
+            return sequence;
+        }
+
+        private static CameraProfileConfig GetOrCreateDefaultCameraProfile(
+            string assetName,
+            string displayName,
+            Vector3 followOffset,
+            Vector3 rotationEuler,
+            float fieldOfView,
+            Vector3 damping,
+            float previewSize)
+        {
+            CameraProfileConfig existing = AssetDatabase.LoadAssetAtPath<CameraProfileConfig>($"{ConfigFolder}/{assetName}.asset");
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            CameraProfileConfig profile = GetOrCreateAsset<CameraProfileConfig>(assetName);
+            profile.Configure(displayName, followOffset, rotationEuler, fieldOfView, damping, previewSize);
+            EditorUtility.SetDirty(profile);
+            return profile;
+        }
+
+        private static LevelCatalogConfig GetOrCreateLevelCatalog(
+            WaveSequenceConfig levelOneWaves,
+            WaveSequenceConfig levelTwoWaves)
+        {
+            LevelCatalogConfig existing = AssetDatabase.LoadAssetAtPath<LevelCatalogConfig>($"{ConfigFolder}/LevelCatalog.asset");
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            LevelDefinition levelOne = new();
+            levelOne.Configure("CONTAINMENT YARD", "Level01", levelOneWaves, true);
+            LevelDefinition levelTwo = new();
+            levelTwo.Configure("BROKEN OVERPASS", "Level02", levelTwoWaves, true);
+            LevelCatalogConfig catalog = GetOrCreateAsset<LevelCatalogConfig>("LevelCatalog");
+            catalog.Configure(new[] { levelOne, levelTwo });
+            EditorUtility.SetDirty(catalog);
+            return catalog;
+        }
+
+        private static WaveEnemyEntry CreateWaveEnemyEntry(EnemyConfig enemy, float weight, int maxConcurrent = 0)
+        {
+            WaveEnemyEntry entry = new();
+            entry.Configure(enemy, weight, maxConcurrent);
+            return entry;
         }
 
         private static Material GetOrCreateMaterial(string name, Color color, string shaderName)
@@ -1724,7 +1884,7 @@ namespace ZombieWar.Editor
             EditorSceneManager.SaveScene(scene, SceneFolder + "/Boot.unity");
         }
 
-        private static void CreateMainMenuScene()
+        private static void CreateMainMenuScene(LevelCatalogConfig levelCatalog)
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "MainMenu";
@@ -1742,10 +1902,31 @@ namespace ZombieWar.Editor
             title.color = new Color(0.55f, 0.94f, 1f);
             TextMeshProUGUI subtitle = CreateText(root, "SURVIVE THE SWARM", 34, TextAlignmentOptions.Center, new Vector2(0.1f, 0.58f), new Vector2(0.9f, 0.65f));
             subtitle.color = new Color(0.78f, 0.86f, 0.92f);
-            Button start = CreateLayerLabButton(root, "Start Level 1", "START", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab", null, new Vector2(0.5f, 0.36f), Vector2.zero, 1.35f);
-            Button levelTwo = CreateLayerLabButton(root, "Start Level 2", "LEVEL 2", LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab", null, new Vector2(0.5f, 0.24f), Vector2.zero, 1.15f);
-            UnityEventTools.AddPersistentListener(start.onClick, controller.LoadLevelOne);
-            UnityEventTools.AddPersistentListener(levelTwo.onClick, controller.LoadLevelTwo);
+            const int LevelButtonCapacity = 6;
+            LevelSelectButton[] levelButtons = new LevelSelectButton[LevelButtonCapacity];
+            for (int i = 0; i < LevelButtonCapacity; i++)
+            {
+                int column = i % 3;
+                int row = i / 3;
+                Vector2 anchor = new(0.37f + column * 0.13f, 0.36f - row * 0.17f);
+                string prefabPath = i == 0
+                    ? LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Green.prefab"
+                    : LayerLabButtonPrefabs + "/Btn_IconTextButton_Square07_Blue.prefab";
+                Button button = CreateLayerLabButton(
+                    root,
+                    $"Level Slot {i + 1}",
+                    $"LEVEL {i + 1}",
+                    prefabPath,
+                    null,
+                    anchor,
+                    Vector2.zero,
+                    0.82f);
+                TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+                LevelSelectButton levelButton = button.gameObject.AddComponent<LevelSelectButton>();
+                levelButton.SetViewReferences(button, label);
+                levelButtons[i] = levelButton;
+            }
+            controller.SetReferences(levelCatalog, levelButtons);
             EditorSceneManager.SaveScene(scene, SceneFolder + "/MainMenu.unity");
         }
 
@@ -1760,9 +1941,8 @@ namespace ZombieWar.Editor
             Projectile projectilePrefab,
             RuntimeHud hudPrefab,
             WeaponConfig[] weapons,
-            EnemyConfig regular,
-            EnemyConfig giant,
-            LevelConfig level)
+            WaveSequenceConfig waveSequence,
+            LevelCatalogConfig levelCatalog)
         {
             ground = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Ground.mat");
             obstacle = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Obstacle.mat");
@@ -1776,9 +1956,7 @@ namespace ZombieWar.Editor
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Shotgun.asset")
             };
-            regular = AssetDatabase.LoadAssetAtPath<EnemyConfig>(ConfigFolder + "/Zombie.asset");
-            giant = AssetDatabase.LoadAssetAtPath<EnemyConfig>(ConfigFolder + "/GiantZombie.asset");
-            level = AssetDatabase.LoadAssetAtPath<LevelConfig>($"{ConfigFolder}/{sceneName}.asset");
+            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{sceneName}_Waves.asset");
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = sceneName;
@@ -1794,9 +1972,7 @@ namespace ZombieWar.Editor
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Rifle.asset"),
                 AssetDatabase.LoadAssetAtPath<WeaponConfig>(ConfigFolder + "/Shotgun.asset")
             };
-            regular = AssetDatabase.LoadAssetAtPath<EnemyConfig>(ConfigFolder + "/Zombie.asset");
-            giant = AssetDatabase.LoadAssetAtPath<EnemyConfig>(ConfigFolder + "/GiantZombie.asset");
-            level = AssetDatabase.LoadAssetAtPath<LevelConfig>($"{ConfigFolder}/{sceneName}.asset");
+            waveSequence = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{ConfigFolder}/{sceneName}_Waves.asset");
             CreateEventSystem();
             CreateDirectionalLight();
 
@@ -1811,7 +1987,7 @@ namespace ZombieWar.Editor
             BombController bomb = soldier.GetComponent<BombController>();
             Transform muzzle = soldier.transform.Find("Muzzle");
 
-            Camera worldCamera = CreateCamera(soldier.transform);
+            Camera worldCamera = CreateCamera(soldier.transform, waveSequence.CameraProfile);
 
             GameObject systems = new("Gameplay Systems");
             ProjectilePool projectilePool = new GameObject("Projectile Pool", typeof(ProjectilePool)).GetComponent<ProjectilePool>();
@@ -1836,7 +2012,7 @@ namespace ZombieWar.Editor
             LevelSceneController controller = systems.AddComponent<LevelSceneController>();
 
             RuntimeHud hud = ((GameObject)PrefabUtility.InstantiatePrefab(hudPrefab.gameObject)).GetComponent<RuntimeHud>();
-            controller.SetReferences(weapons, regular, giant, level, soldier, weapon, bomb, muzzle, projectilePool, enemyPool, scheduler, wave, session, hud, worldCamera);
+            controller.SetReferences(weapons, waveSequence, levelCatalog, soldier, weapon, bomb, muzzle, projectilePool, enemyPool, scheduler, wave, session, hud, worldCamera);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, $"{SceneFolder}/{sceneName}.unity");
@@ -1889,7 +2065,7 @@ namespace ZombieWar.Editor
             return arena;
         }
 
-        private static Camera CreateCamera(Transform target)
+        private static Camera CreateCamera(Transform target, CameraProfileConfig profile)
         {
             GameObject cameraObject = new("Main Camera", typeof(Camera), typeof(AudioListener), typeof(CinemachineBrain));
             cameraObject.tag = "MainCamera";
@@ -1903,17 +2079,16 @@ namespace ZombieWar.Editor
             GameObject virtualCameraObject = new(
                 "Landscape Top-Down Camera",
                 typeof(CinemachineCamera),
-                typeof(CinemachineFollow),
-                typeof(CinemachineHardLookAt));
+                typeof(CinemachineFollow));
             CinemachineCamera virtualCamera = virtualCameraObject.GetComponent<CinemachineCamera>();
             virtualCamera.Follow = target;
-            virtualCamera.LookAt = target;
-            virtualCamera.Lens.FieldOfView = 50f;
+            virtualCamera.Lens.FieldOfView = profile.FieldOfView;
+            virtualCamera.transform.rotation = Quaternion.Euler(profile.RotationEuler);
             CinemachineFollow follow = virtualCameraObject.GetComponent<CinemachineFollow>();
-            follow.FollowOffset = new Vector3(0f, 19f, -11f);
+            follow.FollowOffset = profile.FollowOffset;
             TrackerSettings settings = follow.TrackerSettings;
             settings.BindingMode = BindingMode.WorldSpace;
-            settings.PositionDamping = new Vector3(0.22f, 0.22f, 0.22f);
+            settings.PositionDamping = profile.PositionDamping;
             follow.TrackerSettings = settings;
             return camera;
         }
@@ -2119,15 +2294,36 @@ namespace ZombieWar.Editor
             rect.offsetMax = Vector2.zero;
         }
 
-        private static void SetBuildScenes()
+        private static void SetBuildScenes(LevelCatalogConfig levelCatalog)
         {
-            string[] names = { "Boot", "MainMenu", "Level01", "Level02" };
-            EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[names.Length];
-            for (int i = 0; i < names.Length; i++)
+            List<EditorBuildSettingsScene> scenes = new()
             {
-                scenes[i] = new EditorBuildSettingsScene($"{SceneFolder}/{names[i]}.unity", true);
+                new EditorBuildSettingsScene($"{SceneFolder}/Boot.unity", true),
+                new EditorBuildSettingsScene($"{SceneFolder}/MainMenu.unity", true)
+            };
+            HashSet<string> addedScenes = new() { "Boot", "MainMenu" };
+            LevelDefinition[] levels = levelCatalog != null ? levelCatalog.Levels : null;
+            if (levels != null)
+            {
+                for (int i = 0; i < levels.Length; i++)
+                {
+                    LevelDefinition level = levels[i];
+                    if (level == null
+                        || !level.Enabled
+                        || string.IsNullOrWhiteSpace(level.SceneName)
+                        || !addedScenes.Add(level.SceneName))
+                    {
+                        continue;
+                    }
+
+                    string scenePath = $"{SceneFolder}/{level.SceneName}.unity";
+                    if (File.Exists(Path.GetFullPath(scenePath)))
+                    {
+                        scenes.Add(new EditorBuildSettingsScene(scenePath, true));
+                    }
+                }
             }
-            EditorBuildSettings.scenes = scenes;
+            EditorBuildSettings.scenes = scenes.ToArray();
         }
     }
 }

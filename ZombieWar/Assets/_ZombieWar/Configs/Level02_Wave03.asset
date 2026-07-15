@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95c5f0b8ddeebb146a619dfd33fa8c8a, type: 3}
+  m_Name: Level02_Wave03
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.WaveConfig
+  _displayName: WAVE 3
+  _durationSeconds: 60
+  _startCount: 72
+  _endCount: 120
+  _spawnPerFrame: 4
+  _enemies:
+  - _enemy: {fileID: 11400000, guid: 784641cf081918e4eb9c5a5687e04080, type: 2}
+    _weight: 0.42
+    _maxConcurrent: 0
+  - _enemy: {fileID: 11400000, guid: 0213d0b6ada570c4390d1c2c57eca196, type: 2}
+    _weight: 0.3
+    _maxConcurrent: 0
+  - _enemy: {fileID: 11400000, guid: 2913fead3bffb4349a736e18bde97e09, type: 2}
+    _weight: 0.2
+    _maxConcurrent: 18
+  - _enemy: {fileID: 11400000, guid: 5402bfc3718110843b26429a71584f7f, type: 2}
+    _weight: 0.08
+    _maxConcurrent: 1

@@ -10,9 +10,8 @@ namespace ZombieWar.Core
     public sealed class LevelSceneController : MonoBehaviour
     {
         [SerializeField] private WeaponConfig[] _weapons;
-        [SerializeField] private EnemyConfig _regularEnemy;
-        [SerializeField] private EnemyConfig _giantEnemy;
-        [SerializeField] private LevelConfig _level;
+        [SerializeField] private WaveSequenceConfig _waveSequence;
+        [SerializeField] private LevelCatalogConfig _levelCatalog;
         [SerializeField] private SoldierController _soldier;
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private BombController _bombController;
@@ -36,16 +35,15 @@ namespace ZombieWar.Core
             _weaponController.Configure(_weapons, _enemyPool, _projectilePool, _muzzle);
             _bombController.Configure(_enemyPool);
             _scheduler.Configure(_enemyPool, _soldier.transform);
-            _waveDirector.Configure(_enemyPool, _regularEnemy, _giantEnemy, _level, _soldier.transform, _soldier.Health, _worldCamera);
-            _session.Configure(_soldier.Health, _waveDirector, _hud);
+            _waveDirector.Configure(_enemyPool, _waveSequence, _soldier.transform, _soldier.Health, _worldCamera);
+            _session.Configure(_soldier.Health, _waveDirector, _hud, _levelCatalog);
             _hud.Initialize(_soldier, _weaponController, _bombController, _waveDirector, _enemyPool, _session.Restart, _session.LoadNext);
         }
 
         public void SetReferences(
             WeaponConfig[] weapons,
-            EnemyConfig regularEnemy,
-            EnemyConfig giantEnemy,
-            LevelConfig level,
+            WaveSequenceConfig waveSequence,
+            LevelCatalogConfig levelCatalog,
             SoldierController soldier,
             WeaponController weaponController,
             BombController bombController,
@@ -59,9 +57,8 @@ namespace ZombieWar.Core
             Camera worldCamera)
         {
             _weapons = weapons;
-            _regularEnemy = regularEnemy;
-            _giantEnemy = giantEnemy;
-            _level = level;
+            _waveSequence = waveSequence;
+            _levelCatalog = levelCatalog;
             _soldier = soldier;
             _weaponController = weaponController;
             _bombController = bombController;
@@ -78,9 +75,8 @@ namespace ZombieWar.Core
         private bool ValidateReferences()
         {
             bool valid = _weapons is { Length: > 1 }
-                && _regularEnemy != null
-                && _giantEnemy != null
-                && _level != null
+                && _waveSequence != null
+                && _levelCatalog != null
                 && _soldier != null
                 && _soldier.Health != null
                 && _weaponController != null

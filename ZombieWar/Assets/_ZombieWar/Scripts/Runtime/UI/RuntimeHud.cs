@@ -49,7 +49,7 @@ namespace ZombieWar.UI
             _healthFill.fillAmount = _soldier.Health.Normalized;
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
-            _crowdText.text = $"THREAT  {_enemyPool.ActiveCount:000}";
+            _crowdText.text = $"WAVE {_wave.CurrentWaveNumber}   THREAT {_enemyPool.ActiveCount:000}";
         }
 
         private void OnDestroy()
