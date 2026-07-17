@@ -535,6 +535,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
         type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 84
       objectReference: {fileID: 0}
@@ -1349,6 +1354,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SM_IndustrialProps_Construction_03
+      objectReference: {fileID: 0}
+    - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
         type: 3}
@@ -2483,6 +2493,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SM_IndustrialProps_Construction_03
+      objectReference: {fileID: 0}
+    - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1839472176139975530, guid: aa4aa2ecb1a10c44881afda25225bd25,
         type: 3}

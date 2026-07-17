@@ -18,6 +18,7 @@ namespace ZombieWar.UI
         [SerializeField] private WeaponRadialMenu _weaponMenu;
         [SerializeField] private BombInventoryView _bombInventoryView;
         [SerializeField] private ScreenFeedbackView _screenFeedback;
+        [SerializeField] private Slider _healthSlider;
         [SerializeField] private Image _healthFill;
         [SerializeField] private TMP_Text _timerText;
         [SerializeField] private TMP_Text _weaponText;
@@ -50,7 +51,7 @@ namespace ZombieWar.UI
 
             _soldier.SetMoveInput(_joystick.Value);
             _weapon.SetAimInput(_aimJoystick.Value, _aimJoystick.IsActive);
-            _healthFill.fillAmount = _soldier.Health.Normalized;
+            UpdateHealthView(_soldier.Health.Normalized);
             _timerText.text = FormatTime(_wave.Remaining);
             _weaponText.text = _weapon.CurrentWeaponName;
             _crowdText.text = _portalOpen
@@ -90,6 +91,8 @@ namespace ZombieWar.UI
             _restartAction = restartAction;
             _nextAction = nextAction;
 
+            ResolveHealthSlider();
+            UpdateHealthView(_soldier.Health.Normalized);
             _weaponMenu.Initialize(_weapon);
             _bombInventoryView.Initialize(_bomb);
             if (_screenFeedback != null)
@@ -130,6 +133,7 @@ namespace ZombieWar.UI
             _weaponMenu = weaponMenu;
             _bombInventoryView = bombInventoryView;
             _healthFill = healthFill;
+            ResolveHealthSlider();
             _timerText = timerText;
             _weaponText = weaponText;
             _crowdText = crowdText;
@@ -147,6 +151,11 @@ namespace ZombieWar.UI
         public void SetAimJoystick(VirtualJoystick aimJoystick)
         {
             _aimJoystick = aimJoystick;
+        }
+
+        public void SetHealthSlider(Slider healthSlider)
+        {
+            _healthSlider = healthSlider;
         }
 
         public void ShowResult(bool won)
@@ -169,6 +178,31 @@ namespace ZombieWar.UI
         private void OnBombAimChanged(Vector2 input)
         {
             _bomb.PreviewAim(input);
+        }
+
+        private void ResolveHealthSlider()
+        {
+            if (_healthSlider != null || _healthFill == null)
+            {
+                return;
+            }
+
+            _healthSlider = _healthFill.GetComponentInParent<Slider>(true);
+        }
+
+        private void UpdateHealthView(float normalizedHealth)
+        {
+            normalizedHealth = Mathf.Clamp01(normalizedHealth);
+            if (_healthSlider != null)
+            {
+                float value = Mathf.Lerp(_healthSlider.minValue, _healthSlider.maxValue, normalizedHealth);
+                _healthSlider.SetValueWithoutNotify(value);
+            }
+
+            if (_healthFill != null && _healthFill.type == Image.Type.Filled)
+            {
+                _healthFill.fillAmount = normalizedHealth;
+            }
         }
 
         private void OnBombReleased(Vector2 input)

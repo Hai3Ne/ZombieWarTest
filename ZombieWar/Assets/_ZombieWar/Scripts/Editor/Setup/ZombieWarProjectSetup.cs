@@ -1943,6 +1943,7 @@ namespace ZombieWar.Editor
 
             RuntimeHud hud = root.GetComponent<RuntimeHud>();
             hud.SetViewReferences(joystick, aimJoystick, bombJoystick, weaponMenu, bombInventoryView, healthFill, timer, weapon, crowd, panel.gameObject, resultText, retry, next);
+            hud.SetHealthSlider(healthSlider);
             hud.SetScreenFeedback(screenFeedback);
             OptionsUiInstaller.InstantiateOverlay(safe);
             return SavePrefab<RuntimeHud>(root, "LandscapeHUD");
