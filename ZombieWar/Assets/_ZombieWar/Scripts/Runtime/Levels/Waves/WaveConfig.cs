@@ -13,6 +13,7 @@ namespace ZombieWar.Levels
         [SerializeField, Min(0)] private int _endCount = 24;
         [SerializeField, Range(1, 8)] private int _spawnPerFrame = 2;
         [SerializeField] private WaveEnemyEntry[] _enemies;
+        [SerializeField] private EnemyConfig _eliteEnemy;
         #endregion
 
         public string DisplayName => _displayName;
@@ -21,6 +22,7 @@ namespace ZombieWar.Levels
         public int EndCount => Mathf.Max(StartCount, _endCount);
         public int SpawnPerFrame => Mathf.Clamp(_spawnPerFrame, 1, 8);
         public WaveEnemyEntry[] Enemies => _enemies;
+        public EnemyConfig EliteEnemy => _eliteEnemy;
 
         public void Configure(
             string displayName,
@@ -28,7 +30,8 @@ namespace ZombieWar.Levels
             int startCount,
             int endCount,
             int spawnPerFrame,
-            WaveEnemyEntry[] enemies)
+            WaveEnemyEntry[] enemies,
+            EnemyConfig eliteEnemy = null)
         {
             _displayName = displayName;
             _durationSeconds = Mathf.Max(1f, durationSeconds);
@@ -36,6 +39,7 @@ namespace ZombieWar.Levels
             _endCount = Mathf.Max(_startCount, endCount);
             _spawnPerFrame = Mathf.Clamp(spawnPerFrame, 1, 8);
             _enemies = enemies;
+            _eliteEnemy = eliteEnemy;
         }
 
         public int EvaluateTargetCount(float normalizedTime)

@@ -11,6 +11,7 @@ namespace ZombieWar.Combat
 
         #region State
         private GameObject[] _instances;
+        private ParticleSystem[][] _particleSystems;
         private int _nextIndex;
         #endregion
 
@@ -25,12 +26,14 @@ namespace ZombieWar.Combat
             }
 
             _instances = new GameObject[_capacity];
+            _particleSystems = new ParticleSystem[_capacity][];
             for (int i = 0; i < _instances.Length; i++)
             {
                 GameObject instance = Instantiate(_prefab, transform.parent);
                 instance.name = $"Bomb Explosion VFX {i + 1}";
                 instance.SetActive(false);
                 _instances[i] = instance;
+                _particleSystems[i] = instance.GetComponentsInChildren<ParticleSystem>(true);
             }
         }
         #endregion
@@ -49,15 +52,29 @@ namespace ZombieWar.Combat
                 return;
             }
 
-            GameObject instance = FindAvailableInstance();
-            instance.transform.position = position;
+            int index = FindAvailableIndex();
+            GameObject instance = _instances[index];
             instance.SetActive(false);
+            instance.transform.SetPositionAndRotation(position, Quaternion.identity);
             instance.SetActive(true);
+
+            ParticleSystem[] systems = _particleSystems[index];
+            for (int i = 0; i < systems.Length; i++)
+            {
+                ParticleSystem system = systems[i];
+                if (!system.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                system.Play(true);
+            }
         }
         #endregion
 
         #region Internal
-        private GameObject FindAvailableInstance()
+        private int FindAvailableIndex()
         {
             for (int i = 0; i < _instances.Length; i++)
             {
@@ -65,13 +82,13 @@ namespace ZombieWar.Combat
                 if (!_instances[index].activeSelf)
                 {
                     _nextIndex = (index + 1) % _instances.Length;
-                    return _instances[index];
+                    return index;
                 }
             }
 
-            GameObject fallback = _instances[_nextIndex];
+            int fallbackIndex = _nextIndex;
             _nextIndex = (_nextIndex + 1) % _instances.Length;
-            return fallback;
+            return fallbackIndex;
         }
         #endregion
     }

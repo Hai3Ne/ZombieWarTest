@@ -4,13 +4,13 @@ using ZombieWar.Core;
 
 namespace ZombieWar.Combat
 {
-    [RequireComponent(typeof(Rigidbody))]
     public sealed class WeaponController : MonoBehaviour
     {
         #region Refs
+        [SerializeField] private Transform _facingRoot;
+
         private ProjectilePool _projectilePool;
         private Transform _muzzle;
-        private Rigidbody _rigidbody;
         #endregion
 
         #region State
@@ -32,15 +32,6 @@ namespace ZombieWar.Combat
         #endregion
 
         #region Lifecycle
-        private void Awake()
-        {
-            if (!TryGetComponent(out _rigidbody))
-            {
-                Debug.LogError("[Zombie War] WeaponController requires a Rigidbody.", this);
-                enabled = false;
-            }
-        }
-
         private void Update()
         {
             if (_weapons == null || _projectilePool == null || _muzzle == null || !_isAiming)
@@ -57,14 +48,14 @@ namespace ZombieWar.Combat
 
         private void FixedUpdate()
         {
-            if (_aimDirection.sqrMagnitude < 0.01f)
+            if (_facingRoot == null || _aimDirection.sqrMagnitude < 0.01f)
             {
                 return;
             }
 
             Quaternion targetRotation = Quaternion.LookRotation(_aimDirection);
             float blend = 1f - Mathf.Exp(-18f * Time.fixedDeltaTime);
-            _rigidbody.MoveRotation(Quaternion.Slerp(_rigidbody.rotation, targetRotation, blend));
+            _facingRoot.rotation = Quaternion.Slerp(_facingRoot.rotation, targetRotation, blend);
         }
         #endregion
 
@@ -75,6 +66,11 @@ namespace ZombieWar.Combat
             _projectilePool = projectilePool;
             _muzzle = muzzle;
             WeaponChanged?.Invoke(_weaponIndex, CurrentWeaponName);
+        }
+
+        public void SetFacingRoot(Transform facingRoot)
+        {
+            _facingRoot = facingRoot;
         }
 
         public void SetAimInput(Vector2 input, bool isActive)

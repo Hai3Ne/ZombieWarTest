@@ -1,4 +1,5 @@
 using UnityEngine;
+using ZombieWar.Enemies;
 
 namespace ZombieWar.Levels
 {
@@ -10,12 +11,15 @@ namespace ZombieWar.Levels
         [SerializeField, Min(1)] private int _hardCap = 120;
         [SerializeField] private CameraProfileConfig _cameraProfile;
         [SerializeField] private WaveConfig[] _waves;
+        [SerializeField] private EnemyConfig _bossEnemy;
         #endregion
 
         public string DisplayName => _displayName;
         public int HardCap => Mathf.Max(1, _hardCap);
         public CameraProfileConfig CameraProfile => _cameraProfile;
         public WaveConfig[] Waves => _waves;
+        public EnemyConfig BossEnemy => _bossEnemy;
+        public int WaveCount => _waves?.Length ?? 0;
 
         public float TotalDuration
         {
@@ -37,12 +41,23 @@ namespace ZombieWar.Levels
             }
         }
 
-        public void Configure(string displayName, int hardCap, CameraProfileConfig cameraProfile, WaveConfig[] waves)
+        public void Configure(
+            string displayName,
+            int hardCap,
+            CameraProfileConfig cameraProfile,
+            WaveConfig[] waves,
+            EnemyConfig bossEnemy = null)
         {
             _displayName = displayName;
             _hardCap = Mathf.Max(1, hardCap);
             _cameraProfile = cameraProfile;
             _waves = waves;
+            _bossEnemy = bossEnemy;
+        }
+
+        public WaveConfig GetWave(int index)
+        {
+            return _waves != null && index >= 0 && index < _waves.Length ? _waves[index] : null;
         }
 
         public WaveConfig GetWaveAtTime(float elapsed, out int waveIndex, out float normalizedWaveTime)

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ZombieWar-Gameplay
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: ZombieWar-Gameplay
+  m_GUID: b9804d411774cf341b4bc651eed6aa33
+  m_SerializeEntries:
+  - m_GUID: 3381d320a2af54b42b8512dc015112d2
+    m_Address: gameplay/bombs/projectile
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - gameplay-bombs
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: e5484e1e89fa1d24095286285ca696d3, type: 2}
+    - {fileID: 11400000, guid: b9957d3ed68a19241bd16f65b2c8639b, type: 2}

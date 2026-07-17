@@ -76,8 +76,15 @@ WaveDirector -> EnemyPool -> EnemySimulationScheduler -> ZombieAgent.
 WaveDirector lấy timer từ tổng thời lượng các wave. GameSessionController sở hữu
 state Playing/Won/Lost và chuyển level theo thứ tự enabled trong catalog.
 
-Khi timer kết thúc, `GameSessionController` thu hồi enemy đang hoạt động và mở
-`LevelExitPortal` đã được author trong level scene. Trigger chỉ nhận `SoldierController`.
+Mỗi `WaveConfig` giữ một `EliteEnemy`; hết thời lượng wave, `WaveDirector` chuyển
+sang phase Elite và chỉ bắt đầu wave kế tiếp sau khi Elite chết. `WaveSequenceConfig`
+giữ `BossEnemy`; sau Elite cuối cùng, phase Boss bắt đầu và `IsCompleted` chỉ bật khi
+Boss bị hạ. Elite/Boss dùng `EnemyConfig` và `EnemyPool` hiện có, không tạo prefab
+hoặc pool riêng ở runtime.
+
+Khi `WaveDirector.IsCompleted` sau death dissolve của Boss, `GameSessionController`
+thu hồi enemy còn hoạt động và mở `LevelExitPortal` đã được author trong level scene.
+Trigger chỉ nhận `SoldierController`.
 `SceneTransitionRequest` giữ tên scene đích trong thời gian ngắn, tải scene `Loading`,
 sau đó `BootSceneController` hiển thị tiến độ và kích hoạt level kế tiếp. Không có
 hierarchy hoặc project asset nào được tạo ở runtime.

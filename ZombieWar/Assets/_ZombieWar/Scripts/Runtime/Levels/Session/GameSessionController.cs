@@ -34,7 +34,7 @@ namespace ZombieWar.Levels
             {
                 Finish(false);
             }
-            else if (_wave.Remaining <= 0f)
+            else if (_wave.IsCompleted)
             {
                 Finish(true);
             }

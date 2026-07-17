@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: WaveSequence
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.WaveSequenceConfig
   _displayName: CONTAINMENT YARD WAVES
-  _hardCap: 110
+  _hardCap: 95
   _cameraProfile: {fileID: 11400000, guid: de49c2c9e35b95044bfffc41243a0a4f, type: 2}
   _waves:
   - {fileID: 11400000, guid: 7f4c331ec5a542d4aab9c7d6eea0acef, type: 2}
   - {fileID: 11400000, guid: 2c00829c14e06234a96fe8bc2a1711f9, type: 2}
   - {fileID: 11400000, guid: eab17362aff880e48bc5d28f3bd14c87, type: 2}
   - {fileID: 11400000, guid: 4702d7e53185bd7499c9f3a66a12edf6, type: 2}
+  _bossEnemy: {fileID: 11400000, guid: e394130c75aa8604e845edf480768d90, type: 2}

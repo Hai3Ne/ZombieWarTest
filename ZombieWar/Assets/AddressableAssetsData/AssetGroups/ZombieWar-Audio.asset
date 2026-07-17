@@ -15,17 +15,38 @@ MonoBehaviour:
   m_GroupName: ZombieWar-Audio
   m_GUID: e60e33321a0da8e428e2bad424960736
   m_SerializeEntries:
+  - m_GUID: 23172f3574254e14dbf8ee25ca8645f4
+    m_Address: audio/player/hurt/02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4f933d6682d2b98498606e1433108936
     m_Address: audio/weapons/rifle/fire
     m_ReadOnly: 0
     m_SerializedLabels:
     - audio-weapons
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88e080743775a984f98357b8b0cce30c
+    m_Address: audio/player/hurt/01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ffedca287d888b46928b023224ab7e4
     m_Address: audio/weapons/shotgun/fire
     m_ReadOnly: 0
     m_SerializedLabels:
     - audio-weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c21eb4920c4a00d4c9fda61fabd6faf7
+    m_Address: audio/player/hurt/03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c284df33a9d473e48acece0bbd984db7
+    m_Address: audio/bombs/explosion
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-bombs
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 5bb665f33a871714f8727f11262951ab, type: 2}

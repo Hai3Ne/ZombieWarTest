@@ -177,10 +177,16 @@ namespace ZombieWar.Editor
             brute.Configure("BRUTE", EnemyArchetype.Brute, 145f, 1.75f, 15f, 1.55f, 1.1f, 1.32f, new Color(0.82f, 0.42f, 0.3f));
             EnemyConfig giant = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Giant");
             giant.Configure("GIANT", EnemyArchetype.Giant, 900f, 1.5f, 24f, 2.4f, 1.6f, 2.2f, new Color(0.58f, 0.16f, 0.12f));
+            EnemyConfig elite = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Elite");
+            elite.Configure("ELITE", EnemyArchetype.Brute, 360f, 2.15f, 20f, 1.7f, 0.95f, 1.55f, new Color(0.68f, 0.24f, 0.92f));
+            EnemyConfig boss = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Boss");
+            boss.Configure("LEVEL BOSS", EnemyArchetype.Giant, 1800f, 1.45f, 34f, 2.65f, 1.45f, 2.75f, new Color(0.82f, 0.1f, 0.08f));
             EditorUtility.SetDirty(regular);
             EditorUtility.SetDirty(runner);
             EditorUtility.SetDirty(brute);
             EditorUtility.SetDirty(giant);
+            EditorUtility.SetDirty(elite);
+            EditorUtility.SetDirty(boss);
 
             LevelConfig levelOne = GetOrCreateAsset<LevelConfig>(GetLevelFolder("Level01"), "LevelConfig");
             levelOne.Configure("CONTAINMENT YARD", 180f, 25, 100, 120, false, 120f);
@@ -212,7 +218,9 @@ namespace ZombieWar.Editor
                 regular,
                 runner,
                 brute,
-                null);
+                null,
+                elite,
+                boss);
             WaveSequenceConfig levelTwoWaves = CreateWaveSequence(
                 "Level02",
                 "BROKEN OVERPASS WAVES",
@@ -221,7 +229,9 @@ namespace ZombieWar.Editor
                 regular,
                 runner,
                 brute,
-                giant);
+                giant,
+                elite,
+                boss);
             LevelCatalogConfig levelCatalog = GetOrCreateLevelCatalog(levelOneWaves, levelTwoWaves);
             EditorUtility.SetDirty(levelOneCamera);
             EditorUtility.SetDirty(levelTwoCamera);
@@ -872,7 +882,9 @@ namespace ZombieWar.Editor
             EnemyConfig walker,
             EnemyConfig runner,
             EnemyConfig brute,
-            EnemyConfig giant)
+            EnemyConfig giant,
+            EnemyConfig elite,
+            EnemyConfig boss)
         {
             string waveFolder = GetWaveFolder(levelName);
             WaveSequenceConfig existing = AssetDatabase.LoadAssetAtPath<WaveSequenceConfig>($"{waveFolder}/WaveSequence.asset");
@@ -888,7 +900,8 @@ namespace ZombieWar.Editor
                 10,
                 levelName == "Level01" ? 24 : 28,
                 2,
-                new[] { CreateWaveEnemyEntry(walker, 1f) });
+                new[] { CreateWaveEnemyEntry(walker, 1f) },
+                elite);
 
             WaveConfig waveTwo = GetOrCreateAsset<WaveConfig>(waveFolder, "Wave02");
             waveTwo.Configure(
@@ -901,7 +914,8 @@ namespace ZombieWar.Editor
                 {
                     CreateWaveEnemyEntry(walker, 0.68f),
                     CreateWaveEnemyEntry(runner, 0.32f)
-                });
+                },
+                elite);
 
             WaveConfig waveThree = GetOrCreateAsset<WaveConfig>(waveFolder, "Wave03");
             WaveEnemyEntry[] finalEntries = giant == null
@@ -924,10 +938,11 @@ namespace ZombieWar.Editor
                 levelName == "Level01" ? 62 : 72,
                 hardCap,
                 4,
-                finalEntries);
+                finalEntries,
+                elite);
 
             WaveSequenceConfig sequence = GetOrCreateAsset<WaveSequenceConfig>(waveFolder, "WaveSequence");
-            sequence.Configure(displayName, hardCap, cameraProfile, new[] { waveOne, waveTwo, waveThree });
+            sequence.Configure(displayName, hardCap, cameraProfile, new[] { waveOne, waveTwo, waveThree }, boss);
             EditorUtility.SetDirty(waveOne);
             EditorUtility.SetDirty(waveTwo);
             EditorUtility.SetDirty(waveThree);
@@ -1419,6 +1434,13 @@ namespace ZombieWar.Editor
             NormalizeModelHeight(model.transform, renderers, 1.8f);
             CenterModelOnPhysicsRoot(model.transform, renderers);
             SoldierWeaponIkController weaponIk = model.AddComponent<SoldierWeaponIkController>();
+            SoldierHeadAttachmentController headAttachments = model.AddComponent<SoldierHeadAttachmentController>();
+            headAttachments.SetAttachments(new[]
+            {
+                FindChild(model.transform, "Eyebrows"),
+                FindChild(model.transform, "Eyes"),
+                FindChild(model.transform, "Glasses")
+            });
             model.AddComponent<SoldierFootstepRelay>();
             for (int i = 0; i < renderers.Length; i++)
             {

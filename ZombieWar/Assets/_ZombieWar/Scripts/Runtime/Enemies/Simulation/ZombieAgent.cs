@@ -118,13 +118,12 @@ namespace ZombieWar.Enemies
         {
             if (_state == ZombieState.Dead)
             {
-                _deathProgress += deltaTime / 0.5f;
+                const float fallSeconds = 0.6f;
+                const float dissolveSeconds = 0.5f;
+                _deathProgress += deltaTime / (fallSeconds + dissolveSeconds);
                 _animation.SetMoving(false);
-                SetVisual(0f, _deathProgress);
-                transform.localScale = Vector3.Lerp(
-                    _spawnScale * _config.ScaleMultiplier,
-                    Vector3.one * 0.05f,
-                    _deathProgress);
+                float elapsed = _deathProgress * (fallSeconds + dissolveSeconds);
+                SetVisual(0f, Mathf.Clamp01((elapsed - fallSeconds) / dissolveSeconds));
 
                 if (_deathProgress >= 1f)
                 {

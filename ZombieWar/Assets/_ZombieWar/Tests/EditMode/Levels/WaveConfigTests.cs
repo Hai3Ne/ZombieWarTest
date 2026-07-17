@@ -63,6 +63,32 @@ namespace ZombieWar.Tests
         }
 
         [Test]
+        public void SpecialEncounters_KeepEliteAndBossReferences()
+        {
+            EnemyConfig elite = ScriptableObject.CreateInstance<EnemyConfig>();
+            EnemyConfig boss = ScriptableObject.CreateInstance<EnemyConfig>();
+            WaveConfig wave = ScriptableObject.CreateInstance<WaveConfig>();
+            WaveSequenceConfig sequence = ScriptableObject.CreateInstance<WaveSequenceConfig>();
+            try
+            {
+                wave.Configure("WAVE", 60f, 10, 20, 2, null, elite);
+                sequence.Configure("LEVEL", 120, null, new[] { wave }, boss);
+
+                Assert.That(wave.EliteEnemy, Is.SameAs(elite));
+                Assert.That(sequence.BossEnemy, Is.SameAs(boss));
+                Assert.That(sequence.WaveCount, Is.EqualTo(1));
+                Assert.That(sequence.GetWave(0), Is.SameAs(wave));
+            }
+            finally
+            {
+                Object.DestroyImmediate(elite);
+                Object.DestroyImmediate(boss);
+                Object.DestroyImmediate(wave);
+                Object.DestroyImmediate(sequence);
+            }
+        }
+
+        [Test]
         public void LevelCatalog_UsesEnabledOrderedListForProgression()
         {
             WaveSequenceConfig sequence = ScriptableObject.CreateInstance<WaveSequenceConfig>();

@@ -51,7 +51,7 @@ namespace ZombieWar.Editor
             EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField("ZOMBIE WAR — WAVE EDITOR", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Mỗi WaveConfig quản lý thời lượng, mật độ và trọng số loại zombie. Camera được quản lý bằng CameraProfileConfig riêng.",
+                "Mỗi WaveConfig quản lý thời lượng, mật độ, loại zombie và Elite cuối wave. WaveSequenceConfig quản lý Boss cuối level.",
                 MessageType.Info);
 
             _levelCatalog = (LevelCatalogConfig)EditorGUILayout.ObjectField(
@@ -200,6 +200,7 @@ namespace ZombieWar.Editor
             EditorGUILayout.PropertyField(serializedSequence.FindProperty("_displayName"));
             EditorGUILayout.PropertyField(serializedSequence.FindProperty("_hardCap"));
             EditorGUILayout.PropertyField(serializedSequence.FindProperty("_cameraProfile"));
+            EditorGUILayout.PropertyField(serializedSequence.FindProperty("_bossEnemy"), new GUIContent("Level Boss"));
             EditorGUILayout.PropertyField(serializedSequence.FindProperty("_waves"));
             serializedSequence.ApplyModifiedProperties();
 

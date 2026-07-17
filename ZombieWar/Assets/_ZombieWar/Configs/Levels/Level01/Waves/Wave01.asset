@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Levels.WaveConfig
   _displayName: WAVE 1
   _durationSeconds: 60
-  _startCount: 10
-  _endCount: 24
+  _startCount: 8
+  _endCount: 18
   _spawnPerFrame: 2
   _enemies:
   - _enemy: {fileID: 11400000, guid: 784641cf081918e4eb9c5a5687e04080, type: 2}
     _weight: 1
     _maxConcurrent: 0
+  _eliteEnemy: {fileID: 11400000, guid: fde42d824df1e9148bf4f27ba7434951, type: 2}

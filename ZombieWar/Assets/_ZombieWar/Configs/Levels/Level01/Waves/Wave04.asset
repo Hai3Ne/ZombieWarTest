@@ -18,3 +18,4 @@ MonoBehaviour:
   _endCount: 25
   _spawnPerFrame: 2
   _enemies: []
+  _eliteEnemy: {fileID: 11400000, guid: fde42d824df1e9148bf4f27ba7434951, type: 2}

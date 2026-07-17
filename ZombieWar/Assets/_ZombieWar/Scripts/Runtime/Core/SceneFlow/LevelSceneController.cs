@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using ZombieWar.Combat;
 using ZombieWar.Enemies;
@@ -25,6 +26,11 @@ namespace ZombieWar.Core
         [SerializeField] private RuntimeHud _hud;
         [SerializeField] private Camera _worldCamera;
         [SerializeField] private LevelExitPortal _exitPortal;
+        [SerializeField] private Transform[] _playerSpawnPoints;
+        [SerializeField] private LayerMask _playerSpawnBlockingLayers = ~0;
+        [SerializeField, Min(0.1f)] private float _playerSpawnSampleRadius = 2f;
+        [SerializeField, Min(0.1f)] private float _playerSpawnCapsuleHeight = 2f;
+        [SerializeField, Min(0.05f)] private float _playerSpawnCapsuleRadius = 0.48f;
 
         private void Start()
         {
@@ -35,6 +41,7 @@ namespace ZombieWar.Core
                 return;
             }
 
+            PlaceSoldierAtSpawnPoint();
             _weaponController.Configure(_weapons, _projectilePool, _muzzle);
             _bombController.Configure(_enemyPool);
             _scheduler.Configure(_enemyPool, _soldier.transform);
@@ -94,6 +101,50 @@ namespace ZombieWar.Core
         public void SetExitPortal(LevelExitPortal exitPortal)
         {
             _exitPortal = exitPortal;
+        }
+
+        public void SetPlayerSpawnPoints(Transform[] playerSpawnPoints)
+        {
+            _playerSpawnPoints = playerSpawnPoints;
+        }
+
+        private void PlaceSoldierAtSpawnPoint()
+        {
+            if (_playerSpawnPoints == null || _playerSpawnPoints.Length == 0)
+            {
+                return;
+            }
+
+            float halfHeight = _playerSpawnCapsuleHeight * 0.5f;
+            float radius = Mathf.Min(_playerSpawnCapsuleRadius, halfHeight);
+            for (int index = 0; index < _playerSpawnPoints.Length; index++)
+            {
+                Transform spawnPoint = _playerSpawnPoints[index];
+                if (spawnPoint == null
+                    || !NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, _playerSpawnSampleRadius, NavMesh.AllAreas))
+                {
+                    continue;
+                }
+
+                Vector3 playerPosition = hit.position + Vector3.up * halfHeight;
+                Vector3 capsuleBottom = playerPosition + Vector3.up * (-halfHeight + radius);
+                Vector3 capsuleTop = playerPosition + Vector3.up * (halfHeight - radius);
+                if (Physics.CheckCapsule(
+                        capsuleBottom,
+                        capsuleTop,
+                        radius,
+                        _playerSpawnBlockingLayers,
+                        QueryTriggerInteraction.Ignore))
+                {
+                    continue;
+                }
+
+                _soldier.transform.SetPositionAndRotation(playerPosition, spawnPoint.rotation);
+                Physics.SyncTransforms();
+                return;
+            }
+
+            Debug.LogWarning("[Zombie War] No clear Player Spawn Point was found; keeping the authored Soldier position.", this);
         }
 
         private bool ValidateReferences()

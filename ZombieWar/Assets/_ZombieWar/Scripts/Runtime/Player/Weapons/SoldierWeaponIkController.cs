@@ -7,7 +7,7 @@ namespace ZombieWar.Player
     {
         #region Config
         [SerializeField, Range(0f, 1f)] private float _positionWeight = 1f;
-        [SerializeField, Range(0f, 1f)] private float _rotationWeight = 1f;
+        [SerializeField, Range(0f, 1f)] private float _rotationWeight;
         #endregion
 
         #region Refs

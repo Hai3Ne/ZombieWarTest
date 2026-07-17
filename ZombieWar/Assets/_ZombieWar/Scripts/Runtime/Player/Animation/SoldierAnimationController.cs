@@ -121,6 +121,12 @@ namespace ZombieWar.Player
             if (_animator != null)
             {
                 _animator.SetBool(DeadHash, true);
+                _animator.SetLayerWeight(1, 0f);
+            }
+
+            if (_weaponIk != null)
+            {
+                _weaponIk.enabled = false;
             }
         }
         #endregion

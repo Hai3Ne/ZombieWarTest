@@ -55,7 +55,7 @@ namespace ZombieWar.UI
             _weaponText.text = _weapon.CurrentWeaponName;
             _crowdText.text = _portalOpen
                 ? "PORTAL OPEN   MOVE TO EXTRACTION"
-                : $"WAVE {_wave.CurrentWaveNumber}   THREAT {_enemyPool.ActiveCount:000}";
+                : $"{_wave.EncounterLabel}   THREAT {_enemyPool.ActiveCount:000}";
         }
 
         private void OnDestroy()

@@ -20,6 +20,7 @@ namespace ZombieWar.Combat
         [SerializeField] private LineRenderer _trajectory;
         [SerializeField] private LineRenderer _rangeRing;
         [SerializeField] private LineRenderer _blastRadiusRing;
+        [SerializeField] private GameObject _targetIndicator;
         [SerializeField] private BombExplosionVfxPool _explosionVfxPool;
         #endregion
 
@@ -89,6 +90,15 @@ namespace ZombieWar.Combat
             _explosionVfxPool = explosionVfxPool;
         }
 
+        public void SetTargetIndicator(GameObject targetIndicator)
+        {
+            _targetIndicator = targetIndicator;
+            if (_targetIndicator != null)
+            {
+                _targetIndicator.SetActive(false);
+            }
+        }
+
         public void Configure(EnemyPool enemyPool)
         {
             _enemyPool = enemyPool;
@@ -134,7 +144,7 @@ namespace ZombieWar.Combat
                 _rangeRing.SetPosition(i, transform.position + new Vector3(Mathf.Cos(angle), 0.08f, Mathf.Sin(angle)) * _maximumThrowRange);
             }
 
-            DrawCircle(_blastRadiusRing, target, _blastRadius);
+            ShowTargetIndicator(target);
         }
 
         public void CancelAim()
@@ -214,18 +224,23 @@ namespace ZombieWar.Combat
             {
                 _blastRadiusRing.enabled = false;
             }
+            if (_targetIndicator != null)
+            {
+                _targetIndicator.SetActive(false);
+            }
         }
 
-        private static void DrawCircle(LineRenderer line, Vector3 center, float radius)
+        private void ShowTargetIndicator(Vector3 target)
         {
-            line.enabled = true;
-            line.positionCount = 49;
-            center.y = 0.1f;
-            for (int i = 0; i < line.positionCount; i++)
+            if (_targetIndicator == null)
             {
-                float angle = i / 48f * Mathf.PI * 2f;
-                line.SetPosition(i, center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius);
+                return;
             }
+
+            target.y = 0.12f;
+            _targetIndicator.transform.SetPositionAndRotation(target, Quaternion.Euler(-90f, 0f, 0f));
+            _targetIndicator.transform.localScale = Vector3.one * (_blastRadius * 0.5f);
+            _targetIndicator.SetActive(true);
         }
         #endregion
     }
