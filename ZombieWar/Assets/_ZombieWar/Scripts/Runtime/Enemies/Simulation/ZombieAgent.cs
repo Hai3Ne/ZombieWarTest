@@ -116,6 +116,11 @@ namespace ZombieWar.Enemies
 
         public void Simulate(float deltaTime, bool allowAvoidance)
         {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
             if (_state == ZombieState.Dead)
             {
                 const float fallSeconds = 0.6f;
@@ -246,6 +251,11 @@ namespace ZombieWar.Enemies
 
         private void OnDamaged(DamageInfo damage)
         {
+            if (_health.CurrentHealth <= 0f)
+            {
+                return;
+            }
+
             _hitFlashUntil = Time.time + 0.08f;
             _animation.PlayHit();
             _pool.PlayHitAudio(this);

@@ -162,6 +162,8 @@ namespace ZombieWar.UI
         {
             _portalOpen = false;
             _resultText.text = won ? "AREA SECURED" : "SOLDIER DOWN";
+            RectTransform retryRect = _retryButton.GetComponent<RectTransform>();
+            retryRect.anchoredPosition = won ? new Vector2(-175f, -130f) : new Vector2(0f, -130f);
             _nextButton.gameObject.SetActive(won);
             _resultPanel.SetActive(true);
         }

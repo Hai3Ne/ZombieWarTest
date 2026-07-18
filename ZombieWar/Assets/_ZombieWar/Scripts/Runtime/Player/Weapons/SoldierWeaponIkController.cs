@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace ZombieWar.Player
@@ -6,8 +7,10 @@ namespace ZombieWar.Player
     public sealed class SoldierWeaponIkController : MonoBehaviour
     {
         #region Config
-        [SerializeField, Range(0f, 1f)] private float _positionWeight = 1f;
-        [SerializeField, Range(0f, 1f)] private float _rotationWeight;
+        [SerializeField, Range(0f, 1f)] private float _leftHandPositionWeight = 0.72f;
+        [SerializeField, Range(0f, 1f)] private float _leftHandRotationWeight;
+        [SerializeField, Range(0f, 1f)] private float _rightHandPositionWeight;
+        [SerializeField, Range(0f, 1f)] private float _rightHandRotationWeight;
         #endregion
 
         #region Refs
@@ -33,12 +36,15 @@ namespace ZombieWar.Player
 
         private void OnAnimatorIK(int layerIndex)
         {
-            ApplyHand(AvatarIKGoal.LeftHand, _leftHandTarget);
-            ApplyHand(AvatarIKGoal.RightHand, _rightHandTarget);
+            BeforeApplyIk?.Invoke();
+            ApplyHand(AvatarIKGoal.LeftHand, _leftHandTarget, _leftHandPositionWeight, _leftHandRotationWeight);
+            ApplyHand(AvatarIKGoal.RightHand, _rightHandTarget, _rightHandPositionWeight, _rightHandRotationWeight);
         }
         #endregion
 
         #region API
+        public event Action BeforeApplyIk;
+
         public void SetTargets(Transform leftHandTarget, Transform rightHandTarget)
         {
             _leftHandTarget = leftHandTarget;
@@ -47,7 +53,7 @@ namespace ZombieWar.Player
         #endregion
 
         #region Internal
-        private void ApplyHand(AvatarIKGoal goal, Transform target)
+        private void ApplyHand(AvatarIKGoal goal, Transform target, float positionWeight, float rotationWeight)
         {
             if (target == null)
             {
@@ -56,8 +62,8 @@ namespace ZombieWar.Player
                 return;
             }
 
-            _animator.SetIKPositionWeight(goal, _positionWeight);
-            _animator.SetIKRotationWeight(goal, _rotationWeight);
+            _animator.SetIKPositionWeight(goal, positionWeight);
+            _animator.SetIKRotationWeight(goal, rotationWeight);
             _animator.SetIKPosition(goal, target.position);
             _animator.SetIKRotation(goal, target.rotation);
         }

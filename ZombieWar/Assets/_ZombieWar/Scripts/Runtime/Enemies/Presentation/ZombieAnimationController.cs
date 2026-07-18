@@ -72,8 +72,11 @@ namespace ZombieWar.Enemies
         public void PlayDeath()
         {
             _isMoving = false;
+            _animator.ResetTrigger(AttackId);
+            _animator.ResetTrigger(HitId);
             _animator.SetFloat(MoveSpeedId, 0f);
             _animator.SetBool(DeadId, true);
+            _animator.CrossFadeInFixedTime("Dead", 0.04f, 0, 0f);
         }
         #endregion
     }

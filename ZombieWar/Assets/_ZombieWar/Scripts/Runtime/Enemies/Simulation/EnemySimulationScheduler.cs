@@ -29,6 +29,11 @@ namespace ZombieWar.Enemies
             for (int i = _pool.Active.Count - 1; i >= 0; i--)
             {
                 ZombieAgent zombie = _pool.Active[i];
+                if (!zombie.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
                 if (!zombie.IsAlive)
                 {
                     zombie.Simulate(Time.deltaTime, false);
