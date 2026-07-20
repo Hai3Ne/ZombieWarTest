@@ -5,13 +5,11 @@ using Unity.Cinemachine;
 using Unity.Cinemachine.TargetTracking;
 using UnityEditor;
 using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEditor.PackageManager;
 using UnityEditor.Animations;
 using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
@@ -292,47 +290,9 @@ namespace ZombieWar.Editor
                 levelTwoWaves,
                 levelCatalog);
 
-            SetBuildScenes(levelCatalog);
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(SceneFolder + "/Level01.unity", OpenSceneMode.Single);
             Debug.Log("[Zombie War] Authored prefabs, configs and scenes are ready. Runtime bootstrap is not used.");
-        }
-
-        [MenuItem("Zombie War/Build/Build Android Development")]
-        public static void BuildAndroidDevelopment()
-        {
-            AuthorProjectAssets();
-            BuildAddressablesContent();
-            string outputDirectory = Path.GetFullPath("Builds/Android");
-            Directory.CreateDirectory(outputDirectory);
-            string[] scenes = new string[EditorBuildSettings.scenes.Length];
-            for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-            {
-                scenes[i] = EditorBuildSettings.scenes[i].path;
-            }
-
-            BuildPlayerOptions options = new()
-            {
-                scenes = scenes,
-                locationPathName = Path.Combine(outputDirectory, "ZombieWar-Development.apk"),
-                target = BuildTarget.Android,
-                options = BuildOptions.Development
-            };
-            BuildReport report = BuildPipeline.BuildPlayer(options);
-            if (report.summary.result != BuildResult.Succeeded)
-            {
-                throw new BuildFailedException($"Android build failed: {report.summary.result}");
-            }
-        }
-
-        [MenuItem("Zombie War/Build/Build Addressables Content")]
-        public static void BuildAddressablesContent()
-        {
-            AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
-            if (!string.IsNullOrEmpty(result.Error))
-            {
-                throw new BuildFailedException($"Addressables build failed: {result.Error}");
-            }
         }
 
         private static void ConfigurePlayerSettings()
@@ -378,9 +338,9 @@ namespace ZombieWar.Editor
             bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
             bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
 
-            string rifleIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_0.Png", "weapons/rifle/icon", "weapons");
+            string rifleIcon = ConfigureAddressableEntry(settings, group, RootFolder + "/Art/weapons/Icon_Gun_1.Png", "weapons/rifle/icon", "weapons");
             string rifleView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/assault1/assault1.fbx", "weapons/rifle/view", "weapons");
-            string shotgunIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_1.Png", "weapons/shotgun/icon", "weapons");
+            string shotgunIcon = ConfigureAddressableEntry(settings, group, RootFolder + "/Art/weapons/Icon_Gun_2.Png", "weapons/shotgun/icon", "weapons");
             string shotgunView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/shotgun2/shotgun2.fbx", "weapons/shotgun/view", "weapons");
 
             rifle.ConfigurePresentation(new AssetReferenceSprite(rifleIcon), new AssetReferenceT<GameObject>(rifleView));
@@ -2453,37 +2413,5 @@ namespace ZombieWar.Editor
             rect.offsetMax = Vector2.zero;
         }
 
-        private static void SetBuildScenes(LevelCatalogConfig levelCatalog)
-        {
-            List<EditorBuildSettingsScene> scenes = new()
-            {
-                new EditorBuildSettingsScene($"{SceneFolder}/Boot.unity", true),
-                new EditorBuildSettingsScene($"{SceneFolder}/Loading.unity", true),
-                new EditorBuildSettingsScene($"{SceneFolder}/MainMenu.unity", true)
-            };
-            HashSet<string> addedScenes = new() { "Boot", "Loading", "MainMenu" };
-            LevelDefinition[] levels = levelCatalog != null ? levelCatalog.Levels : null;
-            if (levels != null)
-            {
-                for (int i = 0; i < levels.Length; i++)
-                {
-                    LevelDefinition level = levels[i];
-                    if (level == null
-                        || !level.Enabled
-                        || string.IsNullOrWhiteSpace(level.SceneName)
-                        || !addedScenes.Add(level.SceneName))
-                    {
-                        continue;
-                    }
-
-                    string scenePath = $"{SceneFolder}/{level.SceneName}.unity";
-                    if (File.Exists(Path.GetFullPath(scenePath)))
-                    {
-                        scenes.Add(new EditorBuildSettingsScene(scenePath, true));
-                    }
-                }
-            }
-            EditorBuildSettings.scenes = scenes.ToArray();
-        }
     }
 }

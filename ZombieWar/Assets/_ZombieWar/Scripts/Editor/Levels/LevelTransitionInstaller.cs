@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -73,13 +72,12 @@ namespace ZombieWar.Editor
                 EditorSceneManager.SaveScene(scene);
             }
 
-            SynchronizeBuildSettings(catalog);
             AssetDatabase.SaveAssets();
             if (!string.IsNullOrEmpty(previousScene) && File.Exists(Path.GetFullPath(previousScene)))
             {
                 EditorSceneManager.OpenScene(previousScene, OpenSceneMode.Single);
             }
-            Debug.Log("[Zombie War] Level portals, Loading scene and Build Settings are ready.");
+            Debug.Log("[Zombie War] Level portals and Loading scene are ready.");
         }
 
         public static GameObject GetOrCreatePortalPrefab()
@@ -236,30 +234,5 @@ namespace ZombieWar.Editor
                 : null;
         }
 
-        private static void SynchronizeBuildSettings(LevelCatalogConfig catalog)
-        {
-            List<EditorBuildSettingsScene> scenes = new()
-            {
-                new EditorBuildSettingsScene(BootScenePath, true),
-                new EditorBuildSettingsScene(LoadingScenePath, true),
-                new EditorBuildSettingsScene(SceneFolder + "/MainMenu.unity", true)
-            };
-            HashSet<string> added = new() { "Boot", "Loading", "MainMenu" };
-            LevelDefinition[] levels = catalog.Levels;
-            for (int i = 0; i < levels.Length; i++)
-            {
-                LevelDefinition level = levels[i];
-                if (level == null || !level.IsValid || !added.Add(level.SceneName))
-                {
-                    continue;
-                }
-                string path = $"{SceneFolder}/{level.SceneName}.unity";
-                if (File.Exists(Path.GetFullPath(path)))
-                {
-                    scenes.Add(new EditorBuildSettingsScene(path, true));
-                }
-            }
-            EditorBuildSettings.scenes = scenes.ToArray();
-        }
     }
 }

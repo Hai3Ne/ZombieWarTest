@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: 690ab596b61fa4fc2b5e5c356ee2ebaa
+guid: 9dee0afb24c17a94f9e4c6819589615a
 AssetOrigin:
   serializedVersion: 1
   productId: 194741
   packageName: GUI Pro - Survival Clean
   packageVersion: 2.0.7
-  assetPath: Assets/Layer Lab/GUI Pro-SurvivalClean/ResourcesData/Sprites/Components/Icon_PictoIcons(x2)/128/Icon_Gun_2.Png
+  assetPath: Assets/Layer Lab/GUI Pro-SurvivalClean/ResourcesData/Sprites/Components/Icon_PictoIcons(x2)/128/Icon_Gun_1.Png
   uploadId: 914924
 TextureImporter:
   internalIDToNameTable: []

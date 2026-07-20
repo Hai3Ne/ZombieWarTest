@@ -21,8 +21,10 @@ namespace ZombieWar.Player
         #region State
         private AsyncOperationHandle<AudioClip> _rifleHandle;
         private AsyncOperationHandle<AudioClip> _shotgunHandle;
+        private AsyncOperationHandle<AudioClip> _sniperHandle;
         private AudioClip _rifleClip;
         private AudioClip _shotgunClip;
+        private AudioClip _sniperClip;
         private int _activeWeaponIndex;
         #endregion
 
@@ -53,6 +55,7 @@ namespace ZombieWar.Player
 
             ReleaseHandle(ref _rifleHandle, OnRifleLoaded);
             ReleaseHandle(ref _shotgunHandle, OnShotgunLoaded);
+            ReleaseHandle(ref _sniperHandle, OnSniperLoaded);
         }
         #endregion
 
@@ -68,8 +71,10 @@ namespace ZombieWar.Player
         {
             _rifleHandle = _catalog.RifleFire.LoadAssetAsync();
             _shotgunHandle = _catalog.ShotgunFire.LoadAssetAsync();
+            _sniperHandle = _catalog.SniperFire.LoadAssetAsync();
             _rifleHandle.Completed += OnRifleLoaded;
             _shotgunHandle.Completed += OnShotgunLoaded;
+            _sniperHandle.Completed += OnSniperLoaded;
         }
 
         private void OnRifleLoaded(AsyncOperationHandle<AudioClip> handle)
@@ -82,14 +87,19 @@ namespace ZombieWar.Player
             _shotgunClip = ResolveClip(handle, "shotgun");
         }
 
+        private void OnSniperLoaded(AsyncOperationHandle<AudioClip> handle)
+        {
+            _sniperClip = ResolveClip(handle, "sniper");
+        }
+
         private void OnWeaponChanged(int weaponIndex, string weaponName)
         {
-            _activeWeaponIndex = Mathf.Clamp(weaponIndex, 0, 1);
+            _activeWeaponIndex = Mathf.Clamp(weaponIndex, 0, 2);
         }
 
         private void OnFired(float recoil)
         {
-            AudioClip clip = _activeWeaponIndex == 0 ? _rifleClip : _shotgunClip;
+            AudioClip clip = ResolveActiveClip();
             if (!GameOptions.SfxEnabled || clip == null)
             {
                 return;
@@ -97,6 +107,17 @@ namespace ZombieWar.Player
 
             _audioSource.pitch = UnityEngine.Random.Range(0.96f, 1.04f);
             _audioSource.PlayOneShot(clip);
+        }
+
+        private AudioClip ResolveActiveClip()
+        {
+            return _activeWeaponIndex switch
+            {
+                0 => _rifleClip,
+                1 => _shotgunClip,
+                2 => _sniperClip,
+                _ => null
+            };
         }
 
         private AudioClip ResolveClip(AsyncOperationHandle<AudioClip> handle, string weaponName)

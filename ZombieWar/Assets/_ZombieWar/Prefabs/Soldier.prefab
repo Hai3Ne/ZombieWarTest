@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &297948283781673729
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3956854038401220039}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3956854038401220039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297948283781673729}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.6272}
+  m_LocalScale: {x: 0.9999999, y: 1.0000002, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8980291101820865858}
+  m_Father: {fileID: 5889298102753982084}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &718313838036556574
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,15 +314,19 @@ MonoBehaviour:
   _weaponModels:
   - {fileID: 7102207180178859569}
   - {fileID: 5362995944219029810}
+  - {fileID: 7488599034318035747}
   _rightHandTargets:
   - {fileID: 4638627146357953250}
   - {fileID: 1492402483608791154}
+  - {fileID: 7934156830006786839}
   _leftHandTargets:
   - {fileID: 1490860958843237093}
   - {fileID: 9107136040029153704}
+  - {fileID: 4309691799873016108}
   _muzzleTargets:
   - {fileID: 4401775122067082494}
   - {fileID: 7393204701779461635}
+  - {fileID: 3956854038401220039}
   _gameplayMuzzle: {fileID: 1897646409523743919}
   _weaponIk: {fileID: 6330900667248396560}
 --- !u!82 &2695958693125612402
@@ -533,6 +569,7 @@ MonoBehaviour:
   _effects:
   - {fileID: 5681319563898530145}
   - {fileID: 6288500723260583204}
+  - {fileID: 8980291101821096290}
 --- !u!114 &7778203666216662038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,6 +631,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
   _isLeftHand: 0
+  _guideSize: 0.14
+--- !u!1 &2131151422023917003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4309691799873016108}
+  - component: {fileID: 3583481209627747669}
+  m_Layer: 0
+  m_Name: Left Hand Grip
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4309691799873016108
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131151422023917003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.4777144, y: 0.5213339, z: 0.4777144, w: 0.5213339}
+  m_LocalPosition: {x: 0.02, y: -0.02, z: 0.34}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8886988804154590472}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3583481209627747669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131151422023917003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
+  _isLeftHand: 1
   _guideSize: 0.14
 --- !u!1 &2783838576500401925
 GameObject:
@@ -905,6 +988,39 @@ Transform:
   - {fileID: 8886627004776972726}
   m_Father: {fileID: 6735970427382633069}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5540822457801350442
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5889298102753982084}
+  m_Layer: 0
+  m_Name: Sniper Motion Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5889298102753982084
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540822457801350442}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3956854038401220039}
+  - {fileID: 7740824585351537925}
+  m_Father: {fileID: 8886988804154590472}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5643478784196544955
 GameObject:
   m_ObjectHideFlags: 0
@@ -1184,6 +1300,86 @@ Transform:
   - {fileID: 6646263689715006892}
   m_Father: {fileID: 6735970427382633069}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7488599034318035747
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8886988804154590472}
+  m_Layer: 0
+  m_Name: Sniper Mount
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8886988804154590472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7488599034318035747}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.33, z: 0.38}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7934156830006786839}
+  - {fileID: 4309691799873016108}
+  - {fileID: 5889298102753982084}
+  m_Father: {fileID: 6735970427382633069}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7721101105882122184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7934156830006786839}
+  - component: {fileID: 5319973536305257931}
+  m_Layer: 0
+  m_Name: Right Hand Grip
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7934156830006786839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7721101105882122184}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.43045935, y: 0.56098557, z: 0.43045935, w: 0.56098557}
+  m_LocalPosition: {x: 0.09, y: -0.02, z: -0.05}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8886988804154590472}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5319973536305257931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7721101105882122184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e08c621fc9d4243923f5babb763f85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Player.HandGripGuide
+  _isLeftHand: 0
+  _guideSize: 0.14
 --- !u!1 &7745691302450219697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1746,6 +1942,7 @@ Transform:
   m_Children:
   - {fileID: 1604682947071086515}
   - {fileID: 9196091449190108500}
+  - {fileID: 8886988804154590472}
   m_Father: {fileID: 6480831888177945422}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9036089223036845731
@@ -2148,6 +2345,91 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 2056524957009539156}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4337849714961016164
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3956854038401220039}
+    m_Modifications:
+    - target: {fileID: 4653138123715392518, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_Name
+      value: Sniper Muzzle VFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715392518, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a6851dce8e15bdd43a7360fb2d57201f, type: 3}
+--- !u!4 &8980291101820865858 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4653138123715618854, guid: a6851dce8e15bdd43a7360fb2d57201f,
+    type: 3}
+  m_PrefabInstance: {fileID: 4337849714961016164}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8980291101821096290 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4653138123715392518, guid: a6851dce8e15bdd43a7360fb2d57201f,
+    type: 3}
+  m_PrefabInstance: {fileID: 4337849714961016164}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5083978022445339607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2450,6 +2732,100 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 33269b2b610f4c245a712795c1927939,
     type: 3}
   m_PrefabInstance: {fileID: 7576384751397020010}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7847055676202304238
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5889298102753982084}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.16504154
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.16504154
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.16504154
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0035718486
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.004158199
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.00085926056
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: adc04a9135d0c924fac96b15db51e72d, type: 2}
+    - target: {fileID: 919132149155446097, guid: c8573db8e30e916479a705831bd5040c,
+        type: 3}
+      propertyPath: m_Name
+      value: Sniper Model
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c8573db8e30e916479a705831bd5040c, type: 3}
+--- !u!4 &7740824585351537925 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c8573db8e30e916479a705831bd5040c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7847055676202304238}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7926143697866125508
 PrefabInstance:
