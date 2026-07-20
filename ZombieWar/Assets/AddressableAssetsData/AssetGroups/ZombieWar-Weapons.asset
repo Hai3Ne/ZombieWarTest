@@ -21,20 +21,38 @@ MonoBehaviour:
     m_SerializedLabels:
     - weapons
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 251cf67e35402b6498ce24fbb6bbd746
+    m_Address: weapons/sniper/icon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 33269b2b610f4c245a712795c1927939
     m_Address: weapons/rifle/view
     m_ReadOnly: 0
     m_SerializedLabels:
     - weapons
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 70373c395678d4a798f2a819e8ce47e6
+  - m_GUID: 690ab596b61fa4fc2b5e5c356ee2ebaa
     m_Address: weapons/shotgun/icon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 70373c395678d4a798f2a819e8ce47e6
+    m_Address: weapons/rifle/icon
     m_ReadOnly: 0
     m_SerializedLabels:
     - weapons
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8b36fb41929fc22429f0083d817b8040
     m_Address: weapons/shotgun/view
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c8573db8e30e916479a705831bd5040c
+    m_Address: weapons/sniper/view
     m_ReadOnly: 0
     m_SerializedLabels:
     - weapons

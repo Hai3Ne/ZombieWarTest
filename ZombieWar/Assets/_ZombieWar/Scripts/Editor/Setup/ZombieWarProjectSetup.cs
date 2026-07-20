@@ -80,6 +80,7 @@ namespace ZombieWar.Editor
         private const string ZombieVoiceSource = "Assets/Tybug Studios/Zombie Voice Pack - Free";
         private const string RifleFireAudioPath = AudioFolder + "/RifleFire.wav";
         private const string ShotgunFireAudioPath = AudioFolder + "/ShotgunFire.wav";
+        private const string SniperFireAudioPath = AudioFolder + "/SniperFire.wav";
         private const string JmoBombExplosionPath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/Explosions/WFXMR_Explosion Small.prefab";
         private const string BombExplosionVfxPath = PrefabFolder + "/VFX/BombExplosion.prefab";
         private const string JmoRifleMuzzlePath = "Assets/JMO Assets/WarFX/_Effects (Mobile)/MuzzleFlashes/4Planes/WFXMR_MF 4P RIFLE1.prefab";
@@ -165,9 +166,12 @@ namespace ZombieWar.Editor
             rifle.Configure("ASSAULT RIFLE", 18f, 0.12f, 20f, 36f, 1, 1.5f, 0.08f, new Color(1f, 0.72f, 0.12f));
             WeaponConfig shotgun = GetOrCreateAsset<WeaponConfig>(WeaponConfigFolder, "Shotgun");
             shotgun.Configure("SHOTGUN", 14f, 0.62f, 11f, 30f, 7, 10f, 0.24f, new Color(1f, 0.28f, 0.08f));
-            ConfigureWeaponPresentation(rifle, shotgun);
+            WeaponConfig sniper = GetOrCreateAsset<WeaponConfig>(WeaponConfigFolder, "Sniper");
+            sniper.Configure("SNIPER", 72f, 0.95f, 38f, 68f, 1, 0.15f, 0.34f, new Color(0.45f, 0.9f, 1f));
+            ConfigureWeaponPresentation(rifle, shotgun, sniper);
             EditorUtility.SetDirty(rifle);
             EditorUtility.SetDirty(shotgun);
+            EditorUtility.SetDirty(sniper);
 
             EnemyConfig regular = GetOrCreateAsset<EnemyConfig>(EnemyArchetypeConfigFolder, "Walker");
             regular.Configure("WALKER", EnemyArchetype.Walker, 55f, 2.45f, 7f, 1.35f, 0.82f, 1f, Color.white);
@@ -275,7 +279,7 @@ namespace ZombieWar.Editor
                 zombieAudioCatalog,
                 projectilePrefab,
                 hudPrefab,
-                new[] { rifle, shotgun },
+                new[] { rifle, shotgun, sniper },
                 levelOneWaves,
                 levelCatalog);
             CreateLevelScene(
@@ -288,7 +292,7 @@ namespace ZombieWar.Editor
                 zombieAudioCatalog,
                 projectilePrefab,
                 hudPrefab,
-                new[] { rifle, shotgun },
+                new[] { rifle, shotgun, sniper },
                 levelTwoWaves,
                 levelCatalog);
 
@@ -358,7 +362,7 @@ namespace ZombieWar.Editor
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         }
 
-        private static void ConfigureWeaponPresentation(WeaponConfig rifle, WeaponConfig shotgun)
+        private static void ConfigureWeaponPresentation(WeaponConfig rifle, WeaponConfig shotgun, WeaponConfig sniper)
         {
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             AddressableAssetGroup group = settings.FindGroup("ZombieWar-Weapons");
@@ -378,13 +382,16 @@ namespace ZombieWar.Editor
             bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
             bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
 
-            string rifleIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_0.Png", "weapons/rifle/icon", "weapons");
+            string rifleIcon = ConfigureAddressableEntry(settings, group, RootFolder + "/Art/weapons/Icon_Gun_1.Png", "weapons/rifle/icon", "weapons");
             string rifleView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/assault1/assault1.fbx", "weapons/rifle/view", "weapons");
-            string shotgunIcon = ConfigureAddressableEntry(settings, group, LayerLabIcons + "/Icon_Gun_1.Png", "weapons/shotgun/icon", "weapons");
+            string shotgunIcon = ConfigureAddressableEntry(settings, group, RootFolder + "/Art/weapons/Icon_Gun_2.Png", "weapons/shotgun/icon", "weapons");
             string shotgunView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/shotgun2/shotgun2.fbx", "weapons/shotgun/view", "weapons");
+            string sniperIcon = ConfigureAddressableEntry(settings, group, RootFolder + "/Art/weapons/Icon_Gun_3.Png", "weapons/sniper/icon", "weapons");
+            string sniperView = ConfigureAddressableEntry(settings, group, LowPolyGunFolder + "/sniper2/sniper2.fbx", "weapons/sniper/view", "weapons");
 
             rifle.ConfigurePresentation(new AssetReferenceSprite(rifleIcon), new AssetReferenceT<GameObject>(rifleView));
             shotgun.ConfigurePresentation(new AssetReferenceSprite(shotgunIcon), new AssetReferenceT<GameObject>(shotgunView));
+            sniper.ConfigurePresentation(new AssetReferenceSprite(sniperIcon), new AssetReferenceT<GameObject>(sniperView));
             EditorUtility.SetDirty(settings);
         }
 
@@ -450,6 +457,9 @@ namespace ZombieWar.Editor
             CopyAssetIfMissing(
                 PostApocalypseGunAudio + "/Shotguns/JackHammer_3p_01.wav",
                 ShotgunFireAudioPath);
+            CopyAssetIfMissing(
+                PostApocalypseGunAudio + "/SniperRifles/AntiMaterialRifle_3p_01.wav",
+                SniperFireAudioPath);
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }
 
@@ -546,11 +556,18 @@ namespace ZombieWar.Editor
                 ShotgunFireAudioPath,
                 "audio/weapons/shotgun/fire",
                 "audio-weapons");
+            string sniperGuid = ConfigureAddressableAudioEntry(
+                settings,
+                group,
+                SniperFireAudioPath,
+                "audio/weapons/sniper/fire",
+                "audio-weapons");
 
             WeaponAudioCatalog catalog = GetOrCreateAsset<WeaponAudioCatalog>(WeaponAudioConfigFolder, "WeaponAudioCatalog");
             catalog.Configure(
                 new AssetReferenceT<AudioClip>(rifleGuid),
-                new AssetReferenceT<AudioClip>(shotgunGuid));
+                new AssetReferenceT<AudioClip>(shotgunGuid),
+                new AssetReferenceT<AudioClip>(sniperGuid));
             EditorUtility.SetDirty(catalog);
             EditorUtility.SetDirty(settings);
             return catalog;
@@ -1455,6 +1472,10 @@ namespace ZombieWar.Editor
                 "SoldierShotgun",
                 LowPolyGunFolder + "/shotgun2/shotgun2_diffuse.png",
                 LowPolyGunFolder + "/shotgun2/shotgun2_normal.png");
+            Material sniperWeaponMaterial = GetOrCreateWeaponMaterial(
+                "SoldierSniper",
+                LowPolyGunFolder + "/sniper2/sniper2_diffuse.png",
+                LowPolyGunFolder + "/sniper2/sniper2_normal.png");
             CreateWeaponMount(
                 visualRoot.transform,
                 "Assault Rifle",
@@ -1481,11 +1502,24 @@ namespace ZombieWar.Editor
                 out Transform shotgunRightGrip,
                 out Transform shotgunLeftGrip,
                 out Transform shotgunMuzzle);
+            CreateWeaponMount(
+                visualRoot.transform,
+                "Sniper",
+                LowPolyGunFolder + "/sniper2/sniper2.fbx",
+                new Vector3(0f, 0.33f, 0.38f),
+                new Vector3(0.09f, -0.02f, -0.05f),
+                new Vector3(0.02f, -0.02f, 0.34f),
+                1.12f,
+                sniperWeaponMaterial,
+                out GameObject sniperModel,
+                out Transform sniperRightGrip,
+                out Transform sniperLeftGrip,
+                out Transform sniperMuzzle);
             weaponVisual.SetViewReferences(
-                new[] { rifleModel, shotgunModel },
-                new[] { rifleRightGrip, shotgunRightGrip },
-                new[] { rifleLeftGrip, shotgunLeftGrip },
-                new[] { rifleMuzzle, shotgunMuzzle },
+                new[] { rifleModel, shotgunModel, sniperModel },
+                new[] { rifleRightGrip, shotgunRightGrip, sniperRightGrip },
+                new[] { rifleLeftGrip, shotgunLeftGrip, sniperLeftGrip },
+                new[] { rifleMuzzle, shotgunMuzzle, sniperMuzzle },
                 muzzle.transform,
                 weaponIk);
             GameObject rifleMuzzleEffect = (GameObject)PrefabUtility.InstantiatePrefab(rifleMuzzleVfx, rifleMuzzle);
@@ -1496,8 +1530,12 @@ namespace ZombieWar.Editor
             shotgunMuzzleEffect.name = "Shotgun Muzzle VFX";
             shotgunMuzzleEffect.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             shotgunMuzzleEffect.SetActive(false);
+            GameObject sniperMuzzleEffect = (GameObject)PrefabUtility.InstantiatePrefab(rifleMuzzleVfx, sniperMuzzle);
+            sniperMuzzleEffect.name = "Sniper Muzzle VFX";
+            sniperMuzzleEffect.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            sniperMuzzleEffect.SetActive(false);
             WeaponMuzzleVfxController muzzleVfx = root.AddComponent<WeaponMuzzleVfxController>();
-            muzzleVfx.SetViewReferences(new[] { rifleMuzzleEffect, shotgunMuzzleEffect });
+            muzzleVfx.SetViewReferences(new[] { rifleMuzzleEffect, shotgunMuzzleEffect, sniperMuzzleEffect });
             return SavePrefab<SoldierController>(root, "Soldier");
         }
 

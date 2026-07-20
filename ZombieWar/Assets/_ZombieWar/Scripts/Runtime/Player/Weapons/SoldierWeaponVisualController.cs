@@ -298,11 +298,10 @@ namespace ZombieWar.Player
 
         private bool HasValidReferences()
         {
-            const int WeaponCount = 2;
-            return _weaponModels != null && _weaponModels.Length == WeaponCount
-                && _rightHandTargets != null && _rightHandTargets.Length == WeaponCount
-                && _leftHandTargets != null && _leftHandTargets.Length == WeaponCount
-                && _muzzleTargets != null && _muzzleTargets.Length == WeaponCount
+            return _weaponModels != null && _weaponModels.Length > 0
+                && _rightHandTargets != null && _rightHandTargets.Length == _weaponModels.Length
+                && _leftHandTargets != null && _leftHandTargets.Length == _weaponModels.Length
+                && _muzzleTargets != null && _muzzleTargets.Length == _weaponModels.Length
                 && _gameplayMuzzle != null
                 && _weaponIk != null;
         }

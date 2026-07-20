@@ -31,6 +31,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8e46b44f7053b3e4586c14ebe9282a01
+    m_Address: audio/weapons/sniper/fire
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio-weapons
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ffedca287d888b46928b023224ab7e4
     m_Address: audio/weapons/shotgun/fire
     m_ReadOnly: 0
