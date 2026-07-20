@@ -50,7 +50,7 @@ GameObject:
   - component: {fileID: 7830687489296918465}
   - component: {fileID: 5603649672677956270}
   - component: {fileID: 3424044316990158983}
-  - component: {fileID: 5750182513136414432}
+  - component: {fileID: 7470487383901707257}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a532b08738550ee4cad32afc8dac6283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Enemies.ZombieAgent
---- !u!114 &5750182513136414432
+--- !u!114 &7470487383901707257
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
