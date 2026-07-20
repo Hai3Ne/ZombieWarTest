@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3956854038401220039}
+  - component: {fileID: 8636998810166404531}
   m_Layer: 0
   m_Name: Muzzle
   m_TagString: Untagged
@@ -24,14 +25,30 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 297948283781673729}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.6272}
+  m_LocalRotation: {x: 0.034498543, y: -0, z: -0, w: 0.9994048}
+  m_LocalPosition: {x: 0.0481, y: -0.039000005, z: 0.798}
   m_LocalScale: {x: 0.9999999, y: 1.0000002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8980291101820865858}
   m_Father: {fileID: 5889298102753982084}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 3.954, y: 0, z: 0}
+--- !u!114 &8636998810166404531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297948283781673729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6234eb9352827b1409575daa071c5d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.MuzzleGizmo
+  _sphereRadius: 0.045
+  _directionLength: 0.35
+  _sphereColor: {r: 1, g: 0.55, b: 0.05, a: 0.95}
+  _directionColor: {r: 0.1, g: 0.85, b: 1, a: 1}
 --- !u!1 &718313838036556574
 GameObject:
   m_ObjectHideFlags: 0
@@ -41,6 +58,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7393204701779461635}
+  - component: {fileID: 6510899773583359618}
   m_Layer: 0
   m_Name: Muzzle
   m_TagString: Untagged
@@ -56,15 +74,30 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 718313838036556574}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000044703462, y: 0.00000011920923, z: -0.0000001341104,
-    w: 1}
-  m_LocalPosition: {x: -0.00000013215116, y: 0.000000071147184, z: 0.5376004}
-  m_LocalScale: {x: 0.9999999, y: 1.0000002, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.033, y: 0.543, z: 2.58}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6288500723260616964}
-  m_Father: {fileID: 8886627004776972726}
+  m_Father: {fileID: 5191187475953545848}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6510899773583359618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718313838036556574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6234eb9352827b1409575daa071c5d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.MuzzleGizmo
+  _sphereRadius: 0.045
+  _directionLength: 0.35
+  _sphereColor: {r: 1, g: 0.55, b: 0.05, a: 0.95}
+  _directionColor: {r: 0.1, g: 0.85, b: 1, a: 1}
 --- !u!1 &858186083080375164
 GameObject:
   m_ObjectHideFlags: 0
@@ -1051,7 +1084,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5191187475953545848}
-  - {fileID: 7393204701779461635}
   m_Father: {fileID: 9196091449190108500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5959093552245654698
@@ -1063,6 +1095,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4401775122067082494}
+  - component: {fileID: 2507911938923620875}
   m_Layer: 0
   m_Name: Muzzle
   m_TagString: Untagged
@@ -1078,15 +1111,30 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5959093552245654698}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000044703462, y: 0.00000011920923, z: -0.0000001341104,
-    w: 1}
-  m_LocalPosition: {x: -0.0000000062916135, y: 0, z: 0.48160043}
-  m_LocalScale: {x: 0.9999999, y: 1.0000002, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0.436, z: 2.544}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5681319563898238273}
-  m_Father: {fileID: 6646263689715006892}
+  m_Father: {fileID: 7975312777206679169}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2507911938923620875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5959093552245654698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6234eb9352827b1409575daa071c5d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZombieWar.Runtime::ZombieWar.Combat.MuzzleGizmo
+  _sphereRadius: 0.045
+  _directionLength: 0.35
+  _sphereColor: {r: 1, g: 0.55, b: 0.05, a: 0.95}
+  _directionColor: {r: 0.1, g: 0.85, b: 1, a: 1}
 --- !u!1 &6207351853356438622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1908,7 +1956,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7975312777206679169}
-  - {fileID: 4401775122067082494}
   m_Father: {fileID: 1604682947071086515}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8892833307944937070
@@ -2630,7 +2677,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8b36fb41929fc22429f0083d817b8040,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7393204701779461635}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b36fb41929fc22429f0083d817b8040, type: 3}
 --- !u!4 &5191187475953545848 stripped
@@ -2724,7 +2775,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 33269b2b610f4c245a712795c1927939,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4401775122067082494}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 33269b2b610f4c245a712795c1927939, type: 3}
 --- !u!4 &7975312777206679169 stripped
