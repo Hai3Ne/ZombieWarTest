@@ -15,7 +15,7 @@ MonoBehaviour:
   m_GroupName: ZombieWar-Weapons
   m_GUID: c98aab00bcc2b6b4694960465f59bc2c
   m_SerializeEntries:
-  - m_GUID: 08b09a045ca934b279e24e5f23abf290
+  - m_GUID: 9dee0afb24c17a94f9e4c6819589615a
     m_Address: weapons/rifle/icon
     m_ReadOnly: 0
     m_SerializedLabels:
@@ -33,14 +33,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - weapons
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 690ab596b61fa4fc2b5e5c356ee2ebaa
+  - m_GUID: 4d204932000a92f48ad5a92355b88112
     m_Address: weapons/shotgun/icon
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - weapons
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 70373c395678d4a798f2a819e8ce47e6
-    m_Address: weapons/rifle/icon
     m_ReadOnly: 0
     m_SerializedLabels:
     - weapons

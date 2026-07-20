@@ -22,7 +22,7 @@ MonoBehaviour:
   _recoil: 0.08
   _accentColor: {r: 1, g: 0.72, b: 0.12, a: 1}
   _icon:
-    m_AssetGUID: 70373c395678d4a798f2a819e8ce47e6
+    m_AssetGUID: 9dee0afb24c17a94f9e4c6819589615a
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 

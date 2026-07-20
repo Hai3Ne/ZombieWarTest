@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.Cinemachine.TargetTracking;
 using UnityEditor;
@@ -140,10 +139,6 @@ namespace ZombieWar.Editor
             if (serializedCatalog.ApplyModifiedProperties())
             {
                 EditorUtility.SetDirty(_levelCatalog);
-            }
-            if (GUILayout.Button("Sync Enabled Levels To Build Settings"))
-            {
-                SyncBuildSettings();
             }
             if (_levelCatalog.Levels != null && _levelCatalog.Levels.Length > 6)
             {
@@ -377,50 +372,6 @@ namespace ZombieWar.Editor
             EditorUtility.SetDirty(_levelCatalog);
             AssetDatabase.SaveAssets();
             GUIUtility.ExitGUI();
-        }
-
-        private void SyncBuildSettings()
-        {
-            List<EditorBuildSettingsScene> scenes = new()
-            {
-                new EditorBuildSettingsScene("Assets/_ZombieWar/Scenes/Boot.unity", true),
-                new EditorBuildSettingsScene("Assets/_ZombieWar/Scenes/MainMenu.unity", true)
-            };
-            HashSet<string> includedPaths = new()
-            {
-                "Assets/_ZombieWar/Scenes/Boot.unity",
-                "Assets/_ZombieWar/Scenes/MainMenu.unity"
-            };
-
-            LevelDefinition[] levels = _levelCatalog.Levels;
-            if (levels != null)
-            {
-                for (int i = 0; i < levels.Length; i++)
-                {
-                    LevelDefinition level = levels[i];
-                    if (level == null || !level.IsValid)
-                    {
-                        continue;
-                    }
-
-                    string scenePath = $"Assets/_ZombieWar/Scenes/{level.SceneName}.unity";
-                    if (includedPaths.Contains(scenePath))
-                    {
-                        continue;
-                    }
-                    if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) == null)
-                    {
-                        Debug.LogWarning($"[Zombie War] Scene not found and was skipped: {scenePath}");
-                        continue;
-                    }
-
-                    scenes.Add(new EditorBuildSettingsScene(scenePath, true));
-                    includedPaths.Add(scenePath);
-                }
-            }
-
-            EditorBuildSettings.scenes = scenes.ToArray();
-            Debug.Log($"[Zombie War] Build Settings synced with {scenes.Count - 2} enabled levels.");
         }
 
         private void ApplyTotalDuration()

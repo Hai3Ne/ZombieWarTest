@@ -26,6 +26,16 @@ namespace ZombieWar.Audio
             _shotgunFire = shotgunFire;
             _sniperFire = sniperFire;
         }
+
+        public void Configure(
+            AssetReferenceT<AudioClip> rifleFire,
+            AssetReferenceT<AudioClip> shotgunFire,
+            AssetReferenceT<AudioClip> sniperFire)
+        {
+            _rifleFire = rifleFire;
+            _shotgunFire = shotgunFire;
+            _sniperFire = sniperFire;
+        }
         #endregion
     }
 }
